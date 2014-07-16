@@ -16,13 +16,45 @@ class CactusRun():
 		self.wake_fname    = case_name + '_WakeData.csv'
 		self.wakedef_fname = case_name + '_WakeDefData.csv'
 		
-		# read data from CSV-formatted output files (may need to change to binary files later...)
-		self.elem_data     = self.__load_data(run_directory + '/' + self.elem_fname)
-		self.param_data    = self.__load_data(run_directory + '/' + self.param_fname)
-		self.rev_data      = self.__load_data(run_directory + '/' + self.rev_fname)
-		self.time_data     = self.__load_data(run_directory + '/' + self.time_fname)
-		self.wake_data     = self.__load_data(run_directory + '/' + self.wake_fname)
-		self.wakedef_data  = self.__load_data(run_directory + '/' + self.wakedef_fname)
+		# read data from CSV-formatted output files, incorporating try/except for possible
+		# file read errors.
+
+		# element data
+		try:
+			self.elem_data     = self.__load_data(run_directory + '/' + self.elem_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.elem_fname
+
+		# parameters
+		try:
+			self.param_data    = self.__load_data(run_directory + '/' + self.param_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.param_fname
+
+		# revolution-averaged data
+		try:
+			self.rev_data      = self.__load_data(run_directory + '/' + self.rev_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.rev_fname
+
+		try:
+			self.time_data     = self.__load_data(run_directory + '/' + self.time_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.time_fname
+
+
+		# wake data
+		try:
+			self.wake_data     = self.__load_data(run_directory + '/' + self.wake_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.wake_fname
+
+		# wake element data
+		try:
+			self.wakedef_data  = self.__load_data(run_directory + '/' + self.wakedef_fname)
+		except:
+			print "Could not load file : ", run_directory + '/' + self.wakedef_fname
+
 
 	#####################################
 	######### Private Functions #########
@@ -41,6 +73,11 @@ class CactusRun():
 			data_columns.append(self.__get_col_by_name(col_name, data))
 		
 		return data_columns
+
+
+	def __get_col_num_by_name(self, col_name, data):
+		data_headers = data[1]
+		return data_headers[col_name]
 
 
 	def __get_col_by_number(self, col_num, data):
@@ -77,17 +114,103 @@ class CactusRun():
 	####################################
 	######### Public Functions #########
 	####################################
-	def get_named_subset(self, subset_name):
-		# extracts a predefined subset of data identified by a string
+	def get_named_integral_subset(self, subset_name):
+		# extracts a predefined subset of "integral" (blade or rotor-integrated) data identified by a string
 		# returns the data subset (list of np.arrays) and the column headers (list of strings)
 
-		options = {	'rev_Cp' : [ self.rev_data, ['Rev', 'Power Coeff. (-)'] ] ,
-					'time_Cp': [ self.time_data, ['Normalized Time (-)','Power Coeff. (-)'] ] 
-					# '': '', # add more as necessary
-					# '': '',
+		options = {	'time_Cp'	: [ self.time_data, ['Normalized Time (-)', 'Power Coeff. (-)'  ] ], 
+					'time_CTq'	: [ self.time_data, ['Normalized Time (-)', 'Torque Coeff. (-)' ] ],
+					'time_CFx'	: [ self.time_data, ['Normalized Time (-)', 'Fx Coeff. (-)'     ] ],
+					'time_CFy'	: [ self.time_data, ['Normalized Time (-)', 'Fy Coeff. (-)'     ] ],
+					'time_CFz'	: [ self.time_data, ['Normalized Time (-)', 'Fz Coeff. (-)'     ] ],
+					'rev_Cp' 	: [ self.rev_data,  ['Rev'                , 'Power Coeff. (-)'  ] ],
+					'rev_CTq'	: [ self.rev_data,  ['Rev'                , 'Torque Coeff. (-)' ] ],
+					'rev_CFx' 	: [ self.rev_data,  ['Rev'                , 'Fx Coeff. (-)'     ] ],
+					'rev_CFy' 	: [ self.rev_data,  ['Rev'                , 'Fy Coeff. (-)'     ] ],
+					'rev_CFz' 	: [ self.rev_data,  ['Rev'                , 'Fz Coeff. (-)'     ] ],
 					# '': '',
 					# '': '',
 					}
 
 		data, col_names = options[subset_name]
 		return self.__get_col_by_names(col_names, data), col_names
+
+	def get_named_elem_subset(self, subset_name):
+		""" Extracts a predefined subset of "element data" identified by a string.
+			Returns the the 1-D independent variable data (an array of time or revolution data),
+			the 2-D element data (a list of np.arrays, indexed by blade number), and the column headers
+			(a single list of strings). """
+
+		options = {	'elem_time_Re'		: [ self.elem_data, ['Normalized Time (-)', 'Re (-)'  		] ],
+					'elem_time_CL'		: [ self.elem_data, ['Normalized Time (-)', 'CL (-)'  		] ],
+					'elem_time_CD'		: [ self.elem_data, ['Normalized Time (-)', 'CD (-)'  		] ],
+					'elem_time_CN'		: [ self.elem_data, ['Normalized Time (-)', 'CN (-)'  		] ],
+					'elem_time_CT'		: [ self.elem_data, ['Normalized Time (-)', 'CT (-)'  		] ],
+					'elem_time_Fx'		: [ self.elem_data, ['Normalized Time (-)', 'Fx (-)'  		] ],
+					'elem_time_Fy'		: [ self.elem_data, ['Normalized Time (-)', 'Fy (-)'  		] ],
+					'elem_time_Fz'		: [ self.elem_data, ['Normalized Time (-)', 'Fz (-)'  		] ],
+					'elem_time_Ur'		: [ self.elem_data, ['Normalized Time (-)', 'Ur (-)'  		] ],
+					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'  	] ],
+					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  		] ],
+					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'	] ],
+					# '': '',
+					# '': '',
+					}
+
+		data, col_names = options[subset_name]
+
+		# get number of blades 
+		num_blades, num_elems = self.get_nblade_nelem()
+
+		# get the data columns
+		columns = self.__get_col_by_names(col_names, data)
+
+		# collapse independent variable data (first column)
+		ind_var = np.unique(columns[0])
+
+		# organize into lists by blade
+		total_rows      = len(columns[0])			# get the number of rows
+		num_total_elems = sum(num_elems)			# total number of elements
+		num_blocks      = total_rows / num_total_elems	# number of time steps represented in the data
+
+		# initialize empty lists
+		blade_data = []
+		blade_indices = []
+		for blade in range(num_blades):
+			blade_indices.append([])
+			
+		# get the indices corresponding to each blade
+		start_row = 0
+		for block in range(num_blocks):
+			for blade in range(num_blades):
+				blade_indices[blade] = blade_indices[blade] + (range(start_row, start_row + num_elems[blade]))
+				start_row = start_row + num_elems[blade]
+
+		# extract the appropriate data, reshape into a 2-D array indexed by independent variable and element number (in that order)
+		for blade in range(num_blades):
+			blade_data.append(np.reshape((columns[1])[blade_indices[blade]], (num_blocks, num_elems[blade])))
+
+		return ind_var, blade_data, col_names
+		
+
+	def get_nblade_nelem(self):
+		""" Gets the number of blades and number of elements per blade by parsing the blade element data."""
+		# get the blades and elements rows
+		blades, elements = self.__get_col_by_names(['Blade', 'Element'], self.elem_data)
+
+		# get the number of blades
+		num_blades = len(np.unique(blades))
+
+		# get the indices where the blade number changes
+		change_indices = [ rownum for rownum, zipped in enumerate(zip(blades[:], blades[1:])) if zipped[0] != zipped[1]]
+
+		# do a diff to get a list containing the number of elements per blade
+		num_elems = (np.diff([-1] + change_indices))[:num_blades]
+
+		return num_blades, num_elems
+
+
+	
+	
+
+
