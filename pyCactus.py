@@ -20,40 +20,28 @@ class CactusRun():
 		# file read errors.
 
 		# element data
-		try:
-			self.elem_data     = self.__load_data(run_directory + '/' + self.elem_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.elem_fname
+		try: self.elem_data     = self.__load_data(run_directory + '/' + self.elem_fname)
+		except:	print "Could not load file : ", run_directory + '/' + self.elem_fname
 
 		# parameters
-		try:
-			self.param_data    = self.__load_data(run_directory + '/' + self.param_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.param_fname
+		try: self.param_data    = self.__load_data(run_directory + '/' + self.param_fname)
+		except: print "Could not load file : ", run_directory + '/' + self.param_fname
 
 		# revolution-averaged data
-		try:
-			self.rev_data      = self.__load_data(run_directory + '/' + self.rev_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.rev_fname
+		try: self.rev_data      = self.__load_data(run_directory + '/' + self.rev_fname)
+		except: print "Could not load file : ", run_directory + '/' + self.rev_fname
 
-		try:
-			self.time_data     = self.__load_data(run_directory + '/' + self.time_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.time_fname
-
+		# time data
+		try: self.time_data     = self.__load_data(run_directory + '/' + self.time_fname)
+		except: print "Could not load file : ", run_directory + '/' + self.time_fname
 
 		# wake data
-		try:
-			self.wake_data     = self.__load_data(run_directory + '/' + self.wake_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.wake_fname
+		try: self.wake_data     = self.__load_data(run_directory + '/' + self.wake_fname)
+		except: print "Could not load file : ", run_directory + '/' + self.wake_fname
 
 		# wake element data
-		try:
-			self.wakedef_data  = self.__load_data(run_directory + '/' + self.wakedef_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.wakedef_fname
+		try: self.wakedef_data  = self.__load_data(run_directory + '/' + self.wakedef_fname)
+		except: print "Could not load file : ", run_directory + '/' + self.wakedef_fname
 
 
 	#####################################
@@ -208,9 +196,4 @@ class CactusRun():
 		num_elems = (np.diff([-1] + change_indices))[:num_blades]
 
 		return num_blades, num_elems
-
-
-	
-	
-
-
+		
