@@ -2,11 +2,19 @@
 # pyCactus.py : A module for parsing CACTUS run (input and output) files.
 
 import numpy as np
+from pyCactusGeom import *
 
 class CactusRun():
-	def __init__(self, run_directory, case_name):
+	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
 		# input file
-		self.input_fname   = case_name + '.in'
+		if not input_fname:
+			self.input_fname = case_name + '.in'
+
+		if not geom_fname:
+			self.geom_fname = case_name + '.geom'
+
+		# create geometry instance (reads in geometry variables)
+		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
 
 		# output files
 		self.elem_fname    = case_name + '_ElementData.csv'
@@ -44,6 +52,7 @@ class CactusRun():
 		except: print "Could not load file : ", run_directory + '/' + self.wakedef_fname
 
 
+
 	#####################################
 	######### Private Functions #########
 	#####################################
@@ -54,7 +63,6 @@ class CactusRun():
 		col_num = data_headers[col_name]
 		return data_array[:,col_num]
 
-
 	def __get_col_by_names(self, col_names, data):
 		data_columns = []
 		for col_name in col_names:
@@ -62,23 +70,19 @@ class CactusRun():
 		
 		return data_columns
 
-
 	def __get_col_num_by_name(self, col_name, data):
 		data_headers = data[1]
 		return data_headers[col_name]
 
-
 	def __get_col_by_number(self, col_num, data):
 		data_array = data[0]
 		return data_array[:,col_num]
-
 
 	def __col_stats(self, data_column):
 		return dict({	'mean' : np.mean(data_column),
 						'std'  : np.std(data_column),
 						'min'  : np.min(data_column),
 						'max'  : np.max(data_column)	})
-
 
 	def __load_data(self, data_filename):
 		# reads data from a file. returns a dictionary pairing headers/column numbers, and 
@@ -94,7 +98,7 @@ class CactusRun():
 		data_headers = dict([[header, col_num] for col_num, header in enumerate(headers)])
 
 		# load the data
-		data_array = np.loadtxt(data_filename,skiprows=1,delimiter=',')
+		data_array = np.loadtxt(data_filename, skiprows=1, delimiter=',')
 
 		return data_array, data_headers
 
@@ -103,8 +107,9 @@ class CactusRun():
 	######### Public Functions #########
 	####################################
 	def get_named_integral_subset(self, subset_name):
-		# extracts a predefined subset of "integral" (blade or rotor-integrated) data identified by a string
-		# returns the data subset (list of np.arrays) and the column headers (list of strings)
+		""" Extracts a predefined subset of "integral" (blade or rotor-integrated) data identified
+			by a string returns the data subset (list of np.arrays) and the column headers (list of
+			strings) """
 
 		options = {	'time_Cp'	: [ self.time_data, ['Normalized Time (-)', 'Power Coeff. (-)'  ] ], 
 					'time_CTq'	: [ self.time_data, ['Normalized Time (-)', 'Torque Coeff. (-)' ] ],
@@ -116,6 +121,8 @@ class CactusRun():
 					'rev_CFx' 	: [ self.rev_data,  ['Rev'                , 'Fx Coeff. (-)'     ] ],
 					'rev_CFy' 	: [ self.rev_data,  ['Rev'                , 'Fy Coeff. (-)'     ] ],
 					'rev_CFz' 	: [ self.rev_data,  ['Rev'                , 'Fz Coeff. (-)'     ] ],
+					'rev_power' : [ self.rev_data,  ['Rev'                , 'Power (kW)'        ] ],
+					'rev_torque' : [ self.rev_data, ['Rev'                , 'Torque (ft-lbs)'   ] ],
 					# '': '',
 					# '': '',
 					}
@@ -129,18 +136,19 @@ class CactusRun():
 			the 2-D element data (a list of np.arrays, indexed by blade number), and the column headers
 			(a single list of strings). """
 
-		options = {	'elem_time_Re'		: [ self.elem_data, ['Normalized Time (-)', 'Re (-)'  		] ],
-					'elem_time_CL'		: [ self.elem_data, ['Normalized Time (-)', 'CL (-)'  		] ],
-					'elem_time_CD'		: [ self.elem_data, ['Normalized Time (-)', 'CD (-)'  		] ],
-					'elem_time_CN'		: [ self.elem_data, ['Normalized Time (-)', 'CN (-)'  		] ],
-					'elem_time_CT'		: [ self.elem_data, ['Normalized Time (-)', 'CT (-)'  		] ],
-					'elem_time_Fx'		: [ self.elem_data, ['Normalized Time (-)', 'Fx (-)'  		] ],
-					'elem_time_Fy'		: [ self.elem_data, ['Normalized Time (-)', 'Fy (-)'  		] ],
-					'elem_time_Fz'		: [ self.elem_data, ['Normalized Time (-)', 'Fz (-)'  		] ],
-					'elem_time_Ur'		: [ self.elem_data, ['Normalized Time (-)', 'Ur (-)'  		] ],
-					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'  	] ],
-					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  		] ],
-					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'	] ],
+		options = {	'elem_time_Re'		: [ self.elem_data, ['Normalized Time (-)', 'Re (-)'  	 ] ],
+					'elem_time_CL'		: [ self.elem_data, ['Normalized Time (-)', 'CL (-)'  	 ] ],
+					'elem_time_CD'		: [ self.elem_data, ['Normalized Time (-)', 'CD (-)'  	 ] ],
+					'elem_time_CM'		: [ self.elem_data, ['Normalized Time (-)', 'CM25 (-)'   ] ],
+					'elem_time_CN'		: [ self.elem_data, ['Normalized Time (-)', 'CN (-)'  	 ] ],
+					'elem_time_CT'		: [ self.elem_data, ['Normalized Time (-)', 'CT (-)'  	 ] ],
+					'elem_time_CFx'		: [ self.elem_data, ['Normalized Time (-)', 'Fx (-)'  	 ] ],
+					'elem_time_CFy'		: [ self.elem_data, ['Normalized Time (-)', 'Fy (-)'  	 ] ],
+					'elem_time_CFz'		: [ self.elem_data, ['Normalized Time (-)', 'Fz (-)'  	 ] ],
+					'elem_time_Ur'		: [ self.elem_data, ['Normalized Time (-)', 'Ur (-)'  	 ] ],
+					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'   ] ],
+					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  	 ] ],
+					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'] ],
 					# '': '',
 					# '': '',
 					}
@@ -196,4 +204,3 @@ class CactusRun():
 		num_elems = (np.diff([-1] + change_indices))[:num_blades]
 
 		return num_blades, num_elems
-		
