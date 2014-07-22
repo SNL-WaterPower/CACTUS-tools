@@ -8,11 +8,13 @@ class CactusGeom():
 	def __init__(self, geom_filename):
 
 		# read the geometry file into public variables
+		# 	globalvars, blades, and struts are dictionaries whose index values
+		# 	are the variable names as strings	
 		self.globalvars, self.blades, self.struts = self.__read_geom(geom_filename)
 
 		# calculate the radial positions of blade elements
-		# (useful for calculating torques/moments, and for plotting against radial position on
-		# axial flow turbines)
+		# 	(useful for calculating torques/moments, and for plotting against radial position on
+		# 	axial flow turbines)
 		self.__calculate_r_elem()
 
 
