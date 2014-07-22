@@ -136,19 +136,19 @@ class CactusRun():
 			the 2-D element data (a list of np.arrays, indexed by blade number), and the column headers
 			(a single list of strings). """
 
-		options = {	'elem_time_Re'		: [ self.elem_data, ['Normalized Time (-)', 'Re (-)'  	 ] ],
-					'elem_time_CL'		: [ self.elem_data, ['Normalized Time (-)', 'CL (-)'  	 ] ],
-					'elem_time_CD'		: [ self.elem_data, ['Normalized Time (-)', 'CD (-)'  	 ] ],
-					'elem_time_CM'		: [ self.elem_data, ['Normalized Time (-)', 'CM25 (-)'   ] ],
-					'elem_time_CN'		: [ self.elem_data, ['Normalized Time (-)', 'CN (-)'  	 ] ],
-					'elem_time_CT'		: [ self.elem_data, ['Normalized Time (-)', 'CT (-)'  	 ] ],
-					'elem_time_CFx'		: [ self.elem_data, ['Normalized Time (-)', 'Fx (-)'  	 ] ],
-					'elem_time_CFy'		: [ self.elem_data, ['Normalized Time (-)', 'Fy (-)'  	 ] ],
-					'elem_time_CFz'		: [ self.elem_data, ['Normalized Time (-)', 'Fz (-)'  	 ] ],
-					'elem_time_Ur'		: [ self.elem_data, ['Normalized Time (-)', 'Ur (-)'  	 ] ],
-					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'   ] ],
-					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  	 ] ],
-					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'] ],
+		options = {	'elem_time_Re'		: [ self.elem_data, ['Normalized Time (-)', 'Re (-)'  	 ] ],	# element Reynolds number	
+					'elem_time_CL'		: [ self.elem_data, ['Normalized Time (-)', 'CL (-)'  	 ] ],	# element lift coefficient
+					'elem_time_CD'		: [ self.elem_data, ['Normalized Time (-)', 'CD (-)'  	 ] ],	# element drag coefficient
+					'elem_time_CM'		: [ self.elem_data, ['Normalized Time (-)', 'CM25 (-)'   ] ],	# element moment coefficient
+					'elem_time_CN'		: [ self.elem_data, ['Normalized Time (-)', 'CN (-)'  	 ] ],	# element normal force coeff
+					'elem_time_CT'		: [ self.elem_data, ['Normalized Time (-)', 'CT (-)'  	 ] ],	# element tangential force coeff
+					'elem_time_CFx'		: [ self.elem_data, ['Normalized Time (-)', 'Fx (-)'  	 ] ],	# element x-dir force coeff
+					'elem_time_CFy'		: [ self.elem_data, ['Normalized Time (-)', 'Fy (-)'  	 ] ],	# element y-dir force coeff
+					'elem_time_CFz'		: [ self.elem_data, ['Normalized Time (-)', 'Fz (-)'  	 ] ],	# element z-dir force coeff
+					'elem_time_Ur'		: [ self.elem_data, ['Normalized Time (-)', 'Ur (-)'  	 ] ],	# element local velocity
+					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'   ] ],	# element Mach number
+					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  	 ] ],	# element torque coeff
+					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'] ],	# element angle of attack at quarter-chord
 					# '': '',
 					# '': '',
 					}
