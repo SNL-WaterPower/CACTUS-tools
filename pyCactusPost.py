@@ -63,7 +63,10 @@ def blade_distribution_inst(CactusRun, name, t):
 					   'CTq' : 'elem_time_CTq',		# contribution of element to torque coefficient CTq
 					   'Ma' : 'elem_time_Ma', 		# Mach number
 					   'Ur' : 'elem_time_Ur', 		# Local velocity
-					   }	
+					   'alpha' : 'elem_time_AoA_25', # Local angle of attack
+   					   'GB' : 'elem_time_GB', 		# Local bound vorticity
+
+   					 }	
 
 	subset_name = name_to_subset[name]
 
