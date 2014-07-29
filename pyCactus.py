@@ -9,9 +9,13 @@ class CactusRun():
 		# input file
 		if not input_fname:
 			self.input_fname = case_name + '.in'
+		else:
+			self.input_fname = input_fname
 
 		if not geom_fname:
 			self.geom_fname = case_name + '.geom'
+		else:
+			self.geom_fname = geom_fname
 
 		# create geometry instance (reads in geometry variables)
 		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
@@ -28,27 +32,27 @@ class CactusRun():
 		# file read errors.
 
 		# element data
-		try: self.elem_data     = self.__load_data(run_directory + '/' + self.elem_fname)
+		try: self.elem_data     = self.load_data(run_directory + '/' + self.elem_fname)
 		except:	print "Could not load file : ", run_directory + '/' + self.elem_fname
 
 		# parameters
-		try: self.param_data    = self.__load_data(run_directory + '/' + self.param_fname)
+		try: self.param_data    = self.load_data(run_directory + '/' + self.param_fname)
 		except: print "Could not load file : ", run_directory + '/' + self.param_fname
 
 		# revolution-averaged data
-		try: self.rev_data      = self.__load_data(run_directory + '/' + self.rev_fname)
+		try: self.rev_data      = self.load_data(run_directory + '/' + self.rev_fname)
 		except: print "Could not load file : ", run_directory + '/' + self.rev_fname
 
 		# time data
-		try: self.time_data     = self.__load_data(run_directory + '/' + self.time_fname)
+		try: self.time_data     = self.load_data(run_directory + '/' + self.time_fname)
 		except: print "Could not load file : ", run_directory + '/' + self.time_fname
 
 		# wake data
-		try: self.wake_data     = self.__load_data(run_directory + '/' + self.wake_fname)
+		try: self.wake_data     = self.load_data(run_directory + '/' + self.wake_fname)
 		except: print "Could not load file : ", run_directory + '/' + self.wake_fname
 
 		# wake element data
-		try: self.wakedef_data  = self.__load_data(run_directory + '/' + self.wakedef_fname)
+		try: self.wakedef_data  = self.load_data(run_directory + '/' + self.wakedef_fname)
 		except: print "Could not load file : ", run_directory + '/' + self.wakedef_fname
 
 
@@ -56,35 +60,35 @@ class CactusRun():
 	#####################################
 	######### Private Functions #########
 	#####################################
-	def __get_col_by_name(self, col_name, data):
+	def get_col_by_name(self, col_name, data):
 		data_array = data[0]
 		data_headers = data[1]
 
 		col_num = data_headers[col_name]
 		return data_array[:,col_num]
 
-	def __get_col_by_names(self, col_names, data):
+	def get_col_by_names(self, col_names, data):
 		data_columns = []
 		for col_name in col_names:
-			data_columns.append(self.__get_col_by_name(col_name, data))
+			data_columns.append(self.get_col_by_name(col_name, data))
 		
 		return data_columns
 
-	def __get_col_num_by_name(self, col_name, data):
+	def get_col_num_by_name(self, col_name, data):
 		data_headers = data[1]
 		return data_headers[col_name]
 
-	def __get_col_by_number(self, col_num, data):
+	def get_col_by_number(self, col_num, data):
 		data_array = data[0]
 		return data_array[:,col_num]
 
-	def __col_stats(self, data_column):
+	def col_stats(self, data_column):
 		return dict({	'mean' : np.mean(data_column),
 						'std'  : np.std(data_column),
 						'min'  : np.min(data_column),
 						'max'  : np.max(data_column)	})
 
-	def __load_data(self, data_filename):
+	def load_data(self, data_filename):
 		# reads data from a file. returns a dictionary pairing headers/column numbers, and 
 		# a numpy array of the data
 		with open(data_filename) as f:
@@ -128,7 +132,7 @@ class CactusRun():
 					}
 
 		data, col_names = options[subset_name]
-		return self.__get_col_by_names(col_names, data), col_names
+		return self.get_col_by_names(col_names, data), col_names
 
 	def get_named_elem_subset(self, subset_name):
 		""" Extracts a predefined subset of "element data" identified by a string.
@@ -149,6 +153,13 @@ class CactusRun():
 					'elem_time_Ma'		: [ self.elem_data, ['Normalized Time (-)', 'Mach (-)'   ] ],	# element Mach number
 					'elem_time_CTq'		: [ self.elem_data, ['Normalized Time (-)', 'te (-)'  	 ] ],	# element torque coeff
 					'elem_time_AoA_25'	: [ self.elem_data, ['Normalized Time (-)', 'AOA25 (deg)'] ],	# element angle of attack at quarter-chord
+					'elem_theta_IndU'	: [ self.elem_data, ['Theta (rad)', 'IndU (-)'] ],	# induced velocity, u
+					'elem_theta_IndV'	: [ self.elem_data, ['Theta (rad)', 'IndV (-)'] ],	# induced velocity, v
+					'elem_theta_IndW'	: [ self.elem_data, ['Theta (rad)', 'IndW (-)'] ],	# induced velocity, w
+					'elem_theta_x'	: [ self.elem_data, ['Theta (rad)', 'x/R (-)'] ],	# element position, center of quarter-chord line
+					'elem_theta_y'	: [ self.elem_data, ['Theta (rad)', 'y/R (-)'] ],	# element position, center of quarter-chord line
+					'elem_theta_z'	: [ self.elem_data, ['Theta (rad)', 'z/R (-)'] ],	# element position, center of quarter-chord line
+					'elem_time_GB'	: [ self.elem_data, ['Normalized Time (-)', 'GB (?)'] ],	# local bound vorticity
 					# '': '',
 					# '': '',
 					}
@@ -159,7 +170,7 @@ class CactusRun():
 		num_blades, num_elems = self.get_nblade_nelem()
 
 		# get the data columns
-		columns = self.__get_col_by_names(col_names, data)
+		columns = self.get_col_by_names(col_names, data)
 
 		# collapse independent variable data (first column)
 		ind_var = np.unique(columns[0])
@@ -192,7 +203,7 @@ class CactusRun():
 	def get_nblade_nelem(self):
 		""" Gets the number of blades and number of elements per blade by parsing the blade element data."""
 		# get the blades and elements rows
-		blades, elements = self.__get_col_by_names(['Blade', 'Element'], self.elem_data)
+		blades, elements = self.get_col_by_names(['Blade', 'Element'], self.elem_data)
 
 		# get the number of blades
 		num_blades = len(np.unique(blades))
