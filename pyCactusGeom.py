@@ -23,9 +23,10 @@ class CactusGeom():
 	#####################################		
 	def __calculate_r_elem(self):
 		""" Calculates the non-dimensionalized distance from blade elements to the rotation axis. """
-		for blade in self.blades:
+		for blade_num,blade in enumerate(self.blades):
 			# allocate space for an array
-			blade['r_elem'] = np.zeros(blade['NElem'])
+			#blade['r_elem'] = np.zeros(blade['NElem'])
+			r_temp = np.zeros(blade['NElem'])
 
 			# get the coordinates element centers
 			pex = blade['PEx']
@@ -37,8 +38,11 @@ class CactusGeom():
 			rot_coincident = self.globalvars['RotP']
 
 			# reshape, loop through the points
-			for elem_num, element_center in enumerate(np.transpose(np.vstack((pex,pey,pez)))):
-				(blade['r_elem'])[elem_num] = self.distance_to_rotation_axis(element_center, rot_axis, rot_coincident)
+			positions = np.transpose(np.vstack((pex,pey,pez)))
+			for elem_num, element_center in enumerate(positions):
+				r_temp[elem_num] = self.distance_to_rotation_axis(element_center, rot_axis, rot_coincident)
+
+			self.blades[blade_num]['r_elem'] = r_temp
 
 
 	def __read_geom(self, filename):
