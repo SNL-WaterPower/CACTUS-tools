@@ -4,6 +4,7 @@
 import numpy as np
 import scipy.integrate
 
+import matplotlib.pyplot as plt
 from warnings import *
 
 #######################
@@ -62,14 +63,14 @@ def get_line_quantity(x_loc, X, Y, U):
 	return U[:,idx_nearest], x_nearest, idx_nearest
 
 
-def calc_velocity_def(x_loc, X, Y, U):
-	""" calc_velocity_def() : Calculates the integral velocity deficit of scalar field U stored at locations X,Y,
+def calc_momentum_def(x_loc, X, Y, U):
+	""" calc_momentum_def() : Calculates the integral momentum deficit of scalar field U stored at locations X,Y,
 		on a vertical line that runs through x_loc. """
 	
 	U_line, x_line, x_idx_line = get_line_quantity(x_loc, X, Y, U)
 	y_line = Y[:,x_idx_line]
 
-	return scipy.integrate.trapz(y_line, U_line)
+	return scipy.integrate.trapz(U_line*(1-U_line), y_line)
 
 
 def calc_tke(U, V, W, times, t_start, t_end):
