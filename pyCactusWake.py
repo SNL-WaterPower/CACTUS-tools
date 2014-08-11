@@ -1,5 +1,5 @@
-# pyCactusWake.py
-""" Functions for manipulating wake data from CACTUS."""
+# pyCactusWakeGrid.py
+""" Class and functions for manipulating Cartesian wake induced velocity data from CACTUS."""
 
 import numpy as np
 import scipy.integrate
@@ -7,9 +7,51 @@ import scipy.integrate
 import matplotlib.pyplot as plt
 from warnings import *
 
-#######################
-# Cartesian Wake Data #
-#######################
+class WakeGridData():
+	""" Class which loads WakeGridData from a pandas dataframe and creates appropriately-shaped
+		Numpy arrays. """
+
+	def __init__(self, df):
+		time_col_name = 'Normalized Time (-)'
+		x_col_name = 'X/R (-)'
+		y_col_name = 'Y/R (-)'
+		z_col_name = 'Z/R (-)'
+		u_col_name = 'U/Uinf (-)'
+		v_col_name = 'V/Uinf (-)'
+		w_col_name = 'W/Uinf (-)'
+
+		# get unique times
+		self.times = df.loc[:,time_col_name].unique()
+
+		# get number of times
+		self.num_times = len(self.times)
+
+		# extract the data
+		x  = df.loc[:,x_col_name]
+		y  = df.loc[:,y_col_name]
+		z  = df.loc[:,z_col_name]
+		u  = df.loc[:,u_col_name]
+		v  = df.loc[:,v_col_name]
+		w  = df.loc[:,w_col_name]
+
+		self.nt = self.num_times
+		self.nx = len(x.unique())
+		self.ny = len(y.unique())
+		self.nz = len(z.unique())
+
+		# reshape into 4-D numpy array
+		# note that in Python, the final index is the fastest changing
+		self.x = np.reshape(x, [self.nt, self.nz, self.ny, self.nx])
+		self.y = np.reshape(y, [self.nt, self.nz, self.ny, self.nx])
+		self.z = np.reshape(z, [self.nt, self.nz, self.ny, self.nx])
+		self.u = np.reshape(u, [self.nt, self.nz, self.ny, self.nx])
+		self.v = np.reshape(v, [self.nt, self.nz, self.ny, self.nx])
+		self.w = np.reshape(w, [self.nt, self.nz, self.ny, self.nx])
+
+
+#####################################
+######### Module  Functions #########
+#####################################
 def find_nearest(array, value):
 	""" find_nearest() : returns the value and index of the nearest point in a 1-d array. """
 	index = (np.abs(array-value)).argmin()
@@ -54,7 +96,7 @@ def field_time_stats(field, times, t_start, t_end):
 
 def get_line_quantity(x_loc, X, Y, U):
 	""" get_line_quantity() : Extracts the value of a scalar field U stored at locations X,Y
-		on a vertical line running through x_loc. """
+		on a vertical line running nearest to x_loc. """
 
 	# find the nearest location to the desired slice
 	x_grid = np.unique(X)
@@ -64,8 +106,8 @@ def get_line_quantity(x_loc, X, Y, U):
 
 
 def calc_momentum_def(x_loc, X, Y, U):
-	""" calc_momentum_def() : Calculates the integral momentum deficit of scalar field U stored at locations X,Y,
-		on a vertical line that runs through x_loc. """
+	""" calc_momentum_def() : Calculates the integral momentum deficit of scalar field U stored at \
+		locations X,Y on a vertical line that runs nearest to x_loc. """
 	
 	U_line, x_line, x_idx_line = get_line_quantity(x_loc, X, Y, U)
 	y_line = Y[:,x_idx_line]

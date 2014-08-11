@@ -23,7 +23,7 @@ class CactusGeom():
 	#####################################		
 	def __calculate_r_elem(self):
 		""" Calculates the non-dimensionalized distance from blade elements to the rotation axis. """
-		for blade_num,blade in enumerate(self.blades):
+		for blade_num, blade in enumerate(self.blades):
 			# allocate space for an array
 			#blade['r_elem'] = np.zeros(blade['NElem'])
 			r_temp = np.zeros(blade['NElem'])
@@ -143,3 +143,4 @@ class CactusGeom():
 			http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation """
 
 		return np.linalg.norm((a-p) - np.dot((a-p), n)*n)
+		
