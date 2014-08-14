@@ -130,6 +130,9 @@ class CactusRun():
 		# get the data series
 		df = self.time_data
 
+		# set column names
+		time_col_name  = 'Normalized Time (-)'
+		
 		# extract data subset
 		df, time = self.df_subset_time_index(df, time_index, time_col_name)
 
