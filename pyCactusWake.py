@@ -1,5 +1,5 @@
-# pyCactusWakeGrid.py
-""" Class and functions for manipulating Cartesian wake induced velocity data from CACTUS."""
+# pyCactusWake.py
+""" Class and functions for manipulating Cartesian wake velocity data from CACTUS."""
 
 import numpy as np
 import scipy.integrate
@@ -7,9 +7,9 @@ import scipy.integrate
 import matplotlib.pyplot as plt
 from warnings import *
 
-class WakeGridData():
+class CactusWakeGrid():
 	""" Class which loads WakeGridData from a pandas dataframe and creates appropriately-shaped
-		Numpy arrays. """
+		Numpy arrays. Grid node locations X,Y,Z are assumed to be invariant in time."""
 
 	def __init__(self, df):
 		time_col_name = 'Normalized Time (-)'
@@ -26,7 +26,7 @@ class WakeGridData():
 		# get number of times
 		self.num_times = len(self.times)
 
-		# extract the data
+		# extract the columns
 		x  = df.loc[:,x_col_name]
 		y  = df.loc[:,y_col_name]
 		z  = df.loc[:,z_col_name]
@@ -34,20 +34,73 @@ class WakeGridData():
 		v  = df.loc[:,v_col_name]
 		w  = df.loc[:,w_col_name]
 
+		# get grid dimensions
 		self.nt = self.num_times
 		self.nx = len(x.unique())
 		self.ny = len(y.unique())
 		self.nz = len(z.unique())
 
-		# reshape into 4-D numpy array
+		self.dx = (x.max() - x.min())/self.nx
+		self.dy = (y.max() - y.min())/self.ny
+		self.dz = (z.max() - z.min())/self.nz
+		
+		# reshape grid nodes into 3-D numpy array
 		# note that in Python, the final index is the fastest changing
-		self.x = np.reshape(x, [self.nt, self.nz, self.ny, self.nx])
-		self.y = np.reshape(y, [self.nt, self.nz, self.ny, self.nx])
-		self.z = np.reshape(z, [self.nt, self.nz, self.ny, self.nx])
-		self.u = np.reshape(u, [self.nt, self.nz, self.ny, self.nx])
-		self.v = np.reshape(v, [self.nt, self.nz, self.ny, self.nx])
-		self.w = np.reshape(w, [self.nt, self.nz, self.ny, self.nx])
+		X = np.reshape(x, [self.nt, self.nz, self.ny, self.nx])
+		Y = np.reshape(y, [self.nt, self.nz, self.ny, self.nx])
+		Z = np.reshape(z, [self.nt, self.nz, self.ny, self.nx])
 
+		self.X = np.reshape(X[0,:,:,:], [self.nz, self.ny, self.nx])
+		self.Y = np.reshape(Y[0,:,:,:], [self.nz, self.ny, self.nx])
+		self.Z = np.reshape(Z[0,:,:,:], [self.nz, self.ny, self.nx])
+		
+		# reshape velocity fields into 4-D numpy array
+		self.U = np.reshape(u, [self.nt, self.nz, self.ny, self.nx])
+		self.V = np.reshape(v, [self.nt, self.nz, self.ny, self.nx])
+		self.W = np.reshape(w, [self.nt, self.nz, self.ny, self.nx])
+
+	def slice_in_space(self, axis, i, inplace=False):
+		""" Returns a subset of of the data on a plane normal to the specified axis
+			at the n-th index from the minimum. Return a 3-D array with the first 
+			index being in time.
+
+			If the inplace flag is set to True, the class memory will be overwritten with the sliced data.
+			This is useful for reducing memory usage of wake data, if not all the wake data is required 
+			in memory."""
+
+		def slice_reshape(axis, F, i, nt, n1, n2):
+			if axis == 'x':
+				F = np.reshape(F[:,:,:,i], [nt, n2, n1])
+			elif axis == 'y':
+				F = np.reshape(F[:,:,i,:], [nt, n2, n1])
+			elif axis == 'z':
+				F = np.reshape(F[:,i,:,:], [nt, n2, n1])
+
+			return F
+
+		# set the grid dimensions depending on which axis is selected
+		nt = self.nt
+		if axis=='x':
+			n1 = self.ny
+			n2 = self.nz
+		if axis=='y':
+			n1 = self.nx
+			n2 = self.nz
+		if axis=='z':
+			n1 = self.nx
+			n2 = self.ny	
+
+		# reshape the velocity data
+		U = slice_reshape(axis, self.U, i, nt, n1, n2)
+		V = slice_reshape(axis, self.V, i, nt, n1, n2)
+		W = slice_reshape(axis, self.W, i, nt, n1, n2)
+
+		if inplace==True:
+			self.U = U
+			self.V = V
+			self.W = W
+
+		return U, V, W
 
 #####################################
 ######### Module  Functions #########

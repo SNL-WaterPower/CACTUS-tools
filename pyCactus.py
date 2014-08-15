@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from pyCactusGeom import *
+from pyCactusWake import *
 
 class CactusRun():
 	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
@@ -19,16 +20,13 @@ class CactusRun():
 		else:
 			self.geom_fname = geom_fname
 
-		# create geometry instance (reads in geometry variables)
-		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
-
 		# output files
 		self.elem_fname    = case_name + '_ElementData.csv'
 		self.param_fname   = case_name + '_Param.csv'
 		self.rev_fname     = case_name + '_RevData.csv'
 		self.time_fname    = case_name + '_TimeData.csv'
 		self.wake_fname    = case_name + '_WakeData.csv'
-		self.wakedef_fname = case_name + '_WakeDefData.csv'
+		self.wakegrid_fname = case_name + '_WakeDefData.csv'
 		
 		# read data from CSV-formatted output files, incorporating try/except for possible
 		# file read errors.
@@ -65,9 +63,17 @@ class CactusRun():
 
 		# wake element data
 		try:
-			self.wakedef_data = self.load_data(run_directory + '/' + self.wakedef_fname)
+			self.wakegrid_data = self.load_data(run_directory + '/' + self.wakegrid_fname)
 		except:
-			print "Could not load file : ", run_directory + '/' + self.wakedef_fname
+			print "Could not load file : ", run_directory + '/' + self.wakegrid_fname
+
+		# create geometry instance (reads in geometry variables)
+		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
+
+		# create wake grid instance (dataframes --> numpy arrays, which are beter for Cartesian data)
+		self.wakegrid = CactusWakeGrid(self.wakegrid_data)
+
+
 
 	#####################################
 	######### Private Functions #########
