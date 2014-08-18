@@ -1,6 +1,8 @@
 # pyCactusWake.py
 """ Class and functions for manipulating Cartesian wake velocity data from CACTUS."""
 
+import os
+
 import numpy as np
 import scipy.integrate
 
@@ -101,6 +103,51 @@ class CactusWakeGrid():
 			self.W = W
 
 		return U, V, W
+
+	def write_vtk(self, path, name):
+		""" write_vtk(path, name) : writes the wake grid data to a time series of VTK files in a
+				location specified by `path`. A Paraview .pvd file that contains the normalized
+				time is also written. Velocity data is written as a vector field."""
+
+		from evtk.hl import gridToVTK 		# evtk module - import only if this function is called
+		import xml.etree.cElementTree as ET # xml module  -                 "
+
+		# load data
+		times = self.times
+		X = self.X
+		Y = self.Y
+		Z = self.Z
+		U = self.U
+		V = self.V
+		W = self.W
+
+		# set the collection filename
+		collection_fname = name + ".pvd"
+
+		# set up XML tree for PVD collection file
+		root = ET.Element("VTKFile")
+		root.set("type", "Collection")
+		collection = ET.SubElement(root, "Collection")
+
+		# write the VTK files
+		for ti, time in enumerate(times):
+			# base name of data file
+			vtk_name = name + '_' + str(ti)
+			
+			# write vector fields to data file
+			velocity = (U[ti,Ellipsis], V[ti,Ellipsis], W[ti,Ellipsis])
+			data_filename = gridToVTK(path + '/' + vtk_name, X, Y, Z, pointData={"velocity": velocity})
+
+			# add elements to XML tree for PVD collection file
+			dataset = ET.SubElement(collection, "DataSet")
+			dataset.set("timestep", str(time))
+			#dataset.set("norm_time", str(normalized_time)) # add normalized time here later
+			dataset.set("file", os.path.basename(data_filename))
+
+		# write the collection file
+		tree = ET.ElementTree(root)
+		tree.write(path + '/' + collection_fname, xml_declaration=True)
+
 
 #####################################
 ######### Module  Functions #########
