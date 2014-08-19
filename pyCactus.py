@@ -31,6 +31,10 @@ class CactusRun():
 		# read data from CSV-formatted output files, incorporating try/except for possible
 		# file read errors.
 
+		# set error flags
+		wake_error = False
+		wakegrid_error = False
+
 		# element data
 		try:
 			self.elem_data = self.load_data(run_directory + '/' + self.elem_fname)
@@ -60,21 +64,25 @@ class CactusRun():
 			self.wake_data = self.load_data(run_directory + '/' + self.wake_fname)
 		except:
 			print "Could not load file : ", run_directory + '/' + self.wake_fname
+			wake_error = True
 
 		# wake element data
 		try:
 			self.wakegrid_data = self.load_data(run_directory + '/' + self.wakegrid_fname)
 		except:
 			print "Could not load file : ", run_directory + '/' + self.wakegrid_fname
+			wakegrid_error = True
 
 		# create geometry instance (reads in geometry variables)
 		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
 
-		# create wake grid instance
-		self.wakegrid = CactusWakeGrid(self.wakegrid_data)
-
-		# create wake elems instance
-		self.wakeelems = CactusWakeElems(self.wake_data)
+		if wake_error == False:
+			try: self.wakeelems = CactusWakeElems(self.wake_data)
+			except: print "Could not read wake_data into CSV."
+				
+		if wakegrid_error == False:
+			try: self.wakegrid = CactusWakeGrid(self.wakegrid_data)
+			except: print "Could not read wakegrid_data into CSV."
 
 
 
