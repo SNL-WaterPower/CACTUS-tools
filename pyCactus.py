@@ -70,8 +70,11 @@ class CactusRun():
 		# create geometry instance (reads in geometry variables)
 		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
 
-		# create wake grid instance (dataframes --> numpy arrays, which are beter for Cartesian data)
+		# create wake grid instance
 		self.wakegrid = CactusWakeGrid(self.wakegrid_data)
+
+		# create wake elems instance
+		self.wakeelems = CactusWakeElems(self.wake_data)
 
 
 
