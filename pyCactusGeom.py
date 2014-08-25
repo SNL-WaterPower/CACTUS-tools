@@ -16,6 +16,7 @@ class CactusGeom():
 		# 	(useful for calculating torques/moments, and for plotting against radial position on
 		# 	axial flow turbines)
 		self.__calculate_r_elem()
+		self.__calculate_dr_elem()
 
 
 	#####################################
@@ -25,7 +26,6 @@ class CactusGeom():
 		""" Calculates the non-dimensionalized distance from blade elements to the rotation axis. """
 		for blade_num, blade in enumerate(self.blades):
 			# allocate space for an array
-			#blade['r_elem'] = np.zeros(blade['NElem'])
 			r_temp = np.zeros(blade['NElem'])
 
 			# get the coordinates element centers
@@ -42,8 +42,38 @@ class CactusGeom():
 			for elem_num, element_center in enumerate(positions):
 				r_temp[elem_num] = self.distance_to_rotation_axis(element_center, rot_axis, rot_coincident)
 
-			self.blades[blade_num]['r_elem'] = r_temp
+			self.blades[blade_num]['r_over_R_elem'] = r_temp
 
+	def __calculate_dr_elem(self):
+		""" Calculates the non-dimensionalized dr distribution. """
+		for blade_num, blade in enumerate(self.blades):
+			# allocate space for an array
+			dr_temp = np.zeros(blade['NElem'])
+
+			# get the location of element node points (based on quarter chord lines)
+			qcx = blade['QCx']
+			qcy = blade['QCy']
+			qcz = blade['QCz']
+
+			# get axis of rotation and rotation axis coincident point
+			rot_axis       = self.globalvars['RotN']
+			rot_coincident = self.globalvars['RotP']
+
+			# for each node location
+			node_locations = np.transpose(np.vstack((qcx,qcy,qcz)))
+			for elem_num, node_loc_pair in enumerate(zip(node_locations[:-1], node_locations[1:])):
+				# get the endpoints of node and subsequent node
+				node_A = node_loc_pair[0]
+				node_B = node_loc_pair[1]
+
+				# compute radial location of both
+				r_over_R_A = self.distance_to_rotation_axis(node_A, rot_axis, rot_coincident)
+				r_over_R_B = self.distance_to_rotation_axis(node_B, rot_axis, rot_coincident)
+
+				# compute dr as the distance between radial location of node and next node
+				dr_temp[elem_num] = r_over_R_B - r_over_R_A
+
+			self.blades[blade_num]['dr_over_R'] = dr_temp
 
 	def __read_geom(self, filename):
 		""" Reads the .geom file from a CACTUS run."""
