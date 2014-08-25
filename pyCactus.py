@@ -32,7 +32,7 @@ class CactusRun():
 		# file read errors.
 
 		# set error flags
-		wake_error = False
+		wake_error     = False
 		wakegrid_error = False
 
 		# element data
@@ -78,11 +78,11 @@ class CactusRun():
 
 		if wake_error == False:
 			try: self.wakeelems = CactusWakeElems(self.wake_data)
-			except: print "Could not read wake_data into CSV."
+			except: print "Warning: Could not read wake data into CSV."
 				
 		if wakegrid_error == False:
 			try: self.wakegrid = CactusWakeGrid(self.wakegrid_data)
-			except: print "Could not read wakegrid_data into CSV."
+			except: print "Warning: Could not read wakegrid data into CSV."
 
 
 

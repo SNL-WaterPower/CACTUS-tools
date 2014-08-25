@@ -19,7 +19,8 @@ class CactusWakeElems():
 
 	def __init__(self, df):
 		time_col_name = 'Normalized Time (-)'
-		elem_col_name = 'Element'
+		id_col_name = 'Node ID'
+		elem_col_name = 'Origin Node'
 		x_col_name = 'X/R (-)'
 		y_col_name = 'Y/R (-)'
 		z_col_name = 'Z/R (-)'
@@ -41,6 +42,14 @@ class CactusWakeElems():
 		u_list = []
 		v_list = []
 		w_list = []
+		node_id_list = []
+
+		# check if data has node IDs
+		if id_col_name in df:
+			has_node_ids = True
+		else:
+			has_node_ids = False
+			print 'Warning: Wake element data does not include node IDs.'
 
 		# generate a set of numpy arrays for each timestep
 		for time in self.times:
@@ -55,7 +64,10 @@ class CactusWakeElems():
 			u    = df_slice.loc[:,u_col_name].values
 			v    = df_slice.loc[:,v_col_name].values
 			w    = df_slice.loc[:,w_col_name].values
-
+			
+			if has_node_ids:
+				node_id = df_slice.loc[:,id_col_name].values
+			
 			# append data to lists
 			elem_list.append(elem)
 			x_list.append(x)
@@ -64,6 +76,9 @@ class CactusWakeElems():
 			u_list.append(u)
 			v_list.append(v)
 			w_list.append(w)
+
+			if has_node_ids:
+				node_id_list.append(node_id)
 
 		# save to class variables
 		self.elem_list = elem_list
@@ -74,15 +89,29 @@ class CactusWakeElems():
 		self.v_list = v_list
 		self.w_list = w_list
 
-	def write_vtk(self, path, name):
+		if has_node_ids:
+			self.node_id_list = node_id_list
+
+	def write_vtk(self, path, name, id_flag=False, num_blade_elems=[]):
 		""" write_vtk(path, name) : writes the wake element data to a time series of VTK files in a
-			location specified by `path`. A Paraview .pvd file that contains the normalized
-			times at each timestep is also written. Velocity data is written as a vector field."""
+			location specified by `path`.
+
+			A Paraview .pvd file that contains the normalized times at each timestep is also written.
+			If id_flag=True, each particle is assigned an ID so that it can be tracked. The input 
+			list blade_elems should contain the number of elements for each blade.
+			
+			ID data is a scalar (integer)
+			Velocity data is a vector."""
 
 		from evtk.hl import pointsToVTK 	# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
 
+		# compute number of wake element nodes
+		num_blade_nodes = np.array(num_blade_elems) + 1
+
+		# get variables
 		times  = self.times
+		elem_list = self.elem_list
 		x_list = self.x_list
 		y_list = self.y_list
 		z_list = self.z_list
@@ -103,10 +132,38 @@ class CactusWakeElems():
 			# base name of data file
 			vtk_name = name + '_' + str(ti)
 
-			# store vector field in a dict
-			data = {'velocity' : (u_list[ti],
-								  v_list[ti],
-								  w_list[ti])}
+			if id_flag:
+				# generate the id numbers for the elements as an array with length of num_wake_elems
+				# newer elements have a higher id number.
+				
+				# get the list of elements
+				elems = elem_list[ti] 
+
+				# compute the number of wake elements at this particular timestep
+				num_wake_elems = len(u_list[ti])
+
+				# compute the timestep number from the number of elements
+				elems_per_timestep = sum(num_blade_nodes)
+				nt = num_wake_elems/elems_per_timestep
+
+				# generate the id numbers
+				multiplier = np.mod((np.arange(num_wake_elems)), nt)
+				adder = multiplier * elems_per_timestep
+				id_nums = adder + elems
+
+				# convert to a uint32 (fixes some problems importing into VTK/ParaView)
+				id_nums = np.int32(id_nums)
+
+				# store vector field in a dict
+				data = {'velocity' : (u_list[ti],
+									  v_list[ti],
+									  w_list[ti]),
+						'node_id' : id_nums}
+			
+			else:
+				data = {'velocity' : (u_list[ti],
+									  v_list[ti],
+									  w_list[ti])}
 
 			# write data
 			data_filename = pointsToVTK(path + '/' + vtk_name, x_list[ti], y_list[ti], z_list[ti], data)
