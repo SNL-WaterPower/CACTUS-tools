@@ -2,47 +2,71 @@
 """ Class and functions for manipulating wake velocity data from CACTUS."""
 
 import os
+import time as tmod
 
 import numpy as np
+import pandas as pd
+
 import scipy.integrate
 
 import matplotlib.pyplot as plt
 from warnings import *
 
-
 #####################################
 ######### Wake Element Data #########
 #####################################
 class CactusWakeElems():
-	""" Class which loads WakeData (element) from a pandas dataframe and creates Numpy arrays
-			to hold the data. """
+	""" Class for reading WakeData (element) from CSV files. """
 
-	def __init__(self, df):
-		time_col_name = 'Normalized Time (-)'
-		id_col_name = 'Node ID'
-		elem_col_name = 'Origin Node'
-		x_col_name = 'X/R (-)'
-		y_col_name = 'Y/R (-)'
-		z_col_name = 'Z/R (-)'
-		u_col_name = 'U/Uinf (-)'
-		v_col_name = 'V/Uinf (-)'
-		w_col_name = 'W/Uinf (-)'
-
-		# get unique times
-		self.times = df.loc[:,time_col_name].unique()
-
-		# get number of times
-		self.num_times = len(self.times)
+	def __init__(self, filenames):
+		self.filenames = filenames
+		self.num_times = len(filenames)
+		self.times = []
 		
-		# generate empty lists
-		elem_list = []
-		x_list = []
-		y_list = []
-		z_list = []
-		u_list = []
-		v_list = []
-		w_list = []
-		node_id_list = []
+		# dictionary of time : filename
+		self.fdict = {}
+
+		# get the times for each timestep
+		# the name of the column containing time info
+		time_col_name = 'Normalized Time (-)'
+	
+		for fname in filenames:
+			time = get_file_time(fname, time_col_name)
+			self.times.append(time)
+			self.fdict[time] = fname
+
+
+	def get_df_inst(self, time=None, fname=None):
+		""" Returns instantaneous wake grid dataframe from a specified time (or filename). """
+
+		if (time is None) and (fname is None):
+			 print 'Error: must specify either the time or filename of the desired data.'
+
+		if time is not None:
+			# if the time is specified, get the filename
+			fname = self.fdict[time]
+		else:
+			# otherwise, use the filename given
+			pass
+
+		# read the CSV data file
+		df_inst = load_data(fname)
+
+		return df_inst
+
+
+	def wakedata_from_df(self, df):
+		""" Takes a dataframe containing instantaneous wake node data and returns a dictionary
+			containing the data as np.arrays keyed by a descriptive variable name. """
+		# column names
+		id_col_name   = 'Node ID'
+		elem_col_name = 'Origin Node'
+		x_col_name    = 'X/R (-)'
+		y_col_name    = 'Y/R (-)'
+		z_col_name    = 'Z/R (-)'
+		u_col_name    = 'U/Uinf (-)'
+		v_col_name    = 'V/Uinf (-)'
+		w_col_name    = 'W/Uinf (-)'
 
 		# check if data has node IDs
 		if id_col_name in df:
@@ -50,50 +74,35 @@ class CactusWakeElems():
 		else:
 			has_node_ids = False
 			print 'Warning: Wake element data does not include node IDs.'
+		
+		# extract columns
+		elems = df.loc[:,elem_col_name].values
+		x     = df.loc[:,x_col_name].values
+		y     = df.loc[:,y_col_name].values
+		z     = df.loc[:,z_col_name].values
+		u     = df.loc[:,u_col_name].values
+		v     = df.loc[:,v_col_name].values
+		w     = df.loc[:,w_col_name].values
 
-		# generate a set of numpy arrays for each timestep
-		for time in self.times:
-			# slice dataframe
-			df_slice = df[df[time_col_name] == time]
+		# store data as a list of np.arrays
+		data_arrays = {'elems' : elems,
+					   'x' : x,
+					   'y' : y,
+					   'z' : z,
+					   'u' : u,
+					   'v' : v,
+					   'w' : w}
 
-			# extract columns
-			elem = df_slice.loc[:,elem_col_name].values
-			x    = df_slice.loc[:,x_col_name].values
-			y    = df_slice.loc[:,y_col_name].values
-			z    = df_slice.loc[:,z_col_name].values
-			u    = df_slice.loc[:,u_col_name].values
-			v    = df_slice.loc[:,v_col_name].values
-			w    = df_slice.loc[:,w_col_name].values
-			
-			if has_node_ids:
-				node_id = df_slice.loc[:,id_col_name].values
-			
-			# append data to lists
-			elem_list.append(elem)
-			x_list.append(x)
-			y_list.append(y)
-			z_list.append(z)
-			u_list.append(u)
-			v_list.append(v)
-			w_list.append(w)
-
-			if has_node_ids:
-				node_id_list.append(node_id)
-
-		# save to class variables
-		self.elem_list = elem_list
-		self.x_list = x_list
-		self.y_list = y_list
-		self.z_list = z_list
-		self.u_list = u_list
-		self.v_list = v_list
-		self.w_list = w_list
-
+		# if the data has node ids, append this data to the data list
 		if has_node_ids:
-			self.node_id_list = node_id_list
+			node_ids = df.loc[:,id_col_name].values
+			data_arrays['node_ids'] =  node_ids
 
-	def write_vtk(self, path, name, id_flag=False, num_blade_elems=[]):
-		""" write_vtk(path, name) : writes the wake element data to a time series of VTK files in a
+		return data_arrays, has_node_ids
+
+
+	def write_vtk_series(self, path, name, id_flag=False, num_blade_elems=[]):
+		""" write_vtk_series(path, name) : writes the wake element data to a time series of VTK files in a
 			location specified by `path`.
 
 			A Paraview .pvd file that contains the normalized times at each timestep is also written.
@@ -106,19 +115,6 @@ class CactusWakeElems():
 		from evtk.hl import pointsToVTK 	# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
 
-		# compute number of wake element nodes
-		num_blade_nodes = np.array(num_blade_elems) + 1
-
-		# get variables
-		times  = self.times
-		elem_list = self.elem_list
-		x_list = self.x_list
-		y_list = self.y_list
-		z_list = self.z_list
-		u_list = self.u_list
-		v_list = self.v_list
-		w_list = self.w_list
-
 		# set the collection filename
 		collection_fname = name + ".pvd"
 
@@ -127,20 +123,46 @@ class CactusWakeElems():
 		root.set("type", "Collection")
 		collection = ET.SubElement(root, "Collection")
 
-		# write vtk unstructured (point) file
-		for ti, time in enumerate(times):
-			# base name of data file
-			vtk_name = name + '_' + str(ti)
+		# compute number of wake element nodes
+		if id_flag:
+			num_blade_nodes = np.array(num_blade_elems) + 1
 
+		# loop through all the files, write the VTK files
+		for i, time in enumerate(np.sort(self.times)):
+			# get the system time (for elapsed time)
+			t_start = tmod.time()
+
+			# get the filename containing the data at current time
+			fname = self.fdict[time]
+
+			# base name of data file
+			vtk_name = name + '_' + str(i)
+
+			###### Read in the data ######
+			df_inst                   = self.get_df_inst(time=time)
+			data_arrays, has_node_ids = self.wakedata_from_df(df_inst)
+
+			# unpack the data from dictionary
+			elems = data_arrays['elems']
+			x = data_arrays['x']
+			y = data_arrays['y']
+			z = data_arrays['z']
+			u = data_arrays['u']
+			v = data_arrays['v']
+			w = data_arrays['w']
+
+			# if the data has node ids already, load the data
+			if has_node_ids:
+				node_ids = data_arrays['node_ids']
+
+			# if id_flag is set, generate new node id numbers. Note that this will overwrite loaded node ids.
 			if id_flag:
+				###### Generate node IDs ######
 				# generate the id numbers for the elements as an array with length of num_wake_elems
 				# newer elements have a higher id number.
 				
-				# get the list of elements
-				elems = elem_list[ti] 
-
 				# compute the number of wake elements at this particular timestep
-				num_wake_elems = len(u_list[ti])
+				num_wake_elems = len(u)
 
 				# compute the timestep number from the number of elements
 				elems_per_timestep = sum(num_blade_nodes)
@@ -148,150 +170,179 @@ class CactusWakeElems():
 
 				# generate the id numbers
 				multiplier = np.mod((np.arange(num_wake_elems)), nt)
-				adder = multiplier * elems_per_timestep
-				id_nums = adder + elems
+				adder      = multiplier * elems_per_timestep
+				node_ids   = adder + elems
 
 				# convert to a uint32 (fixes some problems importing into VTK/ParaView)
-				id_nums = np.int32(id_nums)
-
-				# store vector field in a dict
-				data = {'velocity' : (u_list[ti],
-									  v_list[ti],
-									  w_list[ti]),
-						'node_id' : id_nums}
-			
+				node_ids = np.int32(node_ids)
 			else:
-				data = {'velocity' : (u_list[ti],
-									  v_list[ti],
-									  w_list[ti])}
+				# otherwise, just use the node_ids that we loaded from the data set before
+				pass
+
+
+			# store vector field in a dict
+			data = {'velocity' : (u,
+								  v,
+								  w),
+					'node_id' : node_ids}
 
 			# write data
-			data_filename = pointsToVTK(path + '/' + vtk_name, x_list[ti], y_list[ti], z_list[ti], data)
+			data_filename = pointsToVTK(os.path.abspath(path + '/' + vtk_name), x, y, z, data)
 
 			# add elements to XML tree for PVD collection file
 			dataset = ET.SubElement(collection, "DataSet")
 			dataset.set("timestep", str(time))
 			dataset.set("file", os.path.basename(data_filename))
 
+			# print status message
+			elapsed_time = tmod.time() - t_start
+			print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
+
 		# write the collection file
 		tree = ET.ElementTree(root)
-		tree.write(path + '/' + collection_fname, xml_declaration=True)
+		pvd_filename = os.path.abspath(path + '/' + collection_fname)
+		tree.write(pvd_filename, xml_declaration=True)
+		print 'Wrote ParaView collection file: ' + pvd_filename
+
 
 
 #####################################
 ########### Wake Grid Data ##########
 #####################################
 class CactusWakeGrid():
-	""" Class which loads WakeGridData from a pandas dataframe and creates appropriately-shaped
-			Numpy arrays. Grid node locations X,Y,Z are assumed to be invariant in time. """
+	""" Class for reading WakeData (element) from CSV files. Grid node locations X,Y,Z are assumed
+		to be invariant in time. """
 
-	def __init__(self, df):
+	def __init__(self, filenames):
+		self.filenames = filenames
+		self.num_times = len(filenames)
+		self.times = []
+		
+		# dictionary of time : filename
+		self.fdict = {}
+
+		# get the times for each timestep
+		# the name of the column containing time info
 		time_col_name = 'Normalized Time (-)'
-		x_col_name = 'X/R (-)'
-		y_col_name = 'Y/R (-)'
-		z_col_name = 'Z/R (-)'
-		u_col_name = 'U/Uinf (-)'
-		v_col_name = 'V/Uinf (-)'
-		w_col_name = 'W/Uinf (-)'
+	
+		for fname in filenames:
+			time = get_file_time(fname, time_col_name)
+			self.times.append(time)
+			self.fdict[time] = fname
 
-		# get unique times
-		self.times = df.loc[:,time_col_name].unique()
+		# get grid dimensions by reading the first file
+		# (note that this isn't necessarily the FIRST timestep, just the first file from glob)
+		df = load_data(filenames[0])
+		_, grid_dims = self.wakegriddata_from_df(df)
 
-		# get number of times
-		self.num_times = len(self.times)
+		# unpack grid dimensions, save as instance variables
+		self.nx   = grid_dims['nx']
+		self.ny   = grid_dims['ny']
+		self.nz   = grid_dims['nz']
+		self.dx   = grid_dims['dx']
+		self.dy   = grid_dims['dy']
+		self.dz   = grid_dims['dz']
+		self.xlim = grid_dims['xlim']
+		self.ylim = grid_dims['ylim']
+		self.zlim = grid_dims['zlim']
 
-		# extract the columns
-		x  = df.loc[:,x_col_name]
-		y  = df.loc[:,y_col_name]
-		z  = df.loc[:,z_col_name]
-		u  = df.loc[:,u_col_name]
-		v  = df.loc[:,v_col_name]
-		w  = df.loc[:,w_col_name]
 
-		# get grid dimensions
-		self.nt = self.num_times
-		self.nx = len(x.unique())
-		self.ny = len(y.unique())
-		self.nz = len(z.unique())
+	def get_df_inst(self, time=None, fname=None):
+		""" Returns instantaneous wake grid dataframe from a specified time (or filename). """
 
-		self.dx = (x.max() - x.min())/self.nx
-		self.dy = (y.max() - y.min())/self.ny
-		self.dz = (z.max() - z.min())/self.nz
+		if (time is None) and (fname is None):
+			 print 'Error: must specify either the time or filename of the desired data.'
+
+		if time is not None:
+			# if the time is specified, get the filename
+			fname = self.fdict[time]
+		else:
+			# otherwise, use the filename given
+			pass
+
+		# read the CSV data file
+		df_inst = load_data(fname)
+
+		return df_inst
+
+	
+	def wakegriddata_from_df(self, df):
+		""" Extracts data from a dataframe containing wake grid data. """
+		# column names
+		time_col_name = 'Normalized Time (-)'
+		x_col_name    = 'X/R (-)'
+		y_col_name    = 'Y/R (-)'
+		z_col_name    = 'Z/R (-)'
+		u_col_name    = 'U/Uinf (-)'
+		v_col_name    = 'V/Uinf (-)'
+		w_col_name    = 'W/Uinf (-)'
+
+		# extract columns
+		x   = df.loc[:,x_col_name]
+		y   = df.loc[:,y_col_name].values
+		z   = df.loc[:,z_col_name].values
+		u   = df.loc[:,u_col_name].values
+		v   = df.loc[:,v_col_name].values
+		w   = df.loc[:,w_col_name].values
 		
-		# reshape grid nodes into 3-D numpy array
-		# note that in Python, the final index is the fastest changing
-		X = np.reshape(x, [self.nt, self.nz, self.ny, self.nx])
-		Y = np.reshape(y, [self.nt, self.nz, self.ny, self.nx])
-		Z = np.reshape(z, [self.nt, self.nz, self.ny, self.nx])
-
-		self.X = np.reshape(X[0,:,:,:], [self.nz, self.ny, self.nx])
-		self.Y = np.reshape(Y[0,:,:,:], [self.nz, self.ny, self.nx])
-		self.Z = np.reshape(Z[0,:,:,:], [self.nz, self.ny, self.nx])
+		# compute grid dimensions
+		xmin = x.min()
+		xmax = x.max()
+		ymin = y.min()
+		ymax = y.max()
+		zmin = z.min()
+		zmax = z.max() 
 		
-		# reshape velocity fields into 4-D numpy array
-		self.U = np.reshape(u, [self.nt, self.nz, self.ny, self.nx])
-		self.V = np.reshape(v, [self.nt, self.nz, self.ny, self.nx])
-		self.W = np.reshape(w, [self.nt, self.nz, self.ny, self.nx])
+		nx   = len(np.unique(x))
+		ny   = len(np.unique(y))    # number of grid points
+		nz   = len(np.unique(z))
+		
+		dx   = (xmax-xmin)/nx
+		dy   = (ymax-ymin)/ny       # grid spacing
+		dz   = (zmax-zmin)/nz
+		
+		xlim = [xmin, xmax]
+		ylim = [ymin, ymax]         # grid extents
+		zlim = [zmin, zmax]
+		
+		# reshape to 3-D structured numpy arrays
+		# (note that in Python, the final index is the fastest changing)
+		X = np.reshape(x, [nz, ny, nx])
+		Y = np.reshape(y, [nz, ny, nx])
+		Z = np.reshape(z, [nz, ny, nx])
 
-	def slice_in_space(self, axis, i, inplace=False):
-		""" Returns a subset of of the data on a plane normal to the specified axis
-			at the n-th index from the minimum. Return a 3-D array with the first 
-			index being in time.
+		U = np.reshape(u, [nz, ny, nx])
+		V = np.reshape(v, [nz, ny, nx])
+		W = np.reshape(w, [nz, ny, nx])
 
-			If the inplace flag is set to True, the class memory will be overwritten with the sliced data.
-			This is useful for reducing memory usage of wake data, if not all the wake data is required 
-			in memory."""
+		# store data and dimensions as dicts
+		grid_data = {'X' : X,
+					 'Y' : Y,
+					 'Z' : Z,
+					 'U' : U,
+					 'V' : V,
+					 'W' : W}
 
-		def slice_reshape(axis, F, i, nt, n1, n2):
-			if axis == 'x':
-				F = np.reshape(F[:,:,:,i], [nt, n2, n1])
-			elif axis == 'y':
-				F = np.reshape(F[:,:,i,:], [nt, n2, n1])
-			elif axis == 'z':
-				F = np.reshape(F[:,i,:,:], [nt, n2, n1])
+		grid_dims = {'nx' : nx,
+					 'ny' : ny,
+					 'nz' : nz,
+					 'dx' : dx,
+					 'dy' : dy,
+					 'dz' : dz,
+					 'xlim' : xlim,
+					 'ylim' : ylim,
+					 'zlim' : zlim}
 
-			return F
+		return grid_data, grid_dims
 
-		# set the grid dimensions depending on which axis is selected
-		nt = self.nt
-		if axis=='x':
-			n1 = self.ny
-			n2 = self.nz
-		if axis=='y':
-			n1 = self.nx
-			n2 = self.nz
-		if axis=='z':
-			n1 = self.nx
-			n2 = self.ny	
 
-		# reshape the velocity data
-		U = slice_reshape(axis, self.U, i, nt, n1, n2)
-		V = slice_reshape(axis, self.V, i, nt, n1, n2)
-		W = slice_reshape(axis, self.W, i, nt, n1, n2)
-
-		if inplace==True:
-			self.U = U
-			self.V = V
-			self.W = W
-
-		return U, V, W
-
-	def write_vtk(self, path, name):
-		""" write_vtk(path, name) : writes the wake grid data to a time series of VTK files in a
+	def write_vtk_series(self, path, name):
+		""" write_vtk_series(path, name) : writes the wake grid data to a time series of VTK files in a
 				location specified by `path`. A Paraview .pvd file that contains the normalized
 				times at each timestep is also written. Velocity data is written as a vector field."""
 
 		from evtk.hl import gridToVTK 		# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
-
-		# load data
-		times = self.times
-		X = self.X
-		Y = self.Y
-		Z = self.Z
-		U = self.U
-		V = self.V
-		W = self.W
 
 		# set the collection filename
 		collection_fname = name + ".pvd"
@@ -302,12 +353,30 @@ class CactusWakeGrid():
 		collection = ET.SubElement(root, "Collection")
 
 		# write the VTK files
-		for ti, time in enumerate(times):
+		for i, time in enumerate(np.sort(self.times)):
+			# get the system time (for elapsed time)
+			t_start = tmod.time()
+
+			# get the filename containing the data at current time
+			fname = self.fdict[time]
+
 			# base name of data file
-			vtk_name = name + '_' + str(ti)
-			
+			vtk_name = name + '_' + str(i)
+
+			# read the CSV data file
+			df_inst              = self.get_df_inst(time=time)
+			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+
+			# unpack the grid data
+			X = grid_data['X']
+			Y = grid_data['Y']
+			Z = grid_data['Z']
+			U = grid_data['U']
+			V = grid_data['V']
+			W = grid_data['W']
+
 			# write vector fields to data file
-			velocity = (U[ti,Ellipsis], V[ti,Ellipsis], W[ti,Ellipsis])
+			velocity = (U, V, W)
 			data_filename = gridToVTK(path + '/' + vtk_name, X, Y, Z, pointData={"velocity": velocity})
 
 			# add elements to XML tree for PVD collection file
@@ -315,99 +384,39 @@ class CactusWakeGrid():
 			dataset.set("timestep", str(time))
 			dataset.set("file", os.path.basename(data_filename))
 
+			# print status message
+			elapsed_time = tmod.time() - t_start
+			print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
+
 		# write the collection file
 		tree = ET.ElementTree(root)
-		tree.write(path + '/' + collection_fname, xml_declaration=True)
+		pvd_filename = os.path.abspath(path + '/' + collection_fname)
+		tree.write(pvd_filename, xml_declaration=True)
+		print 'Wrote ParaView collection file: ' + pvd_filename
 
 
 #####################################
 ######### Module  Functions #########
 #####################################
-def find_nearest(array, value):
-	""" find_nearest() : returns the value and index of the nearest point in a 1-d array. """
-	index = (np.abs(array-value)).argmin()
-	nearest_value = array[index]
-
-	return nearest_value, index
-
-
-def field_time_stats(field, times, t_start, t_end):
-	""" field_time_stats() : provides time statistics for a scalar field (ordered with time as 
-			the first index) from t_start to t_end. The times are specified with the 1-D array
-			`times'. The scalar field may be of any dimension.""" 
-
-	if t_start < times[0]:
-		warn('The specified start time %f for the averaging operation is outside of the range of \
-				the data. Averaging from beginning.' % t_start)
-		index_start = 0
-
-	else:
-		# find the index corresponding to t_start
-		nearest_t_start, index_start = find_nearest(times, t_start)	
+def load_data(data_filename):
+	""" load_data(data_filename) : Reads a CSV file using pandas and returns a pandas dataframe """
 	
-	if t_end > times[-1]:
-		warn('The specified end time %f for the averaging operation is outside of the range of the \
-				data. Averaging to end.' % t_end)
-		index_end = -1
-
-	elif t_end == -1:
-		index_end = -1
-
-	else:
-		# find the index corresponding to t_end
-		nearest_t_end  , index_end   = find_nearest(times, t_end)
-
-	# compute statistics in time
-	mean = np.mean(field[index_start:index_end, Ellipsis], axis=0)
-	stdf = np.std(field[index_start:index_end, Ellipsis], axis=0)
-	minf = np.min(field[index_start:index_end, Ellipsis], axis=0)
-	maxf = np.max(field[index_start:index_end, Ellipsis], axis=0)
-
-	return mean, stdf, minf, maxf
-
-def get_line_quantity(x_loc, X, Y, U):
-	""" get_line_quantity() : Extracts the value of a scalar field U stored at locations X,Y
-		on a vertical line running nearest to x_loc. """
-
-	# find the nearest location to the desired slice
-	x_grid = np.unique(X)
-	x_nearest, idx_nearest = find_nearest(x_grid, x_loc)
-
-	return U[:,idx_nearest], x_nearest, idx_nearest
-
-
-def calc_momentum_def(x_loc, X, Y, U):
-	""" calc_momentum_def() : Calculates the integral momentum deficit of scalar field U stored at \
-		locations X,Y on a vertical line that runs nearest to x_loc. """
+	reader = pd.read_csv(data_filename, iterator=True, chunksize=1000)
+	df = pd.concat(reader, ignore_index=True)
 	
-	U_line, x_line, x_idx_line = get_line_quantity(x_loc, X, Y, U)
-	y_line = Y[:,x_idx_line]
-
-	return scipy.integrate.trapz(U_line*(1-U_line), y_line)
+	df.rename(columns=lambda x: x.strip(), inplace=True)	# strip whitespace from colnames
+	return df
 
 
-def calc_tke(U, V, W, times, t_start, t_end):
-	""" calc_tke() : Calculates the turbulent kinetic energy of a velocity field given by scalar
-			fields U,V,W on a plane with coordinates X,Y. Note that U,V,W are a time series, with
-			time as the first index. The time statistics are computed only from t_start to t_end.
+def get_file_time(data_filename, time_col_name):
+	""" get_file_time(data_filename) : Returns the time of an instantaneous data set by reading the 
+		first two rows."""
 
-			Returns the TKE as a scalar field.
+	with open(data_filename) as f:
+		header = f.readline()
+		row1   = f.readline()
 
-			http://en.wikipedia.org/wiki/Turbulence_kinetic_energy"""
-
-	# calculate the mean flow of each component
-	U_mean, _, _, _ = field_time_stats(U, times, t_start, t_end)
-	V_mean, _, _, _ = field_time_stats(V, times, t_start, t_end)
-	W_mean, _, _, _ = field_time_stats(W, times, t_start, t_end)
-
-	# calculate the fluctation of each velocity component
-	U_fluc = U_mean - U
-	V_fluc = V_mean - V
-	W_fluc = W_mean - W
-
-	# compute the TKE
-	tke = 0.5*(np.mean(np.power(U_fluc,2),axis=0) +  
-			np.mean(np.power(V_fluc,2),axis=0) +  
-			np.mean(np.power(W_fluc,2),axis=0))
-
-	return tke
+		time_col_num = header.split(',').index(time_col_name)
+		time = float(row1.split(',')[time_col_num])
+	
+	return time

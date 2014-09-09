@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # pyCactus.py : A module for parsing CACTUS run (input and output) files.
 
+import os
+import glob
+import fnmatch
+
 import numpy as np
 import pandas as pd
 
@@ -15,85 +19,120 @@ class CactusRun():
 		else:
 			self.input_fname = input_fname
 
+		# if a geometry filename is specified, use that. otherwise, assume its [case_name].geom
 		if not geom_fname:
 			self.geom_fname = case_name + '.geom'
 		else:
 			self.geom_fname = geom_fname
 
-		# output files
-		self.elem_fname    = case_name + '_ElementData.csv'
-		self.param_fname   = case_name + '_Param.csv'
-		self.rev_fname     = case_name + '_RevData.csv'
-		self.time_fname    = case_name + '_TimeData.csv'
-		self.wake_fname    = case_name + '_WakeData.csv'
-		self.wakegrid_fname = case_name + '_WakeDefData.csv'
+		# CACTUS output files
+		self.elem_filename      = os.path.abspath(run_directory + '/' + case_name + '_ElementData.csv')
+		self.param_filename     = os.path.abspath(run_directory + '/' + case_name + '_Param.csv')
+		self.rev_filename       = os.path.abspath(run_directory + '/' + case_name + '_RevData.csv')
+		self.time_filename      = os.path.abspath(run_directory + '/' + case_name + '_TimeData.csv')
 		
-		# read data from CSV-formatted output files, incorporating try/except for possible
-		# file read errors.
+		# Check if other data files exist
+		for filename in [self.elem_filename,
+						 self.param_filename,
+						 self.rev_filename,
+						 self.time_filename]:
+			if not os.path.isfile(filename):
+				print 'Warning: file ' + filename + ' does not exist.'
+		
+		# Look for the wake data files anywhere in the directory
+		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData*.csv')
+		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData*csv')
+		
+		# Warn if no wake data is found
+		if not self.wake_filenames:
+			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData*.csv\'.'
 
-		# set error flags
-		wake_error     = False
-		wakegrid_error = False
+		if not self.wakegrid_filenames:
+			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData*.csv\'.'
 
-		# element data
-		try:
-			self.elem_data = self.load_data(run_directory + '/' + self.elem_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.elem_fname
+		# initialize "is loaded" flags
+		self.elem_data_isloaded     = False
+		self.param_data_isloaded    = False
+		self.rev_data_isloaded      = False
+		self.time_data_isloaded     = False
 
-		# parameters
-		try:
-			self.param_data = self.load_data(run_directory + '/' + self.param_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.param_fname
+		# intialize classes for wake data
+		try: self.wakeelems = CactusWakeElems(self.wake_filenames)
+		except: print 'Warning: Problem loading wake element data.'
 
-		# revolution-averaged data
-		try:
-			self.rev_data = self.load_data(run_directory + '/' + self.rev_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.rev_fname
+		try: self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
+		except: print 'Warning: Problem loading wake grid element data.'
 
-		# time data
-		try:
-			self.time_data = self.load_data(run_directory + '/' + self.time_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.time_fname
+	#####################################
+	######## Data as Properties #########
+	#####################################
+	@property
+	def elem_data(self):
+		if self.elem_data_isloaded is False:
+			# element data
+			try:
+				self.elem_data_isloaded = True
+				return self.load_data(self.elem_filename)
+			except:
+				self.elem_data_isloaded = False
+				print "Warning: could not load file ", self.elem_filename
 
-		# wake data
-		try:
-			self.wake_data = self.load_data(run_directory + '/' + self.wake_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.wake_fname
-			wake_error = True
+	@property
+	def param_data(self):
+		if self.param_data_isloaded is False:
+			# parament data
+			try:
+				self.param_data_isloaded = True
+				return self.load_data(self.param_filename)
+			except:
+				self.param_data_isloaded = False
+				print "Warning: could not load file ", self.param_filename
 
-		# wake element data
-		try:
-			self.wakegrid_data = self.load_data(run_directory + '/' + self.wakegrid_fname)
-		except:
-			print "Could not load file : ", run_directory + '/' + self.wakegrid_fname
-			wakegrid_error = True
+	@property
+	def rev_data(self):
+		if self.rev_data_isloaded is False:
+			# revent data
+			try:
+				self.rev_data_isloaded = True
+				return self.load_data(self.rev_filename)
+			except:
+				self.rev_data_isloaded = False
+				print "Warning: could not load file ", self.rev_filename
 
-		# create geometry instance (reads in geometry variables)
-		self.geom = CactusGeom(run_directory + '/' + self.geom_fname)
-
-		if wake_error == False:
-			try: self.wakeelems = CactusWakeElems(self.wake_data)
-			except: print "Warning: Could not read wake data into CSV."
-				
-		if wakegrid_error == False:
-			try: self.wakegrid = CactusWakeGrid(self.wakegrid_data)
-			except: print "Warning: Could not read wakegrid data into CSV."
-
+	@property
+	def time_data(self):
+		if self.time_data_isloaded is False:
+			# timeent data
+			try:
+				self.time_data_isloaded = True
+				return self.load_data(self.time_filename)
+			except:
+				self.time_data_isloaded = False
+				print "Warning: could not load file ", self.time_filename
 
 
 	#####################################
 	######### Private Functions #########
 	#####################################
+	def recursive_glob(self, rootdir='.', pattern='*'):
+		""" A function to search recursively for files matching a specified pattern.
+			Adapted from http://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python """
+
+		matches = []
+		for root, dirnames, filenames in os.walk(rootdir):
+		  for filename in fnmatch.filter(filenames, pattern):
+		      matches.append(os.path.join(root, filename))
+
+		return matches
+
 	def load_data(self, data_filename):
 		# reads a CSV file using pandas and returns a pandas dataframe
-		df = pd.read_csv(data_filename)
+		reader = pd.read_csv(data_filename, iterator=True, chunksize=1000)
+		df = pd.concat(reader, ignore_index=True)
+		
 		df.rename(columns=lambda x: x.strip(), inplace=True)	# strip whitespace from colnames
 		return df
+
 
 	####################################
 	######### Public Functions #########
@@ -166,6 +205,6 @@ class CactusRun():
 		time = times[time_index]
 
 		# extract the subset of data corresponding to the desired time_index
-		df = df[df['Normalized Time (-)'] == times[time_index]]
+		df = df[df[time_col_name] == times[time_index]]
 
 		return df, time
