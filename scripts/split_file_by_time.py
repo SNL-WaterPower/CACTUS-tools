@@ -63,7 +63,7 @@ def split_file_by_time(data_filename, output_dir, ts_start, ts_interval):
                 time_prev = time
 
         # write the final timestep
-        outfilename = path + '/' + basename + '_' + str(ts_start + ts_count*ts_interval) + '.' + ext
+        outfilename = output_dir + '/' + basename + '_' + str(ts_start + ts_count*ts_interval) + '.' + ext
         out = open(outfilename, 'w')
         out.write(header)
         out.write(lines)
