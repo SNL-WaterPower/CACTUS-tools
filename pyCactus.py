@@ -40,15 +40,15 @@ class CactusRun():
 				print 'Warning: file ' + filename + ' does not exist.'
 		
 		# Look for the wake data files anywhere in the directory
-		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData*.csv')
-		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData*csv')
+		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData_*.csv')
+		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData_*csv')
 		
 		# Warn if no wake data is found
 		if not self.wake_filenames:
-			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData*.csv\'.'
+			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData_*.csv\'.'
 
 		if not self.wakegrid_filenames:
-			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData*.csv\'.'
+			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
 
 		# initialize "is loaded" flags
 		self.elem_data_isloaded     = False
