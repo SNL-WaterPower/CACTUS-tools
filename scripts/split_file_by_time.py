@@ -12,6 +12,7 @@
 
 import os
 import sys
+import time as pytime
 
 def split_file_by_time(data_filename, output_dir, ts_start, ts_interval):
     # split the filename
@@ -23,8 +24,15 @@ def split_file_by_time(data_filename, output_dir, ts_start, ts_interval):
     time_prev = ''
     ts_count = 0
 
+    # make output directory if necessary
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     # loop through the file
     with open(path + '/' + basename + '.' + ext) as f:
+        # get current time
+        etime_start = pytime.time()
+        etime_file = etime_start
         for i, line in enumerate(f):
             if i == 0:
                 header = line
@@ -37,12 +45,14 @@ def split_file_by_time(data_filename, output_dir, ts_start, ts_interval):
 
                 elif time != time_prev:
                     # at a new timestep, write the header and lines to a file
-                    outfilename = path + '/' + basename + '_' + str(ts_start + ts_count*ts_interval) + '.' + ext
+                    outfilename = output_dir + '/' + basename + '_' + str(ts_start + ts_count*ts_interval) + '.' + ext
                     out = open(outfilename, 'w')
                     out.write(header)
                     out.write(lines)
                     out.close()
-                    print 'Finished writing file: ' + outfilename
+
+                    print 'Finished writing file: ' + outfilename + ' in %2.2f seconds' % (pytime.time() - etime_file)
+                    etime_file = pytime.time()
 
                     # make the current line the starting line
                     lines = line
@@ -58,8 +68,8 @@ def split_file_by_time(data_filename, output_dir, ts_start, ts_interval):
         out.write(header)
         out.write(lines)
         out.close()
-        print 'Finished writing file: ' + outfilename
-        print 'Complete!'
+        print 'Finished writing file: ' + outfilename + ' in %2.2f seconds' % (pytime.time() - etime_file)
+        print 'Completed in %2.2f seconds' % (pytime.time() - etime_start)
 
 if __name__ == '__main__':
     # check for command line args
@@ -77,6 +87,6 @@ if __name__ == '__main__':
     except: ts_start    = 1
 
     try: ts_interval    = sys.argv[4]
-    except: ts_interval = 5
+    except: ts_interval = 1
 
     split_file_by_time(data_filename, output_dir, ts_start, ts_interval)
