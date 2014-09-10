@@ -16,10 +16,6 @@ import sys
 import time
 import glob
 
-# get pyCactus path from environment variables
-PYCACTUS_PATH = os.environ['PYCACTUS_PATH']
-sys.path.append(PYCACTUS_PATH)
-
 import pyCactus
 import pyCactusWake
 
