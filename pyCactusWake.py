@@ -7,9 +7,6 @@ import time as tmod
 import numpy as np
 import pandas as pd
 
-import scipy.integrate
-
-import matplotlib.pyplot as plt
 from warnings import *
 
 #####################################
