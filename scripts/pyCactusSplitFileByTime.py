@@ -1,4 +1,4 @@
-# split_file_by_time.py
+# pyCactusSplitFileByTime.py
 # =====================
 # Splits a CACTUS time-series data file into multiple files, with each file containing a single
 #   timestep. Assumes that the time data is in the first column of the file.
@@ -7,7 +7,7 @@
 #   calculated assuming a constant timestep. The optional parameters ts_start and ts_interval
 #   specify the starting timestep and number of timesteps between data writes.
 #
-#   Usage: split_file_by_time.py [datafile.csv] [output_dir] [ts_start] [ts_interval]
+#   Usage: pyCactusSplitFileByTime.py [datafile.csv] [output_dir] [ts_start] [ts_interval]
 #
 
 import os
