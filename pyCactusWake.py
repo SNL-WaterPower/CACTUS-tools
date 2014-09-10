@@ -144,12 +144,12 @@ class CactusWakeElems():
 
 			# unpack the data from dictionary
 			elems = data_arrays['elems']
-			x = data_arrays['x']
-			y = data_arrays['y']
-			z = data_arrays['z']
-			u = data_arrays['u']
-			v = data_arrays['v']
-			w = data_arrays['w']
+			x = np.float32(data_arrays['x'])
+			y = np.float32(data_arrays['y'])
+			z = np.float32(data_arrays['z'])
+			u = np.float32(data_arrays['u'])
+			v = np.float32(data_arrays['v'])
+			w = np.float32(data_arrays['w'])
 
 			# if the data has node ids already, load the data
 			if has_node_ids:
@@ -173,11 +173,12 @@ class CactusWakeElems():
 				adder      = multiplier * elems_per_timestep
 				node_ids   = adder + elems
 
-				# convert to a uint32 (fixes some problems importing into VTK/ParaView)
-				node_ids = np.int32(node_ids)
 			else:
 				# otherwise, just use the node_ids that we loaded from the data set before
 				pass
+
+			# convert to a uint32 (fixes some problems importing into VTK/ParaView)
+			node_ids = np.uint32(node_ids)
 
 
 			# store vector field in a dict
@@ -276,6 +277,9 @@ class CactusWakeGrid():
 		u_col_name    = 'U/Uinf (-)'
 		v_col_name    = 'V/Uinf (-)'
 		w_col_name    = 'W/Uinf (-)'
+		ufs_col_name  = 'Ufs/Uinf (-)'
+		vfs_col_name  = 'Vfs/Uinf (-)'
+		wfs_col_name  = 'Wfs/Uinf (-)'
 
 		# extract columns
 		x   = df.loc[:,x_col_name]
@@ -284,7 +288,16 @@ class CactusWakeGrid():
 		u   = df.loc[:,u_col_name].values
 		v   = df.loc[:,v_col_name].values
 		w   = df.loc[:,w_col_name].values
-		
+
+		# extract freestream velocity data if it is there
+		has_vel_fs = False
+
+		if ufs_col_name in df and vfs_col_name in df and wfs_col_name in df:
+			has_vel_fs = True
+			ufs = df.loc[:,ufs_col_name].values
+			vfs = df.loc[:,vfs_col_name].values
+			wfs = df.loc[:,wfs_col_name].values
+
 		# compute grid dimensions
 		xmin = x.min()
 		xmax = x.max()
@@ -307,13 +320,18 @@ class CactusWakeGrid():
 		
 		# reshape to 3-D structured numpy arrays
 		# (note that in Python, the final index is the fastest changing)
-		X = np.reshape(x, [nz, ny, nx])
-		Y = np.reshape(y, [nz, ny, nx])
-		Z = np.reshape(z, [nz, ny, nx])
+		X = np.float32(np.reshape(x, [nz, ny, nx]))
+		Y = np.float32(np.reshape(y, [nz, ny, nx]))
+		Z = np.float32(np.reshape(z, [nz, ny, nx]))
 
-		U = np.reshape(u, [nz, ny, nx])
-		V = np.reshape(v, [nz, ny, nx])
-		W = np.reshape(w, [nz, ny, nx])
+		U = np.float32(np.reshape(u, [nz, ny, nx]))
+		V = np.float32(np.reshape(v, [nz, ny, nx]))
+		W = np.float32(np.reshape(w, [nz, ny, nx]))
+
+		if has_vel_fs:
+			Ufs = np.float32(np.reshape(ufs, [nz, ny, nx]))
+			Vfs = np.float32(np.reshape(vfs, [nz, ny, nx]))
+			Wfs = np.float32(np.reshape(wfs, [nz, ny, nx]))
 
 		# store data and dimensions as dicts
 		grid_data = {'X' : X,
@@ -322,6 +340,11 @@ class CactusWakeGrid():
 					 'U' : U,
 					 'V' : V,
 					 'W' : W}
+
+		if has_vel_fs:
+			grid_data['Ufs'] = Ufs
+			grid_data['Vfs'] = Vfs
+			grid_data['Wfs'] = Wfs
 
 		grid_dims = {'nx' : nx,
 					 'ny' : ny,
@@ -375,9 +398,26 @@ class CactusWakeGrid():
 			V = grid_data['V']
 			W = grid_data['W']
 
-			# write vector fields to data file
+			# save velocity fields as tuples
 			velocity = (U, V, W)
-			data_filename = gridToVTK(path + '/' + vtk_name, X, Y, Z, pointData={"velocity": velocity})
+
+			# create dictionary of data
+			pointData = {'velocity' : velocity}
+			
+			# check if the file has freestream velocity data
+			if 'Ufs' in grid_data and 'Vfs' in grid_data and 'Wfs' in grid_data:
+				# get the freestream velocity data
+				Ufs = grid_data['Ufs']
+				Vfs = grid_data['Vfs']
+				Wfs = grid_data['Wfs']
+
+				# save as tuple
+				velocity_fs = (Ufs, Vfs, Wfs)
+
+				# append to pointdata dictionary
+				pointData['velocity_fs']  = velocity_fs
+
+			data_filename = gridToVTK(path + '/' + vtk_name, X, Y, Z, pointData=pointData)
 
 			# add elements to XML tree for PVD collection file
 			dataset = ET.SubElement(collection, "DataSet")
