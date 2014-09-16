@@ -4,6 +4,7 @@
 import os
 import glob
 import fnmatch
+import time as pytime
 
 import numpy as np
 import pandas as pd
@@ -25,6 +26,9 @@ class CactusRun():
 		else:
 			self.geom_fname = geom_fname
 
+		# Geometry file
+		self.geom_filename = os.path.abspath(run_directory + '/' + self.geom_fname)
+
 		# CACTUS output files
 		self.elem_filename      = os.path.abspath(run_directory + '/' + case_name + '_ElementData.csv')
 		self.param_filename     = os.path.abspath(run_directory + '/' + case_name + '_Param.csv')
@@ -35,7 +39,8 @@ class CactusRun():
 		for filename in [self.elem_filename,
 						 self.param_filename,
 						 self.rev_filename,
-						 self.time_filename]:
+						 self.time_filename,
+						 self.geom_filename]:
 			if not os.path.isfile(filename):
 				print 'Warning: file ' + filename + ' does not exist.'
 		
@@ -57,11 +62,23 @@ class CactusRun():
 		self.time_data_isloaded     = False
 
 		# intialize classes for wake data
-		try: self.wakeelems = CactusWakeElems(self.wake_filenames)
+		try:
+			tic = pytime.time() 
+			self.wakeelems = CactusWakeElems(self.wake_filenames)
+			print 'Loaded wake element data in %2.2f s' % (pytime.time() - tic)
 		except: print 'Warning: Problem loading wake element data.'
 
-		try: self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
-		except: print 'Warning: Problem loading wake grid element data.'
+		try:
+			tic = pytime.time()
+			self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
+			print 'Loaded wake grid data in %2.2f s' % (pytime.time() - tic)
+		except: print 'Warning: Problem loading wake grid data.'
+
+		# intialize geometry class
+		try: self.geom = CactusGeom(self.geom_filename)
+		except: print 'Warning: Problem loading geometry file.'
+
+		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
 
 	#####################################
 	######## Data as Properties #########
@@ -72,10 +89,14 @@ class CactusRun():
 			# element data
 			try:
 				self.elem_data_isloaded = True
-				return self.load_data(self.elem_filename)
+				self.elem_data_memory = self.load_data(self.elem_filename)
+				return self.elem_data_memory
 			except:
 				self.elem_data_isloaded = False
 				print "Warning: could not load file ", self.elem_filename
+		else:
+			return self.elem_data_memory
+
 
 	@property
 	def param_data(self):
@@ -83,10 +104,14 @@ class CactusRun():
 			# parament data
 			try:
 				self.param_data_isloaded = True
-				return self.load_data(self.param_filename)
+				self.param_data_memory = self.load_data(self.param_filename)
+				return self.param_data_memory
 			except:
 				self.param_data_isloaded = False
 				print "Warning: could not load file ", self.param_filename
+		else:
+			return self.param_data_memory
+
 
 	@property
 	def rev_data(self):
@@ -94,10 +119,12 @@ class CactusRun():
 			# revent data
 			try:
 				self.rev_data_isloaded = True
-				return self.load_data(self.rev_filename)
+				self.rev_data_memory = self.load_data(self.rev_filename)
 			except:
 				self.rev_data_isloaded = False
 				print "Warning: could not load file ", self.rev_filename
+		else:
+			return self.rev_data_memory
 
 	@property
 	def time_data(self):
@@ -105,10 +132,13 @@ class CactusRun():
 			# timeent data
 			try:
 				self.time_data_isloaded = True
-				return self.load_data(self.time_filename)
+				self.time_data_memory = self.load_data(self.time_filename)
+				return self.time_data_memory
 			except:
 				self.time_data_isloaded = False
 				print "Warning: could not load file ", self.time_filename
+		else:
+			return self.time_data_memory
 
 
 	#####################################
