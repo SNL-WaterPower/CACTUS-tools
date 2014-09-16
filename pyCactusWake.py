@@ -32,6 +32,9 @@ class CactusWakeElems():
 			self.times.append(time)
 			self.fdict[time] = fname
 
+		# sort the times
+		self.times = np.sort(np.array(self.times))
+
 
 	def get_df_inst(self, time=None, fname=None):
 		""" Returns instantaneous wake grid dataframe from a specified time (or filename). """
@@ -105,6 +108,9 @@ class CactusWakeElems():
 			A Paraview .pvd file that contains the normalized times at each timestep is also written.
 			If id_flag=True, each particle is assigned an ID so that it can be tracked. The input 
 			list blade_elems should contain the number of elements for each blade.
+
+			Note that if the original file contains a node_ids column already, then these will be written to
+			the VTK file regardless of if the id_flag is set.
 			
 			ID data is a scalar (integer)
 			Velocity data is a vector."""
@@ -227,6 +233,9 @@ class CactusWakeGrid():
 			time = get_file_time(fname, time_col_name)
 			self.times.append(time)
 			self.fdict[time] = fname
+
+		# sort the times
+		self.times = np.sort(np.array(self.times))
 
 		# get grid dimensions by reading the first file
 		# (note that this isn't necessarily the FIRST timestep, just the first file from glob)
@@ -430,6 +439,127 @@ class CactusWakeGrid():
 		pvd_filename = os.path.abspath(path + '/' + collection_fname)
 		tree.write(pvd_filename, xml_declaration=True)
 		print 'Wrote ParaView collection file: ' + pvd_filename
+
+
+	def field_time_average(self, ti_start=-5, ti_end=-1):
+		""" Computes the average of grid data on a range from self.times[ti_start:ti_end].
+			Default time range is from the 5th-last time to the final time.
+
+			Returns a dict containing the grid coordinates and averaged data. """
+
+		# number of timestep
+		num_times = len(self.times[ti_start:ti_end])
+
+		# sum fields
+		for ti, time in enumerate(self.times[ti_start:ti_end]):
+			df_inst = self.get_df_inst(time=time)
+			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+
+			if ti == 0:
+				# on the first timestep, save the grid data and initialize variables
+				X   = grid_data['X']
+				Y   = grid_data['Y']
+				Z   = grid_data['Z']
+
+				U   = grid_data['U']
+				V   = grid_data['V']
+				W   = grid_data['W']
+				Ufs = grid_data['Ufs']
+				Vfs = grid_data['Vfs']
+				Wfs = grid_data['Wfs']
+			else:
+				# on subsequent timesteps, just add the other fields
+				U   = U + grid_data['U']
+				V   = V + grid_data['V']
+				W   = W + grid_data['W']
+				Ufs = Ufs + grid_data['Ufs']
+				Vfs = Vfs + grid_data['Vfs']
+				Wfs = Wfs + grid_data['Wfs']
+
+		# then divide by the number of steps to get the average
+		U   = U/num_times
+		V   = V/num_times
+		W   = W/num_times
+		Ufs = Ufs/num_times
+		Vfs = Vfs/num_times
+		Wfs = Wfs/num_times
+
+		data_dict_mean = {'t' : self.times[ti_start:ti_end],
+					 'X' : X,
+					 'Y' : Y,
+					 'Z' : Z,
+					 'U' : U,
+					 'V' : V,
+					 'W' : W,
+					 'Ufs' : Ufs,
+					 'Vfs' : Vfs,
+					 'Wfs' : Wfs}
+					 
+		return data_dict_mean
+
+	def pointdata_time_series(self, p_list, ti_start=0, ti_end=-1):
+		""" Extracts a time series of data at a point p = (xp,yp,zp). Uses nearest-point to avoid interpolation. 
+			Optional parameters ti_start and ti_end specify the range of times to extract data from.
+
+			Returns a pandas dataframe containing the data. """
+		
+		# get the grid from the first timestep
+		df_inst = self.get_df_inst(time=self.times[0])
+		grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+		
+		x = np.unique(grid_data['X'])
+		y = np.unique(grid_data['Y'])
+		z = np.unique(grid_data['Z'])
+
+		kji_nearest = []
+
+		for p in p_list:
+			xp, yp, zp = p
+		
+			# compute indices of the point closest to xp,yp,zp
+			xi = np.abs(x-xp).argmin()
+			yi = np.abs(y-yp).argmin()
+			zi = np.abs(z-zp).argmin()
+
+			kji_nearest.append((zi,yi,xi))
+
+		# preallocate arrays
+		num_times = len(self.times[ti_start:ti_end])
+		num_points = len(p_list)
+
+		u   = np.zeros([num_points, num_times])
+		v   = np.zeros([num_points, num_times])
+		w   = np.zeros([num_points, num_times])
+		ufs = np.zeros([num_points, num_times])
+		vfs = np.zeros([num_points, num_times])
+		wfs = np.zeros([num_points, num_times])
+
+		# loop through the files and extract data
+		for ti, time in enumerate(self.times[ti_start:ti_end]):
+			# get the dataframe for the current time
+			df_inst = self.get_df_inst(time=time)
+
+			# extract data from the dataframe
+			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+
+			for pi, coords in enumerate(kji_nearest):
+				# extract data at point and store in array
+				u[pi, ti]   = (grid_data['U'])[coords]
+				v[pi, ti]   = (grid_data['V'])[coords]
+				w[pi, ti]   = (grid_data['W'])[coords]
+				ufs[pi, ti] = (grid_data['Ufs'])[coords]
+				vfs[pi, ti] = (grid_data['Vfs'])[coords]
+				wfs[pi, ti] = (grid_data['Wfs'])[coords]
+
+		data_dict = {'t' : self.times[ti_start:ti_end],
+					 'u' : u,
+					 'v' : v,
+					 'w' : w,
+					 'ufs' : ufs,
+					 'vfs' : vfs,
+					 'wfs' : wfs}
+
+		return data_dict
 
 
 #####################################
