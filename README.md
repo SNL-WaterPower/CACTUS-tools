@@ -1,4 +1,8 @@
 CACTUS-tools
 ============
 
-Tools for preprocessing (geometry generation) and post-processing of CACTUS results.
+Tools for pre-processing CACTUS inputs and post-processing CACTUS results.
+
+## pyCactus
+---
+A module containing post-processing classes and scripts.
