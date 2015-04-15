@@ -126,7 +126,10 @@ class CactusGeom():
 			for line_num, line in enumerate(lines):
 
 				# split the line at the colon
-				var_name, value = (line.strip()).split(':')
+				if line.strip():
+					var_name, value = (line.strip()).split(':')
+				else:
+					break
 
 				# if the variable name is Blade or Strut, take note of the line number
 				if var_name.startswith('Blade'):
