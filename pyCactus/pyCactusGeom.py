@@ -1,6 +1,5 @@
-#!/usr/bin/python
-# pyCactusGeom.py : A module for parsing CACTUS geometry files.
-
+# pyCactusGeom.py
+""" A module for parsing CACTUS geometry files. """
 
 import numpy as np
 

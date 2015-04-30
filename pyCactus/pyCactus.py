@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# pyCactus.py : A module for parsing CACTUS run (input and output) files.
+# pyCactus.py
+""" A module for parsing CACTUS run (input and output) files. """
 
 import os
 import glob

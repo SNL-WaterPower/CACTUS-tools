@@ -1,5 +1,5 @@
 # pyCactusWake.py
-""" Class and functions for manipulating wake velocity data from CACTUS."""
+""" Class and functions for manipulating wake velocity data from CACTUS. """
 
 import os
 import time as tmod
