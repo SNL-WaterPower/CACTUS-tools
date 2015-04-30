@@ -115,7 +115,7 @@ class CactusWakeElems():
 			ID data is a scalar (integer)
 			Velocity data is a vector."""
 
-		from evtk.hl import pointsToVTK 	# evtk module - import only if this function is called
+		from pyevtk.hl import pointsToVTK 	# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
 
 		# set the collection filename
@@ -370,7 +370,7 @@ class CactusWakeGrid():
 				location specified by `path`. A Paraview .pvd file that contains the normalized
 				times at each timestep is also written. Velocity data is written as a vector field."""
 
-		from evtk.hl import gridToVTK 		# evtk module - import only if this function is called
+		from pyevtk.hl import gridToVTK 		# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
 
 		# set the collection filename
