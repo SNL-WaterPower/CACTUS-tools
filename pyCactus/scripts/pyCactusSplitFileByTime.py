@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # pyCactusSplitFileByTime.py
 # =====================
 # Splits a CACTUS time-series data file into multiple files, with each file containing a single

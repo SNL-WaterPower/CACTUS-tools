@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # pyCactusCsvToVtk.py
 # =====================
 # Converts CACTUS instantaneous wake node and wake grid data files from CSV format to VTK using
@@ -22,7 +23,7 @@ import pyCactusWake
 if __name__ == '__main__':
     if len(sys.argv) < 4:
         print 'Not enough command line arguments.'
-        print '    Usage:    pyCactusCsvToVtk.py [case_path] [case_name]'
+        print '    Usage:    pyCactusCsvToVtk.py [case_path] [case_name] [output_dir]'
         sys.exit()
 
     # read in command-line arguments
