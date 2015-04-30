@@ -41,12 +41,27 @@ if __name__ == '__main__':
     wake_node_out_path = os.path.abspath(output_path + '/WakeNodeVTK')
     wake_grid_out_path = os.path.abspath(output_path + '/WakeGridVTK')
 
+    # make directories
     if not os.path.exists(wake_grid_out_path):
-        os.makedirs(wake_grid_out_path)
+        try:
+            os.makedirs(wake_grid_out_path)
+        except:
+            print 'There was an error creating the directory' + wake_grid_out_path
+
 
     if not os.path.exists(wake_node_out_path):
-        os.makedirs(wake_node_out_path)
+        try:
+            os.makedirs(wake_node_out_path)
+        except:
+            print 'There was an error creating the directory' + wake_node_out_path
 
     # write VTK series
-    run.wakeelems.write_vtk_series(wake_node_out_path, name=case_name + 'WakeNode')
-    run.wakegrid.write_vtk_series(wake_grid_out_path, name=case_name + 'WakeGrid')
+    try:
+        run.wakegrid.write_vtk_series(wake_grid_out_path, name=case_name + 'WakeGrid')
+    except:
+        print 'Error: There was an error writing the wake grid data out (possibly because it doesn\'t exist.)'
+        
+    try:            
+        run.wakeelems.write_vtk_series(wake_node_out_path, name=case_name + 'WakeNode')
+    except:
+        print 'Error: There was an error writing the wake node data out (possibly because it doesn\'t exist.)'
