@@ -13,7 +13,7 @@ from pyCactusGeom import *
 from pyCactusWake import *
 
 class CactusRun():
-	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
+	def __init__(self, run_directory, case_name, input_fname='', geom_fname='', load_wake_node=True, load_wake_grid=True):
 		# input file
 		if not input_fname:
 			self.input_fname = case_name + '.in'
@@ -62,17 +62,19 @@ class CactusRun():
 		self.time_data_isloaded     = False
 
 		# intialize classes for wake data
-		try:
-			tic = pytime.time() 
-			self.wakeelems = CactusWakeElems(self.wake_filenames)
-			print 'Loaded wake element data in %2.2f s' % (pytime.time() - tic)
-		except: print 'Warning: Problem loading wake element data.'
+		if load_wake_node:
+			try:
+				tic = pytime.time() 
+				self.wakeelems = CactusWakeElems(self.wake_filenames)
+				print 'Loaded wake element data in %2.2f s' % (pytime.time() - tic)
+			except: print 'Warning: Problem loading wake element data.'
 
-		try:
-			tic = pytime.time()
-			self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
-			print 'Loaded wake grid data in %2.2f s' % (pytime.time() - tic)
-		except: print 'Warning: Problem loading wake grid data.'
+		if load_wake_grid:
+			try:
+				tic = pytime.time()
+				self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
+				print 'Loaded wake grid data in %2.2f s' % (pytime.time() - tic)
+			except: print 'Warning: Problem loading wake grid data.'
 
 		# intialize geometry class
 		try: self.geom = CactusGeom(self.geom_filename)
