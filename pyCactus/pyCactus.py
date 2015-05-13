@@ -55,11 +55,11 @@ class CactusRun():
 		if not self.wakegrid_filenames:
 			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
 
-		# initialize "is loaded" flags
-		self.elem_data_isloaded     = False
-		self.param_data_isloaded    = False
-		self.rev_data_isloaded      = False
-		self.time_data_isloaded     = False
+		# load elem_data, rev_data, time_data, param_data
+		self.elem_data  = self.load_data(self.elem_filename)
+		self.param_data = self.load_data(self.param_filename)
+		self.rev_data   = self.load_data(self.rev_filename)
+		self.time_data  = self.load_data(self.time_filename)
 
 		# intialize classes for wake data
 		if load_wake_node:
@@ -81,66 +81,6 @@ class CactusRun():
 		except: print 'Warning: Problem loading geometry file.'
 
 		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
-
-	#####################################
-	######## Data as Properties #########
-	#####################################
-	@property
-	def elem_data(self):
-		if self.elem_data_isloaded is False:
-			# element data
-			try:
-				self.elem_data_isloaded = True
-				self.elem_data_memory = self.load_data(self.elem_filename)
-				return self.elem_data_memory
-			except:
-				self.elem_data_isloaded = False
-				print "Warning: could not load file ", self.elem_filename
-		else:
-			return self.elem_data_memory
-
-
-	@property
-	def param_data(self):
-		if self.param_data_isloaded is False:
-			# parament data
-			try:
-				self.param_data_isloaded = True
-				self.param_data_memory = self.load_data(self.param_filename)
-				return self.param_data_memory
-			except:
-				self.param_data_isloaded = False
-				print "Warning: could not load file ", self.param_filename
-		else:
-			return self.param_data_memory
-
-
-	@property
-	def rev_data(self):
-		if self.rev_data_isloaded is False:
-			# revent data
-			try:
-				self.rev_data_isloaded = True
-				self.rev_data_memory = self.load_data(self.rev_filename)
-			except:
-				self.rev_data_isloaded = False
-				print "Warning: could not load file ", self.rev_filename
-		else:
-			return self.rev_data_memory
-
-	@property
-	def time_data(self):
-		if self.time_data_isloaded is False:
-			# timeent data
-			try:
-				self.time_data_isloaded = True
-				self.time_data_memory = self.load_data(self.time_filename)
-				return self.time_data_memory
-			except:
-				self.time_data_isloaded = False
-				print "Warning: could not load file ", self.time_filename
-		else:
-			return self.time_data_memory
 
 
 	#####################################
