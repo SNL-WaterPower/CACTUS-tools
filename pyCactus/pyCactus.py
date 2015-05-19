@@ -8,6 +8,7 @@ import time as pytime
 
 import numpy as np
 import pandas as pd
+import f90nml
 
 from pyCactusGeom import *
 from pyCactusWake import *
@@ -20,65 +21,85 @@ class CactusRun():
 		else:
 			self.input_fname = input_fname
 
+		# read in the input file namelist
+		
+		if os.path.isfile(self.input_fname):
+			self.namelist = f90nml.read(self.input_fname)
+		else:
+			print 'Warning: Could not find file %s' % (self.input_fname)
+
 		# if a geometry filename is specified, use that. otherwise, assume its [case_name].geom
 		if not geom_fname:
 			self.geom_fname = case_name + '.geom'
 		else:
 			self.geom_fname = geom_fname
 
-		# Geometry file
-		self.geom_filename = os.path.abspath(run_directory + '/' + self.geom_fname)
-
-		# CACTUS output files
+		## assemble filenames
+		self.geom_filename      = os.path.abspath(run_directory + '/' + self.geom_fname)
 		self.elem_filename      = os.path.abspath(run_directory + '/' + case_name + '_ElementData.csv')
 		self.param_filename     = os.path.abspath(run_directory + '/' + case_name + '_Param.csv')
 		self.rev_filename       = os.path.abspath(run_directory + '/' + case_name + '_RevData.csv')
 		self.time_filename      = os.path.abspath(run_directory + '/' + case_name + '_TimeData.csv')
 		
-		# Check if other data files exist
-		for filename in [self.elem_filename,
-						 self.param_filename,
-						 self.rev_filename,
-						 self.time_filename,
-						 self.geom_filename]:
-			if not os.path.isfile(filename):
-				print 'Warning: file ' + filename + ' does not exist.'
-		
-		# Look for the wake data files anywhere in the directory
+		# search for wake data files anywhere in the directory
 		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData_*.csv')
 		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData_*csv')
 		
-		# Warn if no wake data is found
-		if not self.wake_filenames:
-			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData_*.csv\'.'
 
-		if not self.wakegrid_filenames:
-			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
+		## load data
+		# elem_data
+		if os.path.isfile(self.elem_filename):
+			self.elem_data  = self.load_data(self.elem_filename)
+		else:
+			print 'Warning: File ' + self.elem_filename + ' does not exist.'
 
-		# load elem_data, rev_data, time_data, param_data
-		self.elem_data  = self.load_data(self.elem_filename)
-		self.param_data = self.load_data(self.param_filename)
-		self.rev_data   = self.load_data(self.rev_filename)
-		self.time_data  = self.load_data(self.time_filename)
+		# rev_data
+		if os.path.isfile(self.rev_filename):
+			self.rev_data  = self.load_data(self.rev_filename)
+		else:
+			print 'Warning: File ' + self.rev_filename + ' does not exist.'
+			
+		# param_data
+		if os.path.isfile(self.param_filename):
+			self.elem_data  = self.load_data(self.param_filename)
+		else:
+			print 'Warning: File ' + self.param_filename + ' does not exist.'			
+			
+		# time_data
+		if os.path.isfile(self.time_filename):
+			self.elem_data  = self.load_data(self.time_filename)
+		else:
+			print 'Warning: File ' + self.time_filename + ' does not exist.'
+			
 
-		# intialize classes for wake data
-		if load_wake_node:
+		## load wake data
+		if self.wake_filenames:
 			try:
 				tic = pytime.time() 
 				self.wakeelems = CactusWakeElems(self.wake_filenames)
 				print 'Loaded wake element data in %2.2f s' % (pytime.time() - tic)
-			except: print 'Warning: Problem loading wake element data.'
+			except:
+				print 'Warning: Wake node data was found, but could not be loaded properly.'
+		else:
+			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData_*.csv\'.'
 
-		if load_wake_grid:
+		if self.wakegrid_filenames:
 			try:
 				tic = pytime.time()
 				self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
 				print 'Loaded wake grid data in %2.2f s' % (pytime.time() - tic)
-			except: print 'Warning: Problem loading wake grid data.'
+			except:
+				print 'Warning: Wake grid data was found, but could not be loaded properly.'
+		else:
+			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
 
-		# intialize geometry class
-		try: self.geom = CactusGeom(self.geom_filename)
-		except: print 'Warning: Problem loading geometry file.'
+
+		## load geometry data
+		if os.path.isfile(self.geom_filename):
+			self.geom = CactusGeom(self.geom_filename)
+		else:
+			print 'Warning: File ' + self.geom_filename + ' does not exist.'
+
 
 		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
 
