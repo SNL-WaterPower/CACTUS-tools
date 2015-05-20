@@ -60,13 +60,13 @@ class CactusRun():
 			
 		# param_data
 		if os.path.isfile(self.param_filename):
-			self.elem_data  = self.load_data(self.param_filename)
+			self.param_data  = self.load_data(self.param_filename)
 		else:
 			print 'Warning: File ' + self.param_filename + ' does not exist.'			
 			
 		# time_data
 		if os.path.isfile(self.time_filename):
-			self.elem_data  = self.load_data(self.time_filename)
+			self.time_data  = self.load_data(self.time_filename)
 		else:
 			print 'Warning: File ' + self.time_filename + ' does not exist.'
 			
@@ -200,3 +200,4 @@ class CactusRun():
 		df = df[df[time_col_name] == times[time_index]]
 
 		return df, time
+
