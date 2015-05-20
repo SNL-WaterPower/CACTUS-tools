@@ -21,13 +21,6 @@ class CactusRun():
 		else:
 			self.input_fname = input_fname
 
-		# read in the input file namelist
-		
-		if os.path.isfile(self.input_fname):
-			self.namelist = f90nml.read(self.input_fname)
-		else:
-			print 'Warning: Could not find file %s' % (self.input_fname)
-
 		# if a geometry filename is specified, use that. otherwise, assume its [case_name].geom
 		if not geom_fname:
 			self.geom_fname = case_name + '.geom'
@@ -35,16 +28,22 @@ class CactusRun():
 			self.geom_fname = geom_fname
 
 		## assemble filenames
+		self.input_filename     = os.path.abspath(run_directory + '/' + self.input_fname)
 		self.geom_filename      = os.path.abspath(run_directory + '/' + self.geom_fname)
 		self.elem_filename      = os.path.abspath(run_directory + '/' + case_name + '_ElementData.csv')
 		self.param_filename     = os.path.abspath(run_directory + '/' + case_name + '_Param.csv')
 		self.rev_filename       = os.path.abspath(run_directory + '/' + case_name + '_RevData.csv')
 		self.time_filename      = os.path.abspath(run_directory + '/' + case_name + '_TimeData.csv')
 		
-		# search for wake data files anywhere in the directory
+		## search for wake data files anywhere in the directory
 		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData_*.csv')
 		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData_*csv')
 		
+		## read in the input file namelist
+		if os.path.isfile(self.input_filename):
+			self.namelist = f90nml.read(self.input_filename)
+		else:
+			print 'Warning: Could not find file %s' % (self.input_filename)
 
 		## load data
 		# elem_data
