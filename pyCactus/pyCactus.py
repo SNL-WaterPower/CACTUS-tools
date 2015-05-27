@@ -113,7 +113,7 @@ class CactusRun():
 		matches = []
 		for root, dirnames, filenames in os.walk(rootdir):
 		  for filename in fnmatch.filter(filenames, pattern):
-		      matches.append(os.path.join(root, filename))
+			  matches.append(os.path.join(root, filename))
 
 		return matches
 
@@ -168,6 +168,33 @@ class CactusRun():
 
 		return time, dfs_blade
 
+	def blade_qty_avg(self, qty_name, timesteps_from_end, blade_num):
+		""" Computes the average value of a specified quantity (specified by qty_name) over a number of
+			timesteps from the end (given by timesteps_from_end).
+
+			This may be used to, for example, compute the revolution-averaged blade quantities, such as 
+			circulation distribution, angle of attack, and local blade relative velocity. """
+		
+		# set up time indices over which we would like to plot and average
+		time_indices = range(-1,-timesteps_from_end,-1)
+		
+		# initialize empty array to store circulation at final timestep
+		qty_avg = np.zeros(self.geom.blades[blade_num]['NElem'],)
+		
+		# compute average 
+		for time_index in time_indices:
+			# get time (float), and a tuple containing Pandas dataframes of length num_blades.
+			time, elem_data = self.blade_data_at_time_index(time_index)
+
+			# get the circulation distribution at the final timestep
+			qty = elem_data[0][qty_name]
+			qty_avg = qty_avg + qty.values
+		
+		qty_avg = qty_avg/((len(time_indices)))
+		
+		# return the averaged quantity
+		return qty_avg
+	
 	def rotor_data_at_time_index(self, time_index):
 		""" Extracts a subset dataframe of the "Time Data" dataframe by time index.
 			Returns the time corresponding to the given time_index, and a dataframe 
