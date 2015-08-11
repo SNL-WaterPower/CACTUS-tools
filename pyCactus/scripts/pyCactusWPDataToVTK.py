@@ -74,7 +74,10 @@ def convert_wall_tp_to_vts(file_list, output_path):
                 # set the data filename and write to .vts file
                 name = "WPData_zone" + str(zone_num) + "_t" + str(filenum)
                 data_filename = gridToVTK(output_path + '/' + name, X, Y, Z, cellData={"sigma" : sigma})
-                
+
+                # give status update
+                print 'Converted: ' + file_ + ' -->\n\t\t\t' + data_filename
+
                 fnames.append(os.path.basename(data_filename))
 
             # append data
@@ -83,7 +86,7 @@ def convert_wall_tp_to_vts(file_list, output_path):
 
     num_zones = len(zone_start_lines)
 
-    ## Write to VTS and PVD files
+    ## Write PVD collection file
     for iz in range(num_zones):
         root = ET.Element("VTKFile")
         root.set("type", "Collection")
