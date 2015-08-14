@@ -36,12 +36,23 @@ def convert_wall_tp_to_vts(file_list, output_path):
             for linenum, line in enumerate(lines):
                 # create a blank dictionary
                 vardict = {}
-                if line.startswith('ZONE'):
+                
+                if line.strip().startswith('VARIABLES'):
+                    # cut off the VARIABLES word and strip whitespace
+                    line = line.strip()[10:]
+                    varnames = [varname.strip() for varname in line.split(',')]
+
+                if line.strip().startswith('ZONE'):
                     # cut off the ZONE word and strip whitespace
                     line = line[4:].strip()
+
                     for a in line.split(','):
-                        varname = a.split('=')[0].strip()
-                        value   = a.split('=')[1].strip()
+                        try:
+                            varname = a.split('=')[0].strip()
+                            value   = a.split('=')[1].strip()
+                        except:
+                            print 'Warning in convert_wall_tp_to_vts(): could not find an equals sign in line: ', a
+                            break
 
                         # add the key/value to the dictionary
                         vardict[varname] = value
@@ -52,6 +63,9 @@ def convert_wall_tp_to_vts(file_list, output_path):
                     # add the line number
                     zone_start_lines.append(linenum)
 
+            # set boolean -- is there velocity data?
+            is_vel_data = (('"u"' in varnames) and ('"v"' in varnames) and ('"w"' in varnames))
+
             # Second Pass - read in the data and write out grid files
             for zone_num, zone_start_line in enumerate(zone_start_lines):
                 vardict = vardicts[zone_num]
@@ -59,6 +73,7 @@ def convert_wall_tp_to_vts(file_list, output_path):
                 ny = int(vardict['J'])
                 nz = int(vardict['K'])
                 solutiontime = float(vardict['SOLUTIONTIME'])
+
                 title = vardict['T']
 
                 if title.startswith('"') and title.endswith('"'):
@@ -70,9 +85,19 @@ def convert_wall_tp_to_vts(file_list, output_path):
                 Z = np.genfromtxt(StringIO(lines[zone_start_line+3])).reshape([nz,ny,nx])
                 sigma = np.genfromtxt(StringIO(lines[zone_start_line+4])).reshape([1,ny-1,nx-1])
 
+                # if there is velocity data, write that out    
+                if is_vel_data:
+
+                    u = np.genfromtxt(StringIO(lines[zone_start_line+5])).reshape([1,ny-1,nx-1])
+                    v = np.genfromtxt(StringIO(lines[zone_start_line+6])).reshape([1,ny-1,nx-1])
+                    w = np.genfromtxt(StringIO(lines[zone_start_line+7])).reshape([1,ny-1,nx-1])
+
                 # set the data filename and write to .vts file
                 name = "WPData_z" + str(zone_num) + "_t" + str(filenum)
-                data_filename = gridToVTK(output_path + '/' + name, X, Y, Z, cellData={"sigma" : sigma})
+                if is_vel_data:
+                    data_filename = gridToVTK(output_path + '/' + name, X, Y, Z, cellData={"sigma" : sigma, "u" : u, "v" : v, "w" : w})
+                else:
+                    data_filename = gridToVTK(output_path + '/' + name, X, Y, Z, cellData={"sigma" : sigma})
 
                 # give status update
                 print 'Converted: ' + file_ + ' -->\n\t\t\t' + data_filename
