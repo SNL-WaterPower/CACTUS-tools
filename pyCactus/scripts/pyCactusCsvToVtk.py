@@ -68,7 +68,6 @@ Expects that the wake node data and wake grid data match the patterns:
             print 'There was an error creating the directory' + wake_node_out_path
 
     # write VTK series
-    print args.delete
     try:
         run.wakegrid.write_vtk_series(wake_grid_out_path, name=case_name + 'WakeGrid')
     except:

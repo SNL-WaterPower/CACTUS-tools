@@ -36,8 +36,8 @@ class CactusRun():
 		self.time_filename      = os.path.abspath(run_directory + '/' + case_name + '_TimeData.csv')
 		
 		## search for wake data files anywhere in the directory
-		self.wake_filenames     = self.recursive_glob(run_directory, '*WakeData_*.csv')
-		self.wakegrid_filenames = self.recursive_glob(run_directory, '*WakeDefData_*csv')
+		self.wake_filenames     = sorted(self.recursive_glob(run_directory, '*WakeData_*.csv'))
+		self.wakegrid_filenames = sorted(self.recursive_glob(run_directory, '*WakeDefData_*csv'))
 		
 		## read in the input file namelist
 		if os.path.isfile(self.input_filename):

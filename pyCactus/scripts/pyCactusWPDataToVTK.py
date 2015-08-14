@@ -52,7 +52,6 @@ def convert_wall_tp_to_vts(file_list, output_path):
                     # add the line number
                     zone_start_lines.append(linenum)
 
-
             # Second Pass - read in the data and write out grid files
             for zone_num, zone_start_line in enumerate(zone_start_lines):
                 vardict = vardicts[zone_num]
@@ -72,7 +71,7 @@ def convert_wall_tp_to_vts(file_list, output_path):
                 sigma = np.genfromtxt(StringIO(lines[zone_start_line+4])).reshape([1,ny-1,nx-1])
 
                 # set the data filename and write to .vts file
-                name = "WPData_zone" + str(zone_num) + "_t" + str(filenum)
+                name = "WPData_z" + str(zone_num) + "_t" + str(filenum)
                 data_filename = gridToVTK(output_path + '/' + name, X, Y, Z, cellData={"sigma" : sigma})
 
                 # give status update
@@ -136,8 +135,7 @@ if __name__ == '__main__':
             print 'There was an error creating the directory' + wall_out_path
 
     # find the .tp files
-    file_list = glob.glob('*WPData_*.tp')
-    print wall_out_path
+    file_list = sorted(glob.glob('*WPData_*.tp'))
 
     # call the converter function
     convert_wall_tp_to_vts(file_list, wall_out_path)
