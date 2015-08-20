@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-# pyCactusWPDataToVTK.py
+# pyCactusWPDataToVtk.py
+# =====================
+# Convert CACTUS wall data files from TecPlot structured to VTK.
+#     The wall data is moved to '/WallVTK'
+#     Expects that the wall data filenames match the patterns:
+#     [case_name]_WPData_*.tp
 
 import os
 import glob
