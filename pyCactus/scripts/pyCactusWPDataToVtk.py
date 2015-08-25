@@ -62,8 +62,8 @@ def convert_wall_tp_to_vts(file_list, output_path):
                         # add the key/value to the dictionary
                         vardict[varname] = value
 
-                        # append to list of dicts
-                        vardicts.append(vardict)
+                    # append to list of dicts
+                    vardicts.append(vardict)
 
                     # add the line number
                     zone_start_lines.append(linenum)
