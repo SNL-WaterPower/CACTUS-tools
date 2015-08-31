@@ -36,7 +36,7 @@ def pvd_time_subset(pvd_filename,pvd_filename_new,t_start=0,t_end=None):
     
     # write
     e = ET.ElementTree(e)
-    e.write('pvd_filename_new.pvd', xml_declaration=True)
+    e.write(pvd_filename_new, xml_declaration=True)
 
 
 if __name__ == "__main__":
