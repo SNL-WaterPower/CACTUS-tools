@@ -12,9 +12,10 @@ import f90nml
 
 from pyCactusGeom import *
 from pyCactusWake import *
+from pyCactusProbes import *
 
 class CactusRun():
-	def __init__(self, run_directory, case_name, input_fname='', geom_fname='', load_wake_node=True, load_wake_grid=True):
+	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
 		# input file
 		if not input_fname:
 			self.input_fname = case_name + '.in'
@@ -76,7 +77,7 @@ class CactusRun():
 			try:
 				tic = pytime.time() 
 				self.wakeelems = CactusWakeElems(self.wake_filenames)
-				print 'Loaded wake element data in %2.2f s' % (pytime.time() - tic)
+				print 'Read wake element data headers in %2.2f s' % (pytime.time() - tic)
 			except:
 				print 'Warning: Wake node data was found, but could not be loaded properly.'
 		else:
@@ -86,11 +87,18 @@ class CactusRun():
 			try:
 				tic = pytime.time()
 				self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
-				print 'Loaded wake grid data in %2.2f s' % (pytime.time() - tic)
+				print 'Read wake grid data headers in %2.2f s' % (pytime.time() - tic)
 			except:
 				print 'Warning: Wake grid data was found, but could not be loaded properly.'
 		else:
 			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
+
+
+		## load probe data
+		tic = pytime.time() 
+		self.probes = Probes()
+		self.probes.read_probe_files(run_directory)
+		print 'Read probe data in %2.2f s' % (pytime.time() - tic)
 
 
 		## load geometry data
