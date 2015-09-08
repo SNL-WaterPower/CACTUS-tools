@@ -6,7 +6,7 @@
 #     Expects that the wall data filenames match the patterns:
 #     [case_name]_WPData_*.tp
 
-import os
+import os, sys
 import glob
 import numpy as np
 
@@ -166,6 +166,10 @@ if __name__ == '__main__':
 
     # find the .tp files
     file_list = sorted(glob.glob('*WPData_*.tp'))
+
+
+    if not file_list:
+        sys.exit('No wall data files found.')
 
     # call the converter function
     convert_wall_tp_to_vts(file_list, wall_out_path)
