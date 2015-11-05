@@ -29,47 +29,50 @@ class CactusRun():
 			self.geom_fname = geom_fname
 
 		## assemble filenames
-		self.input_filename     = os.path.abspath(run_directory + '/' + self.input_fname)
-		self.geom_filename      = os.path.abspath(run_directory + '/' + self.geom_fname)
-		self.elem_filename      = os.path.abspath(run_directory + '/' + case_name + '_ElementData.csv')
-		self.param_filename     = os.path.abspath(run_directory + '/' + case_name + '_Param.csv')
-		self.rev_filename       = os.path.abspath(run_directory + '/' + case_name + '_RevData.csv')
-		self.time_filename      = os.path.abspath(run_directory + '/' + case_name + '_TimeData.csv')
+		self.elem_fname      = case_name + '_ElementData.csv'
+		self.param_fname     = case_name + '_Param.csv'
+		self.rev_fname       = case_name + '_RevData.csv'
+		self.time_fname      = case_name + '_TimeData.csv'
 		
 		## search for wake data files anywhere in the directory
 		self.wake_filenames     = sorted(self.recursive_glob(run_directory, '*WakeData_*.csv'))
 		self.wakegrid_filenames = sorted(self.recursive_glob(run_directory, '*WakeDefData_*csv'))
 		
 		## read in the input file namelist
-		if os.path.isfile(self.input_filename):
-			self.namelist = f90nml.read(self.input_filename)
+		results = self.recursive_glob(run_directory, self.input_fname)
+		if results:
+			self.namelist = f90nml.read(results[0])
 		else:
-			print 'Warning: Could not find file %s' % (self.input_filename)
+			print 'Warning: Could not find file %s in %s' % (self.input_fname, run_directory)
 
 		## load data
 		# elem_data
-		if os.path.isfile(self.elem_filename):
-			self.elem_data  = self.load_data(self.elem_filename)
+		results = self.recursive_glob(run_directory, self.elem_fname)
+		if results:
+			self.elem_data  = self.load_data(results[0])
 		else:
-			print 'Warning: File ' + self.elem_filename + ' does not exist.'
+			print 'Warning: Could not find file %s in %s' % (self.elem_fname, run_directory)
 
 		# rev_data
-		if os.path.isfile(self.rev_filename):
-			self.rev_data  = self.load_data(self.rev_filename)
+		results = self.recursive_glob(run_directory, self.rev_fname)
+		if results:
+			self.rev_data  = self.load_data(results[0])
 		else:
-			print 'Warning: File ' + self.rev_filename + ' does not exist.'
+			print 'Warning: Could not find file %s in %s' % (self.rev_fname, run_directory)
 			
 		# param_data
-		if os.path.isfile(self.param_filename):
-			self.param_data  = self.load_data(self.param_filename)
+		results = self.recursive_glob(run_directory, self.param_fname)
+		if results:
+			self.param_data  = self.load_data(results[0])
 		else:
-			print 'Warning: File ' + self.param_filename + ' does not exist.'			
+			print 'Warning: Could not find file %s in %s' % (self.param_fname, run_directory)
 			
 		# time_data
-		if os.path.isfile(self.time_filename):
-			self.time_data  = self.load_data(self.time_filename)
+		results = self.recursive_glob(run_directory, self.time_fname)
+		if results:
+			self.time_data  = self.load_data(results[0])
 		else:
-			print 'Warning: File ' + self.time_filename + ' does not exist.'
+			print 'Warning: Could not find file %s in %s' % (self.time_fname, run_directory)
 			
 
 		## load wake data
@@ -102,10 +105,11 @@ class CactusRun():
 
 
 		## load geometry data
-		if os.path.isfile(self.geom_filename):
-			self.geom = CactusGeom(self.geom_filename)
+		results = self.recursive_glob(run_directory, self.geom_fname)
+		if results:
+			self.geom = CactusGeom(results[0])
 		else:
-			print 'Warning: File ' + self.geom_filename + ' does not exist.'
+			print 'Warning: Could not find file %s in %s' % (self.geom_fname, run_directory)
 
 
 		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
