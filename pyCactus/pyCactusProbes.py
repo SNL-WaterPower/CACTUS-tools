@@ -5,6 +5,8 @@ import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from recursive_glob import recursive_glob
+
 class Probes():
     def __init__(self):
         """Initialize Probes class."""
@@ -16,7 +18,7 @@ class Probes():
         """Find probe files in run directory and read the header."""
 
         # find files in run_directory which match probe*.csv
-        probe_filenames = glob.glob(run_directory + '/probe*.csv')
+        probe_filenames = recursive_glob(run_directory, '*probe*.csv')
 
         # read in the location of each probe (not the data)
         # add the probe location and filenames

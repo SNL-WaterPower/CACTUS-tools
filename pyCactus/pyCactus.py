@@ -3,7 +3,6 @@
 
 import os
 import glob
-import fnmatch
 import time as pytime
 
 import numpy as np
@@ -13,6 +12,8 @@ import f90nml
 from pyCactusGeom import *
 from pyCactusWake import *
 from pyCactusProbes import *
+
+from recursive_glob import recursive_glob
 
 class CactusRun():
 	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
@@ -35,11 +36,11 @@ class CactusRun():
 		self.time_fname      = case_name + '_TimeData.csv'
 		
 		## search for wake data files anywhere in the directory
-		self.wake_filenames     = sorted(self.recursive_glob(run_directory, '*WakeData_*.csv'))
-		self.wakegrid_filenames = sorted(self.recursive_glob(run_directory, '*WakeDefData_*csv'))
+		self.wake_filenames     = sorted(recursive_glob(run_directory, '*WakeData_*.csv'))
+		self.wakegrid_filenames = sorted(recursive_glob(run_directory, '*WakeDefData_*csv'))
 		
 		## read in the input file namelist
-		results = self.recursive_glob(run_directory, self.input_fname)
+		results = recursive_glob(run_directory, self.input_fname)
 		if results:
 			self.namelist = f90nml.read(results[0])
 		else:
@@ -47,28 +48,28 @@ class CactusRun():
 
 		## load data
 		# elem_data
-		results = self.recursive_glob(run_directory, self.elem_fname)
+		results = recursive_glob(run_directory, self.elem_fname)
 		if results:
 			self.elem_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.elem_fname, run_directory)
 
 		# rev_data
-		results = self.recursive_glob(run_directory, self.rev_fname)
+		results = recursive_glob(run_directory, self.rev_fname)
 		if results:
 			self.rev_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.rev_fname, run_directory)
 			
 		# param_data
-		results = self.recursive_glob(run_directory, self.param_fname)
+		results = recursive_glob(run_directory, self.param_fname)
 		if results:
 			self.param_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.param_fname, run_directory)
 			
 		# time_data
-		results = self.recursive_glob(run_directory, self.time_fname)
+		results = recursive_glob(run_directory, self.time_fname)
 		if results:
 			self.time_data  = self.load_data(results[0])
 		else:
@@ -105,7 +106,7 @@ class CactusRun():
 
 
 		## load geometry data
-		results = self.recursive_glob(run_directory, self.geom_fname)
+		results = recursive_glob(run_directory, self.geom_fname)
 		if results:
 			self.geom = CactusGeom(results[0])
 		else:
@@ -118,17 +119,6 @@ class CactusRun():
 	#####################################
 	######### Private Functions #########
 	#####################################
-	def recursive_glob(self, rootdir='.', pattern='*'):
-		""" A function to search recursively for files matching a specified pattern.
-			Adapted from http://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python """
-
-		matches = []
-		for root, dirnames, filenames in os.walk(rootdir):
-		  for filename in fnmatch.filter(filenames, pattern):
-			  matches.append(os.path.join(root, filename))
-
-		return matches
-
 	def load_data(self, data_filename):
 		# reads a CSV file using pandas and returns a pandas dataframe
 		reader = pd.read_csv(data_filename, iterator=True, chunksize=1000)
