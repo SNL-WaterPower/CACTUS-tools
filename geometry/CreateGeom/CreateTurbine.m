@@ -108,11 +108,11 @@ if strcmp(Type,'VAWT')==1
 
         % Fill element end geometry
         deltac=(eta-.25)*CR;
-        T.B(1).CtoR=CR*ones(1,NBElem+1);
+        T.B(1).CtoR=CR.*ones(1,NBElem+1);
         T.B(1).tx=ones(1,NBElem+1);
         T.B(1).ty=zeros(1,NBElem+1);
         T.B(1).tz=zeros(1,NBElem+1);
-        T.B(1).QCx=-deltac*ones(1,NBElem+1);
+        T.B(1).QCx=-deltac.*ones(1,NBElem+1);
         T.B(1).QCy=yB;
         T.B(1).QCz=-rr;
     end
