@@ -56,7 +56,7 @@ if strcmp(Type,'VAWT')==1
     % along rotation axis from the center to the tips.
 	% Additional arguments:
 	% REqR: Equitorial radius to reference radius ratio
-	% CR: Blade chord to equitorial radius ratio
+	% CR: Blade chord to equitorial radius ratio; can be a single value or vector of length NBElem
 	% HR: Turbine height to equitorial radius ratio
 	% eta: Blade mount point ratio ((distance behind leading edge of the blade mount point) / (chord))
 	% BShape: 0 for straight blades, 1 for parabolic blades
