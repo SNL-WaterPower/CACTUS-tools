@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 import f90nml
 
-from pyCactusGeom import *
-from pyCactusWake import *
-from pyCactusProbes import *
+from CactusGeom import *
+from CactusWake import *
+from CactusField import *
+from CactusProbes import *
 
 from recursive_glob import recursive_glob
 
