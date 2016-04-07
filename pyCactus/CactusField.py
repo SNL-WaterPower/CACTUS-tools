@@ -1,7 +1,7 @@
 #####################################
-########### Wake Grid Data ##########
+############ Field Data #############
 #####################################
-class CactusWakeGrid():
+class CactusField():
 	""" Class for reading WakeData (element) from CSV files. Grid node locations X,Y,Z are assumed
 		to be invariant in time. """
 
@@ -28,7 +28,7 @@ class CactusWakeGrid():
 		# get grid dimensions by reading the first file
 		# (note that this isn't necessarily the FIRST timestep, just the first file from glob)
 		df = load_data(filenames[0])
-		_, grid_dims = self.wakegriddata_from_df(df)
+		_, grid_dims = self.fielddata_from_df(df)
 
 		# unpack grid dimensions, save as instance variables
 		self.nx   = grid_dims['nx']
@@ -61,7 +61,7 @@ class CactusWakeGrid():
 		return df_inst
 
 	
-	def wakegriddata_from_df(self, df):
+	def fielddata_from_df(self, df):
 		""" Extracts data from a dataframe containing wake grid data. """
 		# column names
 		time_col_name = 'Normalized Time (-)'
@@ -182,7 +182,7 @@ class CactusWakeGrid():
 
 			# read the CSV data file
 			df_inst              = self.get_df_inst(time=time)
-			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+			grid_data, grid_dims = self.fielddata_from_df(df_inst)
 
 			# unpack the grid data
 			X = grid_data['X']
@@ -241,7 +241,7 @@ class CactusWakeGrid():
 		# sum fields
 		for ti, time in enumerate(self.times[ti_start:ti_end]):
 			df_inst = self.get_df_inst(time=time)
-			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+			grid_data, grid_dims = self.fielddata_from_df(df_inst)
 
 			if ti == 0:
 				# on the first timestep, save the grid data and initialize variables
@@ -293,7 +293,7 @@ class CactusWakeGrid():
 		
 		# get the grid from the first timestep
 		df_inst = self.get_df_inst(time=self.times[0])
-		grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+		grid_data, grid_dims = self.fielddata_from_df(df_inst)
 		
 		x = np.unique(grid_data['X'])
 		y = np.unique(grid_data['Y'])
@@ -328,7 +328,7 @@ class CactusWakeGrid():
 			df_inst = self.get_df_inst(time=time)
 
 			# extract data from the dataframe
-			grid_data, grid_dims = self.wakegriddata_from_df(df_inst)
+			grid_data, grid_dims = self.fielddata_from_df(df_inst)
 
 			for pi, coords in enumerate(kji_nearest):
 				# extract data at point and store in array

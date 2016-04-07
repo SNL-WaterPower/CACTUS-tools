@@ -38,7 +38,7 @@ class CactusRun():
 		
 		## search for wake data files anywhere in the directory
 		self.wake_filenames     = sorted(recursive_glob(run_directory, '*WakeData_*.csv'))
-		self.wakegrid_filenames = sorted(recursive_glob(run_directory, '*WakeDefData_*csv'))
+		self.field_filenames    = sorted(recursive_glob(run_directory, '*WakeDefData_*csv'))
 		
 		## read in the input file namelist
 		results = recursive_glob(run_directory, self.input_fname)
@@ -88,10 +88,10 @@ class CactusRun():
 		else:
 			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData_*.csv\'.'
 
-		if self.wakegrid_filenames:
+		if self.field_filenames:
 			try:
 				tic = pytime.time()
-				self.wakegrid = CactusWakeGrid(self.wakegrid_filenames)
+				self.field = CactusField(self.field_filenames)
 				print 'Read wake grid data headers in %2.2f s' % (pytime.time() - tic)
 			except:
 				print 'Warning: Wake grid data was found, but could not be loaded properly.'
