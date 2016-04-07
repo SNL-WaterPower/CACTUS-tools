@@ -1,5 +1,5 @@
 # pyCactus.py
-""" A module for parsing CACTUS run (input and output) files. """
+"""A module for parsing CACTUS run (input and output) files."""
 
 import os
 import glob
@@ -18,6 +18,21 @@ from recursive_glob import recursive_glob
 
 class CactusRun():
 	def __init__(self, run_directory, case_name, input_fname='', geom_fname=''):
+		"""Initialize the class. Reads some data to memory.
+
+		Parameters
+		----------
+		run_directory : str
+			Path to the directory containing the CACTUS run.
+		case_name : str
+			'case name' which precedes all input and output files.
+		input_fname : Optional[str]
+			Input filename (default: ./[case_name].in).
+		geom_fname : Optional[str]
+			Geometry filename (default: be ./[case_name].geom)
+		"""
+
+
 		# input file
 		if not input_fname:
 			self.input_fname = case_name + '.in'
@@ -37,7 +52,7 @@ class CactusRun():
 		self.time_fname      = case_name + '_TimeData.csv'
 		
 		## search for wake data files anywhere in the directory
-		self.wake_filenames     = sorted(recursive_glob(run_directory, '*WakeData_*.csv'))
+		self.wake_filenames     = sorted(recursive_glob(run_directory,'*WakeData_*.csv'))
 		self.field_filenames    = sorted(recursive_glob(run_directory, '*WakeDefData_*csv'))
 		
 		## read in the input file namelist
@@ -133,11 +148,25 @@ class CactusRun():
 	######### Public Functions #########
 	####################################
 	def blade_data_at_time_index(self, time_index):
-		""" Extracts a subset dataframe of the "Element Data" dataframe by time index.
-			Returns the time corresponding to the given time_index, and a list of dataframes 
-			containing the data, with one dataframe per blade.
+		"""Extracts a subset dataframe of the "Element Data" dataframe by time
+		index.
 
-			Acts on: Element Data """
+		Returns the time corresponding to the given time_index, and a list of
+		dataframes containing the data, with one dataframe per blade.
+
+		Parameters
+		----------
+			time_index : int
+				The time index.
+
+		Returns
+		-------
+			time : float
+				The non-dimensionalized time.
+			dfs_blade : list
+				A list of dataframes, each holding blade data.
+
+		"""
 
 		# set column names
 		time_col_name  = 'Normalized Time (-)'
@@ -172,13 +201,30 @@ class CactusRun():
 		return time, dfs_blade
 
 	def blade_qty_avg(self, qty_name, timesteps_from_end, blade_num):
-		""" Computes the average value of a specified quantity (specified by qty_name) over a number of
-			timesteps from the end (given by timesteps_from_end).
+		"""Computes the average value of a specified blade quantity over a
+		number of timesteps from the end.
 
-			This may be used to, for example, compute the revolution-averaged blade quantities, such as 
-			circulation distribution, angle of attack, and local blade relative velocity. """
+		This may be used to, for example, compute the revolution-averaged blade 
+		quantities, such as circulation distribution, angle of attack, and local
+		blade relative velocity.
+
+		Parameters
+		----------
+			qty_name : str
+				The column name for the desired blade quantity
+			timesteps_from_end : int
+				Number of timesteps from the end
+			blade_num : int
+				Index of the blade number
+			
+		Returns
+		-------
+			qty_avg : numpy.array
+				The array of averaged blade data.
+
+		"""
 		
-		# set up time indices over which we would like to plot and average
+		# set up time indices over which we would like average
 		time_indices = range(-1,-timesteps_from_end,-1)
 		
 		# initialize empty array to store circulation at final timestep
@@ -199,11 +245,25 @@ class CactusRun():
 		return qty_avg
 	
 	def rotor_data_at_time_index(self, time_index):
-		""" Extracts a subset dataframe of the "Time Data" dataframe by time index.
-			Returns the time corresponding to the given time_index, and a dataframe 
-			containing the appropriate subset of data.
+		"""Extracts a single time instance from the time dataframe.
+		
+		Returns the time corresponding to the given time_index, and a dataframe 
+		containing the appropriate subset of data.
 
-			Acts on: Time Data """
+		Parameters
+		----------
+			time_index : int
+				An integer of the time_index
+
+		Returns
+		-------
+			time : float
+				The time corresponding to the given time index
+			df : pandas.DataFrame
+				The dataframe containing the time data at that particular
+				instance.
+
+		"""
 
 		# get the data series
 		df = self.time_data
@@ -217,8 +277,26 @@ class CactusRun():
 		return time, df
 
 	def df_subset_time_index(self, df, time_index, time_col_name):
-		""" Extracts a subset dataframe of the given dataframe by time index.
-			Returns the dataframe subset and the time corresponding to the given time_index. """
+		"""Extracts a subset dataframe of a given dataframe by time index.
+
+		Parameters
+		----------
+			df : pandas.DataFrame
+				The dataframe to extract a subset of.
+			time_index : int
+				An integer of the time index.
+			time_col_name : str
+				The name of the column which contains time data.
+
+		Returns
+		-------
+			df : pandas.DataFrame
+				The dataframe subset and the time corresponding to the given
+				time_index.
+			time : float
+				The time corresponding to the given time index.
+
+		"""
 
 		# get unique times
 		times = df.loc[:,time_col_name].unique()
