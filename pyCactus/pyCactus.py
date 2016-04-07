@@ -63,28 +63,28 @@ class CactusRun():
 			print 'Warning: Could not find file %s in %s' % (self.input_fname, run_directory)
 
 		## load data
-		# elem_data
+		# blade element data
 		results = recursive_glob(run_directory, self.elem_fname)
 		if results:
 			self.elem_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.elem_fname, run_directory)
 
-		# rev_data
+		# revolution-averaged data
 		results = recursive_glob(run_directory, self.rev_fname)
 		if results:
 			self.rev_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.rev_fname, run_directory)
 			
-		# param_data
+		# parameter data
 		results = recursive_glob(run_directory, self.param_fname)
 		if results:
 			self.param_data  = self.load_data(results[0])
 		else:
 			print 'Warning: Could not find file %s in %s' % (self.param_fname, run_directory)
 			
-		# time_data
+		# time data
 		results = recursive_glob(run_directory, self.time_fname)
 		if results:
 			self.time_data  = self.load_data(results[0])
@@ -92,7 +92,7 @@ class CactusRun():
 			print 'Warning: Could not find file %s in %s' % (self.time_fname, run_directory)
 			
 
-		## load wake data
+		# wake element data
 		if self.wake_filenames:
 			try:
 				tic = pytime.time() 
@@ -103,6 +103,7 @@ class CactusRun():
 		else:
 			print 'Warning: Could not find any wake data files in the work directory matching \'*WakeData_*.csv\'.'
 
+		# field data
 		if self.field_filenames:
 			try:
 				tic = pytime.time()
@@ -114,14 +115,14 @@ class CactusRun():
 			print 'Warning: Could not find any wake grid data files in the work directory matching \'*WakeGridData_*.csv\'.'
 
 
-		## load probe data
+		# probe data
 		tic = pytime.time() 
 		self.probes = Probes()
 		self.probes.read_probe_files(run_directory)
 		print 'Read probe data in %2.2f s' % (pytime.time() - tic)
 
 
-		## load geometry data
+		# geometry data
 		results = recursive_glob(run_directory, self.geom_fname)
 		if results:
 			self.geom = CactusGeom(results[0])
