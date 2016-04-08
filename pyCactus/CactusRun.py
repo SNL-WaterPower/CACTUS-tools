@@ -1,4 +1,4 @@
-# pyCactus.py
+# CactusRun.py
 """A module for parsing CACTUS run (input and output) files."""
 
 import os
@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 import f90nml
 
-from CactusGeom import *
-from CactusWake import *
-from CactusField import *
-from CactusProbes import *
+from CactusGeom import CactusGeom
+from CactusWakeElems import CactusWakeElems
+from CactusField import CactusField
+from CactusProbes import Probes
 
 from recursive_glob import recursive_glob
 
