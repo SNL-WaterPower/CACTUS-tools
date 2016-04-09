@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyCactus.CactusWakeElems &mdash; CACTUS-tools 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
+<span class="c"># pyCactusWake.py</span>
+<span class="sd">&quot;&quot;&quot; Class and functions for manipulating wake velocity data from CACTUS. &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">tmod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c">#####################################</span>
+<span class="c">######### Wake Element Data #########</span>
+<span class="c">#####################################</span>
+<div class="viewcode-block" id="CactusWakeElems"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems">[docs]</a><span class="k">class</span> <span class="nc">CactusWakeElems</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot; Class for reading WakeData (element) from CSV files. &quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+		
+		<span class="c"># dictionary of time : filename</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="c"># get the times for each timestep</span>
+		<span class="c"># the name of the column containing time info</span>
+		<span class="n">time_col_name</span> <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
+	
+		<span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+			<span class="n">time</span> <span class="o">=</span> <span class="n">get_file_time</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+
+		<span class="c"># sort the times</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="CactusWakeElems.get_df_inst"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Returns instantaneous wake grid dataframe from a specified time (or filename). &quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span>
+			 <span class="k">print</span> <span class="s">&#39;Error: must specify either the time or filename of the desired data.&#39;</span>
+
+		<span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="c"># if the time is specified, get the filename</span>
+			<span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c"># otherwise, use the filename given</span>
+			<span class="k">pass</span>
+
+		<span class="c"># read the CSV data file</span>
+		<span class="n">df_inst</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">df_inst</span></div>
+
+
+<div class="viewcode-block" id="CactusWakeElems.wakedata_from_df"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.wakedata_from_df">[docs]</a>	<span class="k">def</span> <span class="nf">wakedata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Takes a dataframe containing instantaneous wake node data and returns a dictionary</span>
+<span class="sd">			containing the data as np.arrays keyed by a descriptive variable name. &quot;&quot;&quot;</span>
+		<span class="c"># column names</span>
+		<span class="n">id_col_name</span>   <span class="o">=</span> <span class="s">&#39;Node ID&#39;</span>
+		<span class="n">elem_col_name</span> <span class="o">=</span> <span class="s">&#39;Origin Node&#39;</span>
+		<span class="n">x_col_name</span>    <span class="o">=</span> <span class="s">&#39;X/R (-)&#39;</span>
+		<span class="n">y_col_name</span>    <span class="o">=</span> <span class="s">&#39;Y/R (-)&#39;</span>
+		<span class="n">z_col_name</span>    <span class="o">=</span> <span class="s">&#39;Z/R (-)&#39;</span>
+		<span class="n">u_col_name</span>    <span class="o">=</span> <span class="s">&#39;U/Uinf (-)&#39;</span>
+		<span class="n">v_col_name</span>    <span class="o">=</span> <span class="s">&#39;V/Uinf (-)&#39;</span>
+		<span class="n">w_col_name</span>    <span class="o">=</span> <span class="s">&#39;W/Uinf (-)&#39;</span>
+
+		<span class="c"># check if data has node IDs</span>
+		<span class="k">if</span> <span class="n">id_col_name</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+			<span class="n">has_node_ids</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">has_node_ids</span> <span class="o">=</span> <span class="bp">False</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Wake element data does not include node IDs.&#39;</span>
+		
+		<span class="c"># extract columns</span>
+		<span class="n">elems</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">elem_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">x</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">x_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">y</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">y_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">z</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">z_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">u</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">u_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">v</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">v_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+		<span class="n">w</span>     <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">w_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+		<span class="c"># store data as a list of np.arrays</span>
+		<span class="n">data_arrays</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;elems&#39;</span> <span class="p">:</span> <span class="n">elems</span><span class="p">,</span>
+					   <span class="s">&#39;x&#39;</span> <span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+					   <span class="s">&#39;y&#39;</span> <span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+					   <span class="s">&#39;z&#39;</span> <span class="p">:</span> <span class="n">z</span><span class="p">,</span>
+					   <span class="s">&#39;u&#39;</span> <span class="p">:</span> <span class="n">u</span><span class="p">,</span>
+					   <span class="s">&#39;v&#39;</span> <span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+					   <span class="s">&#39;w&#39;</span> <span class="p">:</span> <span class="n">w</span><span class="p">}</span>
+
+		<span class="c"># if the data has node ids, append this data to the data list</span>
+		<span class="k">if</span> <span class="n">has_node_ids</span><span class="p">:</span>
+			<span class="n">node_ids</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">id_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+			<span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;node_ids&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">node_ids</span>
+
+		<span class="k">return</span> <span class="n">data_arrays</span><span class="p">,</span> <span class="n">has_node_ids</span></div>
+
+
+<div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">id_flag</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">num_blade_elems</span><span class="o">=</span><span class="p">[]):</span>
+		<span class="sd">&quot;&quot;&quot; write_vtk_series(path, name) : writes the wake element data to a time series of VTK files in a</span>
+<span class="sd">			location specified by `path`.</span>
+
+<span class="sd">			A Paraview .pvd file that contains the normalized times at each timestep is also written.</span>
+<span class="sd">			If id_flag=True, each particle is assigned an ID so that it can be tracked. The input </span>
+<span class="sd">			list blade_elems should contain the number of elements for each blade.</span>
+
+<span class="sd">			Note that if the original file contains a node_ids column already, then these will be written to</span>
+<span class="sd">			the VTK file regardless of if the id_flag is set.</span>
+<span class="sd">			</span>
+<span class="sd">			ID data is a scalar (integer)</span>
+<span class="sd">			Velocity data is a vector.&quot;&quot;&quot;</span>
+
+		<span class="kn">from</span> <span class="nn">pyevtk.hl</span> <span class="kn">import</span> <span class="n">pointsToVTK</span> 	<span class="c"># evtk module - import only if this function is called</span>
+		<span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">ET</span> <span class="c"># xml module  -                 &quot;</span>
+
+		<span class="c"># set the collection filename</span>
+		<span class="n">collection_fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.pvd&quot;</span>
+
+		<span class="c"># set up XML tree for PVD collection file</span>
+		<span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;VTKFile&quot;</span><span class="p">)</span>
+		<span class="n">root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
+		<span class="n">collection</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
+
+		<span class="c"># compute number of wake element nodes</span>
+		<span class="k">if</span> <span class="n">id_flag</span><span class="p">:</span>
+			<span class="n">num_blade_nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">num_blade_elems</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+		<span class="c"># loop through all the files, write the VTK files</span>
+		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)):</span>
+			<span class="c"># get the system time (for elapsed time)</span>
+			<span class="n">t_start</span> <span class="o">=</span> <span class="n">tmod</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+			<span class="c"># get the filename containing the data at current time</span>
+			<span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+
+			<span class="c"># base name of data file</span>
+			<span class="n">vtk_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+			<span class="c">###### Read in the data ######</span>
+			<span class="n">df_inst</span>                   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+			<span class="n">data_arrays</span><span class="p">,</span> <span class="n">has_node_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wakedata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
+
+			<span class="c"># unpack the data from dictionary</span>
+			<span class="n">elems</span> <span class="o">=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;elems&#39;</span><span class="p">]</span>
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;x&#39;</span><span class="p">])</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;y&#39;</span><span class="p">])</span>
+			<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;z&#39;</span><span class="p">])</span>
+			<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;u&#39;</span><span class="p">])</span>
+			<span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;v&#39;</span><span class="p">])</span>
+			<span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;w&#39;</span><span class="p">])</span>
+
+			<span class="c"># if the data has node ids already, load the data</span>
+			<span class="k">if</span> <span class="n">has_node_ids</span><span class="p">:</span>
+				<span class="n">node_ids</span> <span class="o">=</span> <span class="n">data_arrays</span><span class="p">[</span><span class="s">&#39;node_ids&#39;</span><span class="p">]</span>
+
+			<span class="c"># if id_flag is set, generate new node id numbers. Note that this will overwrite loaded node ids.</span>
+			<span class="k">if</span> <span class="n">id_flag</span><span class="p">:</span>
+				<span class="c">###### Generate node IDs ######</span>
+				<span class="c"># generate the id numbers for the elements as an array with length of num_wake_elems</span>
+				<span class="c"># newer elements have a higher id number.</span>
+				
+				<span class="c"># compute the number of wake elements at this particular timestep</span>
+				<span class="n">num_wake_elems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+				<span class="c"># compute the timestep number from the number of elements</span>
+				<span class="n">elems_per_timestep</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_blade_nodes</span><span class="p">)</span>
+				<span class="n">nt</span> <span class="o">=</span> <span class="n">num_wake_elems</span><span class="o">/</span><span class="n">elems_per_timestep</span>
+
+				<span class="c"># generate the id numbers</span>
+				<span class="n">multiplier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_wake_elems</span><span class="p">)),</span> <span class="n">nt</span><span class="p">)</span>
+				<span class="n">adder</span>      <span class="o">=</span> <span class="n">multiplier</span> <span class="o">*</span> <span class="n">elems_per_timestep</span>
+				<span class="n">node_ids</span>   <span class="o">=</span> <span class="n">adder</span> <span class="o">+</span> <span class="n">elems</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="c"># otherwise, just use the node_ids that we loaded from the data set before</span>
+				<span class="k">pass</span>
+
+			<span class="c"># convert to a uint32 (fixes some problems importing into VTK/ParaView)</span>
+			<span class="n">node_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span>
+
+
+			<span class="c"># store vector field in a dict</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;velocity&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span>
+								  <span class="n">v</span><span class="p">,</span>
+								  <span class="n">w</span><span class="p">),</span>
+					<span class="s">&#39;node_id&#39;</span> <span class="p">:</span> <span class="n">node_ids</span><span class="p">}</span>
+
+			<span class="c"># write data</span>
+			<span class="n">data_filename</span> <span class="o">=</span> <span class="n">pointsToVTK</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">vtk_name</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+			<span class="c"># add elements to XML tree for PVD collection file</span>
+			<span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s">&quot;DataSet&quot;</span><span class="p">)</span>
+			<span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;timestep&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+			<span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">data_filename</span><span class="p">))</span>
+
+			<span class="c"># print status message</span>
+			<span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">tmod</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
+			<span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span> <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
+
+		<span class="c"># write the collection file</span>
+		<span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+		<span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">collection_fname</span><span class="p">)</span>
+		<span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pvd_filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+		<span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Phillip Chiu, Jon Murray.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

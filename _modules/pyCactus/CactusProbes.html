@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyCactus.CactusProbes &mdash; CACTUS-tools 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyCactus.CactusProbes</h1><div class="highlight"><pre>
+<span class="c"># pyCactusProbes.py</span>
+<span class="sd">&quot;&quot;&quot;Module for handling probe data from a CACTUS simulation.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
+
+<div class="viewcode-block" id="Probes"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes">[docs]</a><span class="k">class</span> <span class="nc">Probes</span><span class="p">():</span>
+<div class="viewcode-block" id="Probes.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize Probes class.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="Probes.read_probe_files"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.read_probe_files">[docs]</a>    <span class="k">def</span> <span class="nf">read_probe_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find probe files in run directory and read the header.&quot;&quot;&quot;</span>
+
+        <span class="c"># find files in run_directory which match probe*.csv</span>
+        <span class="n">probe_filenames</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="s">&#39;*probe*.csv&#39;</span><span class="p">)</span>
+
+        <span class="c"># read in the location of each probe (not the data)</span>
+        <span class="c"># add the probe location and filenames</span>
+        <span class="k">for</span> <span class="n">probe_id</span><span class="p">,</span><span class="n">probe_filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">probe_filenames</span><span class="p">)):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">probe_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="c"># read the location of the probe</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                <span class="n">splitline</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">splitline</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">splitline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">splitline</span>
+                    
+                <span class="c"># store probe location and filename to dictionary</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span><span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">probe_filename</span></div>
+
+
+<div class="viewcode-block" id="Probes.get_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.get_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a Pandas dataframe of the probe data with given id.&quot;&quot;&quot;</span>
+
+        <span class="n">probe_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">probe_filename</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Probes.plot_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.plot_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">plot_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_fs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot the time-series velocities a probe with given id.</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        timestep -- True to plot x-axis as timestep instead of normalized time (default False)</span>
+<span class="sd">        plot_fs -- True to plot freestream velocities in addition to induced velocities (default False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_probe_data_by_id</span><span class="p">(</span><span class="n">probe_id</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+        <span class="c"># plot velocities with either timestep or normalized time for x-axis</span>
+        <span class="k">if</span> <span class="n">timestep</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Timestep&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">)</span>
+
+        <span class="c"># plot the free-stream (if requested)</span>
+        <span class="k">if</span> <span class="n">plot_fs</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Normalized Velocity (-)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">r&#39;Velocity at $p=(</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">)$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Phillip Chiu, Jon Murray.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
