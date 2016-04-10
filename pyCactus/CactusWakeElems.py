@@ -1,5 +1,3 @@
-# pyCactusWake.py
-""" Class and functions for manipulating wake velocity data from CACTUS. """
 
 import os
 import time as tmod
@@ -13,9 +11,22 @@ from warnings import *
 ######### Wake Element Data #########
 #####################################
 class CactusWakeElems():
-	""" Class for reading WakeData (element) from CSV files. """
+	"""Class for manipulating wake element data from CACTUS.
+
+	Attributes
+	----------
+	filenames : list
+		Filenames (str) of wake element data files.
+	num_times : int
+		Number of timesteps of wake element data.
+	times : list
+		List of times (float) of wake element data.
+	fdict : dict
+		A dictionary of `{time : fname}`.
+	"""
 
 	def __init__(self, filenames):
+		"""Initializes the instance, reads in the headers from each file."""
 		self.filenames = filenames
 		self.num_times = len(filenames)
 		self.times = []
@@ -37,7 +48,22 @@ class CactusWakeElems():
 
 
 	def get_df_inst(self, time=None, fname=None):
-		""" Returns instantaneous wake grid dataframe from a specified time (or filename). """
+		"""Gets the data from a specified time or filename.
+
+		Either the time or the filename must be specified.
+
+		Parameters
+		----------
+		time : Optional[float]
+		    The time at which to extract the dataframe.
+		fname : Optional[str]
+		    The filename to read (defaults to self.fdict[time]).
+
+		Returns
+		-------
+		df_inst : pandas.DataFrame
+		    DataFrame of the time.
+		"""
 
 		if (time is None) and (fname is None):
 			 print 'Error: must specify either the time or filename of the desired data.'
@@ -56,8 +82,23 @@ class CactusWakeElems():
 
 
 	def wakedata_from_df(self, df):
-		""" Takes a dataframe containing instantaneous wake node data and returns a dictionary
-			containing the data as np.arrays keyed by a descriptive variable name. """
+		"""Takes a dataframe containing wake node data at a single timestep and
+		returns a dictionary of the data as np.arrays.
+
+		NumPy arrays are keyed by a descriptive variable name.
+
+		Parameters
+		----------
+		df : pandas.DataFrame
+
+		Returns
+		-------
+		data_arrays : dict
+			Dictionary of np.arrays containing the data.
+		has_node_ids : bool
+			True if wake element data has 'Node ID' column, False if not.
+		"""
+
 		# column names
 		id_col_name   = 'Node ID'
 		elem_col_name = 'Origin Node'
@@ -102,18 +143,28 @@ class CactusWakeElems():
 
 
 	def write_vtk_series(self, path, name, id_flag=False, num_blade_elems=[]):
-		""" write_vtk_series(path, name) : writes the wake element data to a time series of VTK files in a
-			location specified by `path`.
+		"""Writes the wake element data to a time series of VTK files
 
-			A Paraview .pvd file that contains the normalized times at each timestep is also written.
-			If id_flag=True, each particle is assigned an ID so that it can be tracked. The input 
-			list blade_elems should contain the number of elements for each blade.
+		Data is written as VTK unstructured data (.vtu). ID data is a scalar
+		(integer). Velocity data is a vector.
 
-			Note that if the original file contains a node_ids column already, then these will be written to
-			the VTK file regardless of if the id_flag is set.
-			
-			ID data is a scalar (integer)
-			Velocity data is a vector."""
+		Also writes a Paraview collection file (.pvd) which contains the
+		normalized times of each timestep.
+		
+		Parameters
+		----------
+		path : str
+			The path to which to write the VTK files.
+		name : str
+			The name 
+		id_flag : Optional[bool]
+			If id_flag=True, each particle is assigned a unique ID so that it
+			can be tracked. If the data contains a node_ids column already, then
+			these will be written to the VTK file regardless of id_flag.
+		num_blade_elems : Optional[list]
+			The number of elements for each blade.
+		"""
+
 
 		from pyevtk.hl import pointsToVTK 	# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
