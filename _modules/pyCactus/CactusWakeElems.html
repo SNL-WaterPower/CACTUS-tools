@@ -38,8 +38,6 @@
           <div class="body" role="main">
             
   <h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
-<span class="c"># pyCactusWake.py</span>
-<span class="sd">&quot;&quot;&quot; Class and functions for manipulating wake velocity data from CACTUS. &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">tmod</span>
@@ -53,9 +51,22 @@
 <span class="c">######### Wake Element Data #########</span>
 <span class="c">#####################################</span>
 <div class="viewcode-block" id="CactusWakeElems"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems">[docs]</a><span class="k">class</span> <span class="nc">CactusWakeElems</span><span class="p">():</span>
-	<span class="sd">&quot;&quot;&quot; Class for reading WakeData (element) from CSV files. &quot;&quot;&quot;</span>
+	<span class="sd">&quot;&quot;&quot;Class for manipulating wake element data from CACTUS.</span>
 
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	filenames : list</span>
+<span class="sd">		Filenames (str) of wake element data files.</span>
+<span class="sd">	num_times : int</span>
+<span class="sd">		Number of timesteps of wake element data.</span>
+<span class="sd">	times : list</span>
+<span class="sd">		List of times (float) of wake element data.</span>
+<span class="sd">	fdict : dict</span>
+<span class="sd">		A dictionary of `{time : fname}`.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CactusWakeElems.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initializes the instance, reads in the headers from each file.&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
@@ -73,11 +84,26 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
 
 		<span class="c"># sort the times</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="CactusWakeElems.get_df_inst"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Returns instantaneous wake grid dataframe from a specified time (or filename). &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Gets the data from a specified time or filename.</span>
+
+<span class="sd">		Either the time or the filename must be specified.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		time : Optional[float]</span>
+<span class="sd">		    The time at which to extract the dataframe.</span>
+<span class="sd">		fname : Optional[str]</span>
+<span class="sd">		    The filename to read (defaults to self.fdict[time]).</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		df_inst : pandas.DataFrame</span>
+<span class="sd">		    DataFrame of the time.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span>
 			 <span class="k">print</span> <span class="s">&#39;Error: must specify either the time or filename of the desired data.&#39;</span>
@@ -96,8 +122,23 @@
 
 
 <div class="viewcode-block" id="CactusWakeElems.wakedata_from_df"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.wakedata_from_df">[docs]</a>	<span class="k">def</span> <span class="nf">wakedata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Takes a dataframe containing instantaneous wake node data and returns a dictionary</span>
-<span class="sd">			containing the data as np.arrays keyed by a descriptive variable name. &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Takes a dataframe containing wake node data at a single timestep and</span>
+<span class="sd">		returns a dictionary of the data as np.arrays.</span>
+
+<span class="sd">		NumPy arrays are keyed by a descriptive variable name.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		df : pandas.DataFrame</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		data_arrays : dict</span>
+<span class="sd">			Dictionary of np.arrays containing the data.</span>
+<span class="sd">		has_node_ids : bool</span>
+<span class="sd">			True if wake element data has &#39;Node ID&#39; column, False if not.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
 		<span class="c"># column names</span>
 		<span class="n">id_col_name</span>   <span class="o">=</span> <span class="s">&#39;Node ID&#39;</span>
 		<span class="n">elem_col_name</span> <span class="o">=</span> <span class="s">&#39;Origin Node&#39;</span>
@@ -142,18 +183,28 @@
 
 
 <div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">id_flag</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">num_blade_elems</span><span class="o">=</span><span class="p">[]):</span>
-		<span class="sd">&quot;&quot;&quot; write_vtk_series(path, name) : writes the wake element data to a time series of VTK files in a</span>
-<span class="sd">			location specified by `path`.</span>
+		<span class="sd">&quot;&quot;&quot;Writes the wake element data to a time series of VTK files</span>
 
-<span class="sd">			A Paraview .pvd file that contains the normalized times at each timestep is also written.</span>
-<span class="sd">			If id_flag=True, each particle is assigned an ID so that it can be tracked. The input </span>
-<span class="sd">			list blade_elems should contain the number of elements for each blade.</span>
+<span class="sd">		Data is written as VTK unstructured data (.vtu). ID data is a scalar</span>
+<span class="sd">		(integer). Velocity data is a vector.</span>
 
-<span class="sd">			Note that if the original file contains a node_ids column already, then these will be written to</span>
-<span class="sd">			the VTK file regardless of if the id_flag is set.</span>
-<span class="sd">			</span>
-<span class="sd">			ID data is a scalar (integer)</span>
-<span class="sd">			Velocity data is a vector.&quot;&quot;&quot;</span>
+<span class="sd">		Also writes a Paraview collection file (.pvd) which contains the</span>
+<span class="sd">		normalized times of each timestep.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		path : str</span>
+<span class="sd">			The path to which to write the VTK files.</span>
+<span class="sd">		name : str</span>
+<span class="sd">			The prefix of the VTK filenames.</span>
+<span class="sd">		id_flag : Optional[bool]</span>
+<span class="sd">			If True, each particle is assigned a unique ID so that it can be</span>
+<span class="sd">			tracked. If the data contains a node_ids column already, then these</span>
+<span class="sd">			will be written to the VTK file regardless of id_flag.</span>
+<span class="sd">		num_blade_elems : Optional[list]</span>
+<span class="sd">			The number of elements for each blade.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
 
 		<span class="kn">from</span> <span class="nn">pyevtk.hl</span> <span class="kn">import</span> <span class="n">pointsToVTK</span> 	<span class="c"># evtk module - import only if this function is called</span>
 		<span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">ET</span> <span class="c"># xml module  -                 &quot;</span>
@@ -247,6 +298,32 @@
 		<span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">collection_fname</span><span class="p">)</span>
 		<span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pvd_filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 		<span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span></div></div>
+
+<span class="c">#####################################</span>
+<span class="c">######### Module  Functions #########</span>
+<span class="c">#####################################</span>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_filename</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; load_data(data_filename) : Reads a CSV file using pandas and returns a pandas dataframe &quot;&quot;&quot;</span>
+	
+	<span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+	<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+	
+	<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>	<span class="c"># strip whitespace from colnames</span>
+	<span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">get_file_time</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; get_file_time(data_filename) : Returns the time of an instantaneous data set by reading the </span>
+<span class="sd">		first two rows.&quot;&quot;&quot;</span>
+
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+		<span class="n">row1</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+		<span class="n">time_col_num</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time_col_name</span><span class="p">)</span>
+		<span class="n">time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[</span><span class="n">time_col_num</span><span class="p">])</span>
+	
+	<span class="k">return</span> <span class="n">time</span>
 </pre></div>
 
           </div>

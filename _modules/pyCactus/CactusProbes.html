@@ -38,7 +38,6 @@
           <div class="body" role="main">
             
   <h1>Source code for pyCactus.CactusProbes</h1><div class="highlight"><pre>
-<span class="c"># pyCactusProbes.py</span>
 <span class="sd">&quot;&quot;&quot;Module for handling probe data from a CACTUS simulation.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -48,14 +47,33 @@
 <span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
 
 <div class="viewcode-block" id="Probes"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes">[docs]</a><span class="k">class</span> <span class="nc">Probes</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Probes class for CACTUS probe data.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    probe_locations : dict</span>
+<span class="sd">        Dictionary of {probe_id (int) : prob_location (numpy.array)}</span>
+<span class="sd">    probe_filenames : dict</span>
+<span class="sd">        Dictionary of {probe_id (int) : prob_filename (str)}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Probes.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize Probes class.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initializes Probes class.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="Probes.read_probe_files"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.read_probe_files">[docs]</a>    <span class="k">def</span> <span class="nf">read_probe_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Find probe files in run directory and read the header.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Find probe files in run directory and read the headers.</span>
+
+<span class="sd">        Searches within the specified run directory to find files matching the</span>
+<span class="sd">        pattern `*probe*.csv`. Reads in the header data to class attributes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_directory : str</span>
+<span class="sd">            Path to the directory containing probe data files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># find files in run_directory which match probe*.csv</span>
         <span class="n">probe_filenames</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="s">&#39;*probe*.csv&#39;</span><span class="p">)</span>
@@ -79,18 +97,36 @@
 
 
 <div class="viewcode-block" id="Probes.get_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.get_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a Pandas dataframe of the probe data with given id.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns a Pandas dataframe of the probe data with given id.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        probe_id : int</span>
+<span class="sd">            ID of the probe we wish to get data from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df : pandas.DataFrame</span>
+<span class="sd">            DataFrame of the probe data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">probe_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">probe_filename</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Probes.plot_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.plot_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">plot_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_fs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Plot the time-series velocities a probe with given id.</span>
+        <span class="sd">&quot;&quot;&quot;Plots the velocity vs. time for a specific probe.</span>
 
-<span class="sd">        Keyword arguments:</span>
-<span class="sd">        timestep -- True to plot x-axis as timestep instead of normalized time (default False)</span>
-<span class="sd">        plot_fs -- True to plot freestream velocities in addition to induced velocities (default False)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        probe_id : int</span>
+<span class="sd">            Probe ID to plot</span>
+<span class="sd">        timestep : Optional[bool]</span>
+<span class="sd">            True to plot x-axis as timestep instead of normalized time (default</span>
+<span class="sd">            False).</span>
+<span class="sd">        plot_fs : Optional[bool]</span>
+<span class="sd">            True to plot freestream velocities in addition to induced velocities</span>
+<span class="sd">            (default False)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_probe_data_by_id</span><span class="p">(</span><span class="n">probe_id</span><span class="p">)</span>

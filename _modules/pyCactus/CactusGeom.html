@@ -38,31 +38,41 @@
           <div class="body" role="main">
             
   <h1>Source code for pyCactus.CactusGeom</h1><div class="highlight"><pre>
-<span class="c"># pyCactusGeom.py</span>
-<span class="sd">&quot;&quot;&quot; A module for parsing CACTUS geometry files. &quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <div class="viewcode-block" id="CactusGeom"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom">[docs]</a><span class="k">class</span> <span class="nc">CactusGeom</span><span class="p">():</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Class for parsing CACTUS geometry data.</span>
 
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	globalvars : dict</span>
+<span class="sd">		Global variables from geometry file.</span>
+<span class="sd">	blades : list</span>
+<span class="sd">		List of dicts of blade geometry variables.</span>
+<span class="sd">	struts : list</span>
+<span class="sd">		List of dicts of strut geometry variables.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CactusGeom.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initializes the class, reads in geometry data to class attributes.&quot;&quot;&quot;</span>
 		<span class="c"># read the geometry file into public variables</span>
 		<span class="c"># 	globalvars, blades, and struts are dictionaries whose index values</span>
 		<span class="c"># 	are the variable names as strings	</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__read_geom</span><span class="p">(</span><span class="n">geom_filename</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_geom</span><span class="p">(</span><span class="n">geom_filename</span><span class="p">)</span>
 
 		<span class="c"># calculate the radial positions of blade elements</span>
 		<span class="c"># 	(useful for calculating torques/moments, and for plotting against radial position on</span>
 		<span class="c"># 	axial flow turbines)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_r_elem</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_dr_elem</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_dr_elem</span><span class="p">()</span></div>
 
 
 	<span class="c">#####################################</span>
 	<span class="c">######### Private Functions #########</span>
 	<span class="c">#####################################		</span>
 	<span class="k">def</span> <span class="nf">__calculate_r_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Calculates the non-dimensionalized distance from blade elements to the rotation axis. &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized distance from blade elements to\</span>
+<span class="sd">		the rotation axis.&quot;&quot;&quot;</span>
 		<span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
 			<span class="c"># allocate space for an array</span>
 			<span class="n">r_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
@@ -84,7 +94,7 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;r_over_R_elem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_temp</span>
 
 	<span class="k">def</span> <span class="nf">__calculate_dr_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Calculates the non-dimensionalized dr distribution. &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized dr distribution.&quot;&quot;&quot;</span>
 		<span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
 			<span class="c"># allocate space for an array</span>
 			<span class="n">dr_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
@@ -114,8 +124,27 @@
 
 			<span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;dr_over_R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_temp</span>
 
-	<span class="k">def</span> <span class="nf">__read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Reads the .geom file from a CACTUS run.&quot;&quot;&quot;</span>
+
+	<span class="c">####################################</span>
+	<span class="c">######### Public Functions #########</span>
+	<span class="c">####################################</span>
+<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Reads data from a CACTUS .geom file.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		filename : str</span>
+<span class="sd">			The geometry filename.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		globalvars : dict</span>
+<span class="sd">			Global variables from geometry file.</span>
+<span class="sd">		blade : list</span>
+<span class="sd">			List of dicts of blade geometry variables.</span>
+<span class="sd">		strut : list</span>
+<span class="sd">			List of dicts of strut geometry variables.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="c"># number of data lines for blade and strut, excluding header</span>
 		<span class="n">blade_num_lines</span> <span class="o">=</span> <span class="mi">24</span>
@@ -202,17 +231,22 @@
 			<span class="k">for</span> <span class="n">line_start</span><span class="p">,</span> <span class="n">line_end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strut_line_nums</span><span class="p">,</span> <span class="n">strut_line_nums</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
 				<span class="n">strut</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">line_start</span><span class="p">:</span><span class="n">line_start</span> <span class="o">+</span> <span class="n">strut_num_lines</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
 		
-		<span class="k">return</span> <span class="n">global_vars</span><span class="p">,</span> <span class="n">blade</span><span class="p">,</span> <span class="n">strut</span>
+		<span class="k">return</span> <span class="n">global_vars</span><span class="p">,</span> <span class="n">blade</span><span class="p">,</span> <span class="n">strut</span></div>
 
-
-	<span class="c">####################################</span>
-	<span class="c">######### Public Functions #########</span>
-	<span class="c">####################################</span>
 <div class="viewcode-block" id="CactusGeom.distance_to_rotation_axis"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.distance_to_rotation_axis">[docs]</a>	<span class="k">def</span> <span class="nf">distance_to_rotation_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Computes the distance of a point p from the rotation axis with direction specified by unit</span>
-<span class="sd">			vector rot_n with a coincident point given by a.</span>
+		<span class="sd">&quot;&quot;&quot;Computes the distance between a point and a rotation axis.</span>
 
-<span class="sd">			http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation &quot;&quot;&quot;</span>
+<span class="sd">		http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		p : numpy.array</span>
+<span class="sd">			The coordinates of the point.</span>
+<span class="sd">		n : numpy.array</span>
+<span class="sd">			Vector of the rotation axis.</span>
+<span class="sd">		a : numpy.array</span>
+<span class="sd">			Coincident point of the rotation axis.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span></div></div>
 		
