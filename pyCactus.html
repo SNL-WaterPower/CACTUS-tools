@@ -1,176 +1,160 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pyCactus &mdash; CACTUS-tools 0.1 documentation</title>
-    
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="CACTUS-tools 0.1 documentation" href="index.html" />
-    <link rel="prev" title="Geometry tools" href="geometry.html" />
-   
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyCactus &mdash; CACTUS-tools 0.1 documentation</title>
+  
 
-  </head>
-  <body role="document">  
+  
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Geometry tools" href="geometry.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CACTUS-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyCactus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#class-documentation">Class Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cactusrun">CactusRun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cactuswakeelems">CactusWakeElems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cactusfield">CactusField</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cactusgeom">CactusGeom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#probes">Probes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CACTUS-tools</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>pyCactus</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pyCactus.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="pycactus">
 <h1>pyCactus<a class="headerlink" href="#pycactus" title="Permalink to this headline">¶</a></h1>
 <p>A collection of Python classes for post-processing CACTUS data.</p>
-<div class="section" id="module-documentation">
-<h2>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>pyCactus may be installed by navigating to the <cite>pyCactus</cite> directory and executing.</p>
+<p><code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code></p>
+<p>If setuptools is correctly configured, this will also download and install module dependencies (<cite>PyEVTK</cite>, <cite>f90nml</cite>).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="cactusrun">
 <h3>CactusRun<a class="headerlink" href="#cactusrun" title="Permalink to this headline">¶</a></h3>
-<dl class="class">
-<dt id="pyCactus.CactusRun">
-<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
-<dt id="pyCactus.CactusRun.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the class. Reads some data to memory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>run_directory</strong> (<em>str</em>) &#8211; Path to the directory containing the CACTUS run.</li>
-<li><strong>case_name</strong> (<em>str</em>) &#8211; &#8216;case name&#8217; which precedes all input and output files.</li>
-<li><strong>input_fname</strong> (<em>Optional[str]</em>) &#8211; Input filename (default: ./[case_name].in).</li>
-<li><strong>geom_fname</strong> (<em>Optional[str]</em>) &#8211; Geometry filename (default: be ./[case_name].geom)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.blade_data_at_time_index">
-<code class="descname">blade_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_data_at_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a subset dataframe of the &#8220;Element Data&#8221; dataframe by time
-index.</p>
-<p>Returns the time corresponding to the given time_index, and a list of
-dataframes containing the data, with one dataframe per blade.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time_index</strong> (<em>int</em>) &#8211; The time index.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><strong>time</strong> (<em>float</em>) &#8211; The non-dimensionalized time.</li>
-<li><strong>dfs_blade</strong> (<em>list</em>) &#8211; A list of dataframes, each holding blade data.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.blade_qty_avg">
-<code class="descname">blade_qty_avg</code><span class="sig-paren">(</span><em>qty_name</em>, <em>timesteps_from_end</em>, <em>blade_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_qty_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_qty_avg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the average value of a specified blade quantity over a
-number of timesteps from the end.</p>
-<p>This may be used to, for example, compute the revolution-averaged blade
-quantities, such as circulation distribution, angle of attack, and local
-blade relative velocity.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>qty_name</strong> (<em>str</em>) &#8211; The column name for the desired blade quantity</li>
-<li><strong>timesteps_from_end</strong> (<em>int</em>) &#8211; Number of timesteps from the end</li>
-<li><strong>blade_num</strong> (<em>int</em>) &#8211; Index of the blade number</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>qty_avg</strong> &#8211; The array of averaged blade data.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.df_subset_time_index">
-<code class="descname">df_subset_time_index</code><span class="sig-paren">(</span><em>df</em>, <em>time_index</em>, <em>time_col_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.df_subset_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.df_subset_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a subset dataframe of a given dataframe by time index.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe to extract a subset of.</li>
-<li><strong>time_index</strong> (<em>int</em>) &#8211; An integer of the time index.</li>
-<li><strong>time_col_name</strong> (<em>str</em>) &#8211; The name of the column which contains time data.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe subset and the time corresponding to the given
-time_index.</li>
-<li><strong>time</strong> (<em>float</em>) &#8211; The time corresponding to the given time index.</li>
-</ul>
-</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.rotor_data_at_time_index">
-<code class="descname">rotor_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rotor_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rotor_data_at_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a single time instance from the time dataframe.</p>
-<p>Returns the time corresponding to the given time_index, and a dataframe
-containing the appropriate subset of data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time_index</strong> (<em>int</em>) &#8211; An integer of the time_index</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><strong>time</strong> (<em>float</em>) &#8211; The time corresponding to the given time index</li>
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe containing the time data at that particular
-instance.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="cactuswakeelems">
 <h3>CactusWakeElems<a class="headerlink" href="#cactuswakeelems" title="Permalink to this headline">¶</a></h3>
@@ -659,68 +643,69 @@ pattern <cite>*probe*.csv</cite>. Reads in the header data to class attributes.<
 </div>
 
 
+           </div>
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="geometry.html" class="btn btn-neutral" title="Geometry tools" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Phillip Chiu, Jon Murray.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">pyCactus</a><ul>
-<li><a class="reference internal" href="#module-documentation">Module Documentation</a><ul>
-<li><a class="reference internal" href="#cactusrun">CactusRun</a></li>
-<li><a class="reference internal" href="#cactuswakeelems">CactusWakeElems</a></li>
-<li><a class="reference internal" href="#cactusfield">CactusField</a></li>
-<li><a class="reference internal" href="#cactusgeom">CactusGeom</a></li>
-<li><a class="reference internal" href="#probes">Probes</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="geometry.html" title="previous chapter">Geometry tools</a></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/pyCactus.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2016, Phillip Chiu, Jon Murray.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
-      
-      |
-      <a href="_sources/pyCactus.txt"
-          rel="nofollow">Page source</a>
-    </div>
 
-    
+    </section>
 
-    
-  </body>
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
