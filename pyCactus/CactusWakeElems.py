@@ -156,11 +156,11 @@ class CactusWakeElems():
 		path : str
 			The path to which to write the VTK files.
 		name : str
-			The name 
+			The prefix of the VTK filenames.
 		id_flag : Optional[bool]
-			If id_flag=True, each particle is assigned a unique ID so that it
-			can be tracked. If the data contains a node_ids column already, then
-			these will be written to the VTK file regardless of id_flag.
+			If True, each particle is assigned a unique ID so that it can be
+			tracked. If the data contains a node_ids column already, then these
+			will be written to the VTK file regardless of id_flag.
 		num_blade_elems : Optional[list]
 			The number of elements for each blade.
 		"""
