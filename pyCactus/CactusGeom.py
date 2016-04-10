@@ -18,7 +18,7 @@ class CactusGeom():
 		# read the geometry file into public variables
 		# 	globalvars, blades, and struts are dictionaries whose index values
 		# 	are the variable names as strings	
-		self.globalvars, self.blades, self.struts = self.__read_geom(geom_filename)
+		self.globalvars, self.blades, self.struts = self.read_geom(geom_filename)
 
 		# calculate the radial positions of blade elements
 		# 	(useful for calculating torques/moments, and for plotting against radial position on
@@ -84,8 +84,12 @@ class CactusGeom():
 
 			self.blades[blade_num]['dr_over_R'] = dr_temp
 
-	def __read_geom(self, filename):
-		"""Reads the .geom file from a CACTUS run.
+
+	####################################
+	######### Public Functions #########
+	####################################
+	def read_geom(self, filename):
+		"""Reads data from a CACTUS .geom file.
 
 		Parameters
 		----------
@@ -189,10 +193,6 @@ class CactusGeom():
 		
 		return global_vars, blade, strut
 
-
-	####################################
-	######### Public Functions #########
-	####################################
 	def distance_to_rotation_axis(self, p, n, a):
 		"""Computes the distance between a point and a rotation axis.
 
