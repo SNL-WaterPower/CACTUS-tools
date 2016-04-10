@@ -7,10 +7,42 @@ import pandas as pd
 from warnings import *
 
 class CactusField():
-	""" Class for reading WakeData (element) from CSV files. Grid node locations X,Y,Z are assumed
-		to be invariant in time. """
+	"""Class for reading WakeData (element) from CSV files.
+
+	Grid node locations X,Y,Z are assumed to be the same for all timesteps.
+
+	Attributes
+	----------
+	filenames : list
+		Filenames (str) of wake element data files.
+	num_times : int
+		Number of timesteps of wake element data.
+	times : list
+		List of times (float) of wake element data.
+	fdict : dict
+		A dictionary of `{time : filename}`.
+	nx : int
+		Number of grid points in x direction.
+	ny : int
+		Number of grid points in y direction.
+	nz : int
+		Number of grid points in z direction.
+	dx : float
+		Grid spacing in x direction.
+	dy : float
+		Grid spacing in y direction.
+	dz : float
+		Grid spacing in z direction.
+	xlim : list
+		Extents of grid in x direction, [x_min, x_max].
+	ylim : list
+		Extents of grid in x direction, [y_min, y_max].
+	zlim : list
+		Extents of grid in x direction, [z_min, z_max].
+	"""
 
 	def __init__(self, filenames):
+		"""Initializes the instance, reads in the headers from each file."""
 		self.filenames = filenames
 		self.num_times = len(filenames)
 		self.times = []
@@ -48,7 +80,22 @@ class CactusField():
 
 
 	def get_df_inst(self, time=None, fname=None):
-		""" Returns instantaneous wake grid dataframe from a specified time (or filename). """
+		"""Gets the data from a specified time or filename.
+
+		Either the time or the filename must be specified.
+
+		Parameters
+		----------
+		time : Optional[float]
+		    The time at which to extract the dataframe.
+		fname : Optional[str]
+		    The filename to read (defaults to self.fdict[time]).
+
+		Returns
+		-------
+		df_inst : pandas.DataFrame
+		    DataFrame of the time.
+		"""
 
 		if (time is None) and (fname is None):
 			 print 'Error: must specify either the time or filename of the desired data.'
@@ -67,7 +114,22 @@ class CactusField():
 
 	
 	def fielddata_from_df(self, df):
-		""" Extracts data from a dataframe containing wake grid data. """
+		"""Takes a dataframe containing field data at a single timestep and
+		returns a dictionary of the data as np.arrays.
+
+		NumPy arrays are keyed by a descriptive variable name.
+
+		Parameters
+		----------
+		df : pandas.DataFrame
+
+		Returns
+		-------
+		grid_data : dict
+			Dictionary of np.arrays containing the data.
+		grid_dims : dict
+			Dictionary of grid dimensions.
+		"""
 		# column names
 		time_col_name = 'Normalized Time (-)'
 		x_col_name    = 'X/R (-)'
@@ -159,9 +221,21 @@ class CactusField():
 
 
 	def write_vtk_series(self, path, name):
-		""" write_vtk_series(path, name) : writes the wake grid data to a time series of VTK files in a
-				location specified by `path`. A Paraview .pvd file that contains the normalized
-				times at each timestep is also written. Velocity data is written as a vector field."""
+		"""Writes the field data to a time series of VTK files
+
+		Data is written as VTK structured data (.vts). Velocity data is a
+		vector field.
+
+		Also writes a Paraview collection file (.pvd) which contains the
+		normalized times of each timestep.
+		
+		Parameters
+		----------
+		path : str
+			The path to which to write the VTK files.
+		name : str
+			The prefix of the VTK filenames.
+		"""
 
 		from pyevtk.hl import gridToVTK 		# evtk module - import only if this function is called
 		import xml.etree.cElementTree as ET # xml module  -                 "
@@ -235,10 +309,22 @@ class CactusField():
 
 
 	def field_time_average(self, ti_start=-5, ti_end=-1):
-		""" Computes the average of grid data on a range from self.times[ti_start:ti_end].
-			Default time range is from the 5th-last time to the final time.
+		"""Returns the time-averaged field data over a specified timestep range.
 
-			Returns a dict containing the grid coordinates and averaged data. """
+		Averaging is done over the time range self.times[ti_start:ti_end].
+
+		Parameters
+		----------
+		ti_start : Optional[int]
+			The timestep index to start averaging (default -5)
+		ti_end : Optional[int]
+			The timestep index to end averaging (default -1)
+
+		Returns
+		--------
+		data_dict_mean : dict
+			A dictionary of grid coordinates and time-averaged data.
+		"""
 
 		# number of timestep
 		num_times = len(self.times[ti_start:ti_end])
@@ -291,11 +377,25 @@ class CactusField():
 		return data_dict_mean
 
 	def pointdata_time_series(self, p_list, ti_start=0, ti_end=-1):
-		""" Extracts a time series of data at a point p = (xp,yp,zp). Uses nearest-point to avoid interpolation. 
-			Optional parameters ti_start and ti_end specify the range of times to extract data from.
+		"""Extracts a time series of data at a single point or points.
 
-			Returns a pandas dataframe containing the data. """
+		Loops through the time data to extract a time series of data at a
+		specified point or points. Uses nearest-point to avoid interpolation. 
 		
+		Parameters
+		----------
+		p_list : list
+			List of points, where each point is a tuple of length 3.
+		ti_start : Optional[int]
+			The timestep index to start (default 0).
+		ti_end : Optional[int]
+			The timestep index to end (default -1)
+
+		Returns
+		-------
+		data_dict : dict
+			Dictionary of the time series velocity data.
+		"""
 		# get the grid from the first timestep
 		df_inst = self.get_df_inst(time=self.times[0])
 		grid_data, grid_dims = self.fielddata_from_df(df_inst)
