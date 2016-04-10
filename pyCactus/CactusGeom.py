@@ -1,11 +1,20 @@
-# pyCactusGeom.py
-""" A module for parsing CACTUS geometry files. """
-
 import numpy as np
 
 class CactusGeom():
-	def __init__(self, geom_filename):
+	"""Class for parsing CACTUS geometry data.
 
+	Attributes
+	----------
+	globalvars : dict
+		Global variables from geometry file.
+	blades : list
+		List of dicts of blade geometry variables.
+	struts : list
+		List of dicts of strut geometry variables.
+	"""
+
+	def __init__(self, geom_filename):
+		"""Initializes the class, reads in geometry data to class attributes."""
 		# read the geometry file into public variables
 		# 	globalvars, blades, and struts are dictionaries whose index values
 		# 	are the variable names as strings	
@@ -22,7 +31,8 @@ class CactusGeom():
 	######### Private Functions #########
 	#####################################		
 	def __calculate_r_elem(self):
-		""" Calculates the non-dimensionalized distance from blade elements to the rotation axis. """
+		"""Calculates the non-dimensionalized distance from blade elements to\
+		the rotation axis."""
 		for blade_num, blade in enumerate(self.blades):
 			# allocate space for an array
 			r_temp = np.zeros(blade['NElem'])
@@ -44,7 +54,7 @@ class CactusGeom():
 			self.blades[blade_num]['r_over_R_elem'] = r_temp
 
 	def __calculate_dr_elem(self):
-		""" Calculates the non-dimensionalized dr distribution. """
+		"""Calculates the non-dimensionalized dr distribution."""
 		for blade_num, blade in enumerate(self.blades):
 			# allocate space for an array
 			dr_temp = np.zeros(blade['NElem'])
@@ -75,7 +85,22 @@ class CactusGeom():
 			self.blades[blade_num]['dr_over_R'] = dr_temp
 
 	def __read_geom(self, filename):
-		""" Reads the .geom file from a CACTUS run."""
+		"""Reads the .geom file from a CACTUS run.
+
+		Parameters
+		----------
+		filename : str
+			The geometry filename.
+
+		Returns
+		-------
+		globalvars : dict
+			Global variables from geometry file.
+		blade : list
+			List of dicts of blade geometry variables.
+		strut : list
+			List of dicts of strut geometry variables.
+		"""
 
 		# number of data lines for blade and strut, excluding header
 		blade_num_lines = 24
@@ -169,10 +194,19 @@ class CactusGeom():
 	######### Public Functions #########
 	####################################
 	def distance_to_rotation_axis(self, p, n, a):
-		""" Computes the distance of a point p from the rotation axis with direction specified by unit
-			vector rot_n with a coincident point given by a.
+		"""Computes the distance between a point and a rotation axis.
 
-			http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation """
+		http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation
+
+		Parameters
+		----------
+		p : numpy.array
+			The coordinates of the point.
+		n : numpy.array
+			Vector of the rotation axis.
+		a : numpy.array
+			Coincident point of the rotation axis.
+		"""
 
 		return np.linalg.norm((a-p) - np.dot((a-p), n)*n)
 		
