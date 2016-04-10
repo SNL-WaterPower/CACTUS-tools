@@ -1,6 +1,11 @@
-#####################################
-############ Field Data #############
-#####################################
+import os
+import time as tmod
+
+import numpy as np
+import pandas as pd
+
+from warnings import *
+
 class CactusField():
 	""" Class for reading WakeData (element) from CSV files. Grid node locations X,Y,Z are assumed
 		to be invariant in time. """
