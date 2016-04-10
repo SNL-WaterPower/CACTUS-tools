@@ -67,16 +67,8 @@ class CactusField():
 		df = load_data(filenames[0])
 		_, grid_dims = self.fielddata_from_df(df)
 
-		# unpack grid dimensions, save as instance variables
-		self.nx   = grid_dims['nx']
-		self.ny   = grid_dims['ny']
-		self.nz   = grid_dims['nz']
-		self.dx   = grid_dims['dx']
-		self.dy   = grid_dims['dy']
-		self.dz   = grid_dims['dz']
-		self.xlim = grid_dims['xlim']
-		self.ylim = grid_dims['ylim']
-		self.zlim = grid_dims['zlim']
+		# unpack grid dimensions, save to instance variable
+		self.grid_dims = grid_dims
 
 
 	def get_df_inst(self, time=None, fname=None):
