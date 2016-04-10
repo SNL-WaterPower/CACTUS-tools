@@ -1,4 +1,3 @@
-# pyCactusProbes.py
 """Module for handling probe data from a CACTUS simulation."""
 
 import glob
@@ -8,14 +7,33 @@ import matplotlib.pyplot as plt
 from recursive_glob import recursive_glob
 
 class Probes():
+    """Probes class for CACTUS probe data.
+
+    Attributes
+    ----------
+    probe_locations : dict
+        Dictionary of {probe_id (int) : prob_location (numpy.array)}
+    probe_filenames : dict
+        Dictionary of {probe_id (int) : prob_filename (str)}
+    """
+
     def __init__(self):
-        """Initialize Probes class."""
+        """Initializes Probes class."""
         self.probe_locations = {}
         self.probe_filenames = {}
 
 
     def read_probe_files(self, run_directory):
-        """Find probe files in run directory and read the header."""
+        """Find probe files in run directory and read the headers.
+
+        Searches within the specified run directory to find files matching the
+        pattern `*probe*.csv`. Reads in the header data to class attributes.
+
+        Parameters
+        ----------
+        run_directory : str
+            Path to the directory containing probe data files.
+        """
 
         # find files in run_directory which match probe*.csv
         probe_filenames = recursive_glob(run_directory, '*probe*.csv')
@@ -39,18 +57,36 @@ class Probes():
 
 
     def get_probe_data_by_id(self, probe_id):
-        """Return a Pandas dataframe of the probe data with given id."""
+        """Returns a Pandas dataframe of the probe data with given id.
+
+        Parameters
+        ----------
+        probe_id : int
+            ID of the probe we wish to get data from.
+
+        Returns
+        -------
+        df : pandas.DataFrame
+            DataFrame of the probe data.
+        """
 
         probe_filename = self.probe_filenames[probe_id]
         return pd.read_csv(probe_filename,skiprows=2)
 
 
     def plot_probe_data_by_id(self, probe_id, timestep=False, plot_fs=False):
-        """Plot the time-series velocities a probe with given id.
+        """Plots the velocity vs. time for a specific probe.
 
-        Keyword arguments:
-        timestep -- True to plot x-axis as timestep instead of normalized time (default False)
-        plot_fs -- True to plot freestream velocities in addition to induced velocities (default False)
+        Parameters
+        ----------
+        probe_id : int
+            Probe ID to plot
+        timestep : Optional[bool]
+            True to plot x-axis as timestep instead of normalized time (default
+            False).
+        plot_fs : Optional[bool]
+            True to plot freestream velocities in addition to induced velocities
+            (default False)
         """
 
         df = self.get_probe_data_by_id(probe_id)
