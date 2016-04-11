@@ -21,24 +21,8 @@ class CactusField():
 		List of times (float) of wake element data.
 	fdict : dict
 		A dictionary of `{time : filename}`.
-	nx : int
-		Number of grid points in x direction.
-	ny : int
-		Number of grid points in y direction.
-	nz : int
-		Number of grid points in z direction.
-	dx : float
-		Grid spacing in x direction.
-	dy : float
-		Grid spacing in y direction.
-	dz : float
-		Grid spacing in z direction.
-	xlim : list
-		Extents of grid in x direction, [x_min, x_max].
-	ylim : list
-		Extents of grid in x direction, [y_min, y_max].
-	zlim : list
-		Extents of grid in x direction, [z_min, z_max].
+	grid_dims : dict
+		A dictionary of grid dimensions.
 	"""
 
 	def __init__(self, filenames):
