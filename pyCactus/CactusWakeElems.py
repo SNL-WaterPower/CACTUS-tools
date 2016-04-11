@@ -142,7 +142,10 @@ class CactusWakeElems():
 		return data_arrays, has_node_ids
 
 
-	def write_vtk_series(self, path, name, id_flag=False, num_blade_elems=[]):
+	def write_vtk_series(self, path, name,
+	                     id_flag=False,
+	                     num_blade_elems=[],
+	                     print_status=True):
 		"""Writes the wake element data to a time series of VTK files
 
 		Data is written as VTK unstructured data (.vtu). ID data is a scalar
@@ -163,6 +166,15 @@ class CactusWakeElems():
 			will be written to the VTK file regardless of id_flag.
 		num_blade_elems : Optional[list]
 			The number of elements for each blade.
+		print_status: bool
+			True to print the status of VTK conversion, False to suppress.
+
+		Returns
+		-------
+		data_filenames : list
+			List of the VTK filenames.
+		pvd_filename : str
+			.pvd collection filename.			
 		"""
 
 
@@ -171,6 +183,9 @@ class CactusWakeElems():
 
 		# set the collection filename
 		collection_fname = name + ".pvd"
+
+		# set up blank list of the vtk filenames
+		data_filenames = []
 
 		# set up XML tree for PVD collection file
 		root = ET.Element("VTKFile")
@@ -242,7 +257,10 @@ class CactusWakeElems():
 					'node_id' : node_ids}
 
 			# write data
-			data_filename = pointsToVTK(os.path.abspath(path + '/' + vtk_name), x, y, z, data)
+			data_filename = pointsToVTK(os.path.abspath(os.path.join(path,vtk_name)), x, y, z, data)
+
+			# append filename to list
+			data_filenames.append(data_filename)
 
 			# add elements to XML tree for PVD collection file
 			dataset = ET.SubElement(collection, "DataSet")
@@ -251,13 +269,18 @@ class CactusWakeElems():
 
 			# print status message
 			elapsed_time = tmod.time() - t_start
-			print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
+			if print_status:
+				print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
 
 		# write the collection file
 		tree = ET.ElementTree(root)
-		pvd_filename = os.path.abspath(path + '/' + collection_fname)
+		pvd_filename = os.path.abspath(os.path.join(path,collection_fname))
 		tree.write(pvd_filename, xml_declaration=True)
-		print 'Wrote ParaView collection file: ' + pvd_filename
+
+		if print_status:
+			print 'Wrote ParaView collection file: ' + pvd_filename
+
+		return data_filenames, pvd_filename
 
 #####################################
 ######### Module  Functions #########

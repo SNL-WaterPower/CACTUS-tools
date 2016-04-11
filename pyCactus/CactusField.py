@@ -212,7 +212,8 @@ class CactusField():
 		return grid_data, grid_dims
 
 
-	def write_vtk_series(self, path, name):
+	def write_vtk_series(self, path, name,
+	                     print_status=True):
 		"""Writes the field data to a time series of VTK files
 
 		Data is written as VTK structured data (.vts). Velocity data is a
@@ -227,6 +228,15 @@ class CactusField():
 			The path to which to write the VTK files.
 		name : str
 			The prefix of the VTK filenames.
+		print_status: bool
+			True to print the status of VTK conversion, False to suppress.
+
+		Returns
+		-------
+		data_filenames : list
+			List of the VTK filenames.
+		pvd_filename : str
+			.pvd collection filename.
 		"""
 
 		from pyevtk.hl import gridToVTK 		# evtk module - import only if this function is called
@@ -234,6 +244,9 @@ class CactusField():
 
 		# set the collection filename
 		collection_fname = name + ".pvd"
+
+		# set up blank list of the vtk filenames
+		data_filenames = []
 
 		# set up XML tree for PVD collection file
 		root = ET.Element("VTKFile")
@@ -282,7 +295,10 @@ class CactusField():
 				# append to pointdata dictionary
 				pointData['velocity_fs']  = velocity_fs
 
-			data_filename = gridToVTK(path + '/' + vtk_name, X, Y, Z, pointData=pointData)
+			data_filename = gridToVTK(os.path.abspath(os.path.join(path,vtk_name)), X, Y, Z, pointData=pointData)
+
+			# append filename to list
+			data_filenames.append(data_filename)
 
 			# add elements to XML tree for PVD collection file
 			dataset = ET.SubElement(collection, "DataSet")
@@ -291,13 +307,18 @@ class CactusField():
 
 			# print status message
 			elapsed_time = tmod.time() - t_start
-			print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
+			if print_status:
+				print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
 
 		# write the collection file
 		tree = ET.ElementTree(root)
-		pvd_filename = os.path.abspath(path + '/' + collection_fname)
+		pvd_filename = os.path.abspath(os.path.join(path,collection_fname))
 		tree.write(pvd_filename, xml_declaration=True)
-		print 'Wrote ParaView collection file: ' + pvd_filename
+		
+		if print_status:
+			print 'Wrote ParaView collection file: ' + pvd_filename
+
+		return data_filenames, pvd_filename
 
 
 	def field_time_average(self, ti_start=-5, ti_end=-1):
