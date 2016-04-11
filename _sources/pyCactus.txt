@@ -44,6 +44,6 @@ CactusGeom
 
 Probes
 ^^^^^^^^^^^^
-.. autoclass:: pyCactus.Probes
+.. autoclass:: pyCactus.CactusProbes
 	:members:
 	:special-members:

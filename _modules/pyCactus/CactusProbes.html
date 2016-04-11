@@ -136,7 +136,7 @@
 
 <span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
 
-<div class="viewcode-block" id="Probes"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes">[docs]</a><span class="k">class</span> <span class="nc">Probes</span><span class="p">():</span>
+<div class="viewcode-block" id="CactusProbes"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusProbes">[docs]</a><span class="k">class</span> <span class="nc">CactusProbes</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Probes class for CACTUS probe data.</span>
 
 <span class="sd">    Attributes</span>
@@ -147,13 +147,13 @@
 <span class="sd">        Dictionary of {probe_id (int) : prob_filename (str)}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Probes.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusProbes.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusProbes.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes Probes class.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="p">{}</span></div>
 
 
-<div class="viewcode-block" id="Probes.read_probe_files"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.read_probe_files">[docs]</a>    <span class="k">def</span> <span class="nf">read_probe_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusProbes.read_probe_files"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusProbes.read_probe_files">[docs]</a>    <span class="k">def</span> <span class="nf">read_probe_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find probe files in run directory and read the headers.</span>
 
 <span class="sd">        Searches within the specified run directory to find files matching the</span>
@@ -186,7 +186,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">probe_filename</span></div>
 
 
-<div class="viewcode-block" id="Probes.get_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.get_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusProbes.get_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusProbes.get_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a Pandas dataframe of the probe data with given id.</span>
 
 <span class="sd">        Parameters</span>
@@ -204,48 +204,65 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">probe_filename</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Probes.plot_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.Probes.plot_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">plot_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_fs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusProbes.plot_probe_data_by_id"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusProbes.plot_probe_data_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">plot_probe_data_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe_id</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_fs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Plots the velocity vs. time for a specific probe.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        probe_id : int</span>
 <span class="sd">            Probe ID to plot</span>
+<span class="sd">        ax : matplotlib axis</span>
+<span class="sd">            Axis on which to plot series. If not specified, creates a new figure.</span>
 <span class="sd">        timestep : Optional[bool]</span>
 <span class="sd">            True to plot x-axis as timestep instead of normalized time (default</span>
 <span class="sd">            False).</span>
 <span class="sd">        plot_fs : Optional[bool]</span>
 <span class="sd">            True to plot freestream velocities in addition to induced velocities</span>
 <span class="sd">            (default False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        figure : matplotlib.figure.Figure</span>
+<span class="sd">            Figure handle.</span>
+<span class="sd">        ax : matplotlib.axes._subplots.AxesSubplot</span>
+<span class="sd">            Axis handle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_probe_data_by_id</span><span class="p">(</span><span class="n">probe_id</span><span class="p">)</span>
         
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
 
         <span class="c"># plot velocities with either timestep or normalized time for x-axis</span>
         <span class="k">if</span> <span class="n">timestep</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Timestep&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Timestep&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;U/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;V/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;W/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">)</span>
 
         <span class="c"># plot the free-stream (if requested)</span>
         <span class="k">if</span> <span class="n">plot_fs</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Ufs/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Vfs/Uinf (-)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Wfs/Uinf (-)&#39;</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Normalized Velocity (-)&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">r&#39;Velocity at $p=(</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">)$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;Normalized Velocity (-)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">r&#39;Velocity at $p=(</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">,</span><span class="si">%2.2f</span><span class="s">)$&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span><span class="p">[</span><span class="n">probe_id</span><span class="p">]))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_probes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The number of probes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_locations</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

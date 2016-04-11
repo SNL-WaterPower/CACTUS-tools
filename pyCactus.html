@@ -241,7 +241,7 @@ returns a dictionary of the data as np.arrays.</p>
 
 <dl class="method">
 <dt id="pyCactus.CactusWakeElems.write_vtk_series">
-<code class="descname">write_vtk_series</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>id_flag=False</em>, <em>num_blade_elems=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusWakeElems.html#CactusWakeElems.write_vtk_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusWakeElems.write_vtk_series" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_vtk_series</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>id_flag=False</em>, <em>num_blade_elems=[]</em>, <em>print_status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusWakeElems.html#CactusWakeElems.write_vtk_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusWakeElems.write_vtk_series" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the wake element data to a time series of VTK files</p>
 <p>Data is written as VTK unstructured data (.vtu). ID data is a scalar
 (integer). Velocity data is a vector.</p>
@@ -251,14 +251,22 @@ normalized times of each timestep.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>path</strong> (<em>str</em>) &#8211; The path to which to write the VTK files.</li>
 <li><strong>name</strong> (<em>str</em>) &#8211; The prefix of the VTK filenames.</li>
 <li><strong>id_flag</strong> (<em>Optional[bool]</em>) &#8211; If True, each particle is assigned a unique ID so that it can be
 tracked. If the data contains a node_ids column already, then these
 will be written to the VTK file regardless of id_flag.</li>
 <li><strong>num_blade_elems</strong> (<em>Optional[list]</em>) &#8211; The number of elements for each blade.</li>
+<li><strong>print_status</strong> (<em>bool</em>) &#8211; True to print the status of VTK conversion, False to suppress.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>data_filenames</strong> (<em>list</em>) &#8211; List of the VTK filenames.</li>
+<li><strong>pvd_filename</strong> (<em>str</em>) &#8211; .pvd collection filename.</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
@@ -300,57 +308,9 @@ will be written to the VTK file regardless of id_flag.</li>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="CactusField.nx">
-<code class="descname">nx</code><a class="headerlink" href="#CactusField.nx" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Number of grid points in x direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.ny">
-<code class="descname">ny</code><a class="headerlink" href="#CactusField.ny" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Number of grid points in y direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.nz">
-<code class="descname">nz</code><a class="headerlink" href="#CactusField.nz" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> &#8211; Number of grid points in z direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.dx">
-<code class="descname">dx</code><a class="headerlink" href="#CactusField.dx" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em> &#8211; Grid spacing in x direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.dy">
-<code class="descname">dy</code><a class="headerlink" href="#CactusField.dy" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em> &#8211; Grid spacing in y direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.dz">
-<code class="descname">dz</code><a class="headerlink" href="#CactusField.dz" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em> &#8211; Grid spacing in z direction.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.xlim">
-<code class="descname">xlim</code><a class="headerlink" href="#CactusField.xlim" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> &#8211; Extents of grid in x direction, [x_min, x_max].</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.ylim">
-<code class="descname">ylim</code><a class="headerlink" href="#CactusField.ylim" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> &#8211; Extents of grid in x direction, [y_min, y_max].</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="CactusField.zlim">
-<code class="descname">zlim</code><a class="headerlink" href="#CactusField.zlim" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> &#8211; Extents of grid in x direction, [z_min, z_max].</p>
+<dt id="CactusField.grid_dims">
+<code class="descname">grid_dims</code><a class="headerlink" href="#CactusField.grid_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> &#8211; A dictionary of grid dimensions.</p>
 </dd></dl>
 
 <dl class="method">
@@ -448,10 +408,23 @@ specified point or points. Uses nearest-point to avoid interpolation.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data_dict</strong> &#8211; Dictionary of the time series velocity data.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul>
+<li><p class="first"><strong>data_dict</strong> (<em>dict</em>) &#8211; Dictionary of the time series velocity data:</p>
+<div class="highlight-default"><div class="highlight"><pre><span class="s">&#39;t&#39;</span>   <span class="p">:</span> <span class="n">times</span>
+<span class="s">&#39;u&#39;</span>   <span class="p">:</span> <span class="n">x</span><span class="o">-</span><span class="n">velocity</span>
+<span class="s">&#39;v&#39;</span>   <span class="p">:</span> <span class="n">y</span><span class="o">-</span><span class="n">velocity</span>
+<span class="s">&#39;w&#39;</span>   <span class="p">:</span> <span class="n">z</span><span class="o">-</span><span class="n">velocity</span>
+<span class="s">&#39;ufs&#39;</span> <span class="p">:</span> <span class="n">freestream</span> <span class="n">x</span><span class="o">-</span><span class="n">velocity</span>
+<span class="s">&#39;vfs&#39;</span> <span class="p">:</span> <span class="n">freestream</span> <span class="n">y</span><span class="o">-</span><span class="n">velocity</span>
+<span class="s">&#39;wfs&#39;</span> <span class="p">:</span> <span class="n">freestream</span> <span class="n">z</span><span class="o">-</span><span class="n">velocity</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>p_nearest</strong> (<em>list</em>) &#8211; List of the nearest points to those in <cite>p_list</cite> (points at which
+data was returned).</p>
+</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
@@ -460,7 +433,7 @@ specified point or points. Uses nearest-point to avoid interpolation.</p>
 
 <dl class="method">
 <dt id="pyCactus.CactusField.write_vtk_series">
-<code class="descname">write_vtk_series</code><span class="sig-paren">(</span><em>path</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.write_vtk_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.write_vtk_series" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_vtk_series</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>print_status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.write_vtk_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.write_vtk_series" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the field data to a time series of VTK files</p>
 <p>Data is written as VTK structured data (.vts). Velocity data is a
 vector field.</p>
@@ -470,10 +443,18 @@ normalized times of each timestep.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>path</strong> (<em>str</em>) &#8211; The path to which to write the VTK files.</li>
 <li><strong>name</strong> (<em>str</em>) &#8211; The prefix of the VTK filenames.</li>
+<li><strong>print_status</strong> (<em>bool</em>) &#8211; True to print the status of VTK conversion, False to suppress.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>data_filenames</strong> (<em>list</em>) &#8211; List of the VTK filenames.</li>
+<li><strong>pvd_filename</strong> (<em>str</em>) &#8211; .pvd collection filename.</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
@@ -560,30 +541,30 @@ normalized times of each timestep.</p>
 <div class="section" id="probes">
 <h3>Probes<a class="headerlink" href="#probes" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
-<dt id="pyCactus.Probes">
-<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">Probes</code><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#Probes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.Probes" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusProbes">
+<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusProbes</code><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probes class for CACTUS probe data.</p>
 <dl class="attribute">
-<dt id="Probes.probe_locations">
-<code class="descname">probe_locations</code><a class="headerlink" href="#Probes.probe_locations" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusProbes.probe_locations">
+<code class="descname">probe_locations</code><a class="headerlink" href="#CactusProbes.probe_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; Dictionary of {probe_id (int) : prob_location (numpy.array)}</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="Probes.probe_filenames">
-<code class="descname">probe_filenames</code><a class="headerlink" href="#Probes.probe_filenames" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusProbes.probe_filenames">
+<code class="descname">probe_filenames</code><a class="headerlink" href="#CactusProbes.probe_filenames" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; Dictionary of {probe_id (int) : prob_filename (str)}</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyCactus.Probes.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#Probes.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.Probes.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusProbes.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes Probes class.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyCactus.Probes.get_probe_data_by_id">
-<code class="descname">get_probe_data_by_id</code><span class="sig-paren">(</span><em>probe_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#Probes.get_probe_data_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.Probes.get_probe_data_by_id" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusProbes.get_probe_data_by_id">
+<code class="descname">get_probe_data_by_id</code><span class="sig-paren">(</span><em>probe_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes.get_probe_data_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes.get_probe_data_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Pandas dataframe of the probe data with given id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -599,16 +580,23 @@ normalized times of each timestep.</p>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pyCactus.CactusProbes.num_probes">
+<code class="descname">num_probes</code><a class="headerlink" href="#pyCactus.CactusProbes.num_probes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of probes.</p>
+</dd></dl>
+
 <dl class="method">
-<dt id="pyCactus.Probes.plot_probe_data_by_id">
-<code class="descname">plot_probe_data_by_id</code><span class="sig-paren">(</span><em>probe_id</em>, <em>timestep=False</em>, <em>plot_fs=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#Probes.plot_probe_data_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.Probes.plot_probe_data_by_id" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusProbes.plot_probe_data_by_id">
+<code class="descname">plot_probe_data_by_id</code><span class="sig-paren">(</span><em>probe_id</em>, <em>ax=None</em>, <em>timestep=False</em>, <em>plot_fs=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes.plot_probe_data_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes.plot_probe_data_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the velocity vs. time for a specific probe.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>probe_id</strong> (<em>int</em>) &#8211; Probe ID to plot</li>
+<li><strong>ax</strong> (<em>matplotlib axis</em>) &#8211; Axis on which to plot series. If not specified, creates a new figure.</li>
 <li><strong>timestep</strong> (<em>Optional[bool]</em>) &#8211; True to plot x-axis as timestep instead of normalized time (default
 False).</li>
 <li><strong>plot_fs</strong> (<em>Optional[bool]</em>) &#8211; True to plot freestream velocities in addition to induced velocities
@@ -616,13 +604,20 @@ False).</li>
 </ul>
 </td>
 </tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>figure</strong> (<em>matplotlib.figure.Figure</em>) &#8211; Figure handle.</li>
+<li><strong>ax</strong> (<em>matplotlib.axes._subplots.AxesSubplot</em>) &#8211; Axis handle.</li>
+</ul>
+</p>
+</td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyCactus.Probes.read_probe_files">
-<code class="descname">read_probe_files</code><span class="sig-paren">(</span><em>run_directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#Probes.read_probe_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.Probes.read_probe_files" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusProbes.read_probe_files">
+<code class="descname">read_probe_files</code><span class="sig-paren">(</span><em>run_directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes.read_probe_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes.read_probe_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find probe files in run directory and read the headers.</p>
 <p>Searches within the specified run directory to find files matching the
 pattern <cite>*probe*.csv</cite>. Reads in the header data to class attributes.</p>

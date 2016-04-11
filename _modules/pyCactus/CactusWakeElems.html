@@ -272,7 +272,10 @@
 		<span class="k">return</span> <span class="n">data_arrays</span><span class="p">,</span> <span class="n">has_node_ids</span></div>
 
 
-<div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">id_flag</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">num_blade_elems</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+	                     <span class="n">id_flag</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+	                     <span class="n">num_blade_elems</span><span class="o">=</span><span class="p">[],</span>
+	                     <span class="n">print_status</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Writes the wake element data to a time series of VTK files</span>
 
 <span class="sd">		Data is written as VTK unstructured data (.vtu). ID data is a scalar</span>
@@ -293,6 +296,15 @@
 <span class="sd">			will be written to the VTK file regardless of id_flag.</span>
 <span class="sd">		num_blade_elems : Optional[list]</span>
 <span class="sd">			The number of elements for each blade.</span>
+<span class="sd">		print_status: bool</span>
+<span class="sd">			True to print the status of VTK conversion, False to suppress.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		data_filenames : list</span>
+<span class="sd">			List of the VTK filenames.</span>
+<span class="sd">		pvd_filename : str</span>
+<span class="sd">			.pvd collection filename.			</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 
 
@@ -301,6 +313,9 @@
 
 		<span class="c"># set the collection filename</span>
 		<span class="n">collection_fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.pvd&quot;</span>
+
+		<span class="c"># set up blank list of the vtk filenames</span>
+		<span class="n">data_filenames</span> <span class="o">=</span> <span class="p">[]</span>
 
 		<span class="c"># set up XML tree for PVD collection file</span>
 		<span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;VTKFile&quot;</span><span class="p">)</span>
@@ -372,7 +387,10 @@
 					<span class="s">&#39;node_id&#39;</span> <span class="p">:</span> <span class="n">node_ids</span><span class="p">}</span>
 
 			<span class="c"># write data</span>
-			<span class="n">data_filename</span> <span class="o">=</span> <span class="n">pointsToVTK</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">vtk_name</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+			<span class="n">data_filename</span> <span class="o">=</span> <span class="n">pointsToVTK</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">vtk_name</span><span class="p">)),</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+			<span class="c"># append filename to list</span>
+			<span class="n">data_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span>
 
 			<span class="c"># add elements to XML tree for PVD collection file</span>
 			<span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s">&quot;DataSet&quot;</span><span class="p">)</span>
@@ -381,13 +399,18 @@
 
 			<span class="c"># print status message</span>
 			<span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">tmod</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
-			<span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span> <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span> <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
 
 		<span class="c"># write the collection file</span>
 		<span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-		<span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">collection_fname</span><span class="p">)</span>
+		<span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">collection_fname</span><span class="p">))</span>
 		<span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pvd_filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-		<span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span></div></div>
+
+		<span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span>
+
+		<span class="k">return</span> <span class="n">data_filenames</span><span class="p">,</span> <span class="n">pvd_filename</span></div></div>
 
 <span class="c">#####################################</span>
 <span class="c">######### Module  Functions #########</span>
