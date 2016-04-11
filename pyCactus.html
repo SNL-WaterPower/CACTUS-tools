@@ -161,7 +161,7 @@
 <dd><dl class="method">
 <dt id="pyCactus.CactusRun.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*csv'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the class. Reads some data to memory.</p>
+<dd><p>Initialize the class, reading some data to memory.</p>
 <p>This method relies on recursive searches within the specified run
 directory to find the appropriate CACTUS output files. Therefore, each
 run directory should only contain one set of output files (or else the
@@ -173,12 +173,12 @@ behavior cannot be guaranteed).</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>run_directory</strong> (<em>str</em>) &#8211; Path to the directory containing the CACTUS run.</li>
 <li><strong>case_name</strong> (<em>str</em>) &#8211; &#8216;case name&#8217; which precedes all input and output files.</li>
-<li><strong>input_fname</strong> (<em>Optional[str]</em>) &#8211; Input filename (default: ./[case_name].in).</li>
-<li><strong>geom_fname</strong> (<em>Optional[str]</em>) &#8211; Geometry filename (default: be ./[case_name].geom)</li>
+<li><strong>input_fname</strong> (<em>Optional[str]</em>) &#8211; Input filename (default <cite>./[case_name].in</cite>).</li>
+<li><strong>geom_fname</strong> (<em>Optional[str]</em>) &#8211; Geometry filename (default <cite>./[case_name].geom</cite>)</li>
 <li><strong>wakeelem_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for wake element data filenames (default is
-&#8216;<em>WakeElemData_</em>.csv&#8217;)</li>
+<cite>*WakeElemData_*.csv</cite>)</li>
 <li><strong>field_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for field data filenames (default is
-&#8216;<em>FieldData_</em>.csv&#8217;)</li>
+<cite>*FieldData_*.csv</cite>)</li>
 </ul>
 </td>
 </tr>

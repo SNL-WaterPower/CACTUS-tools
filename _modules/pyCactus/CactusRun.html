@@ -152,7 +152,7 @@
 	             <span class="n">geom_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
 	             <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeElemData_*.csv&#39;</span><span class="p">,</span>
 	             <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*FieldData_*csv&#39;</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Initialize the class. Reads some data to memory.</span>
+		<span class="sd">&quot;&quot;&quot;Initialize the class, reading some data to memory.</span>
 
 <span class="sd">		This method relies on recursive searches within the specified run</span>
 <span class="sd">		directory to find the appropriate CACTUS output files. Therefore, each</span>
@@ -166,15 +166,15 @@
 <span class="sd">		case_name : str</span>
 <span class="sd">			&#39;case name&#39; which precedes all input and output files.</span>
 <span class="sd">		input_fname : Optional[str]</span>
-<span class="sd">			Input filename (default: ./[case_name].in).</span>
+<span class="sd">			Input filename (default `./[case_name].in`).</span>
 <span class="sd">		geom_fname : Optional[str]</span>
-<span class="sd">			Geometry filename (default: be ./[case_name].geom)</span>
+<span class="sd">			Geometry filename (default `./[case_name].geom`)</span>
 <span class="sd">		wakeelem_fnames_pattern : Optional[str]</span>
 <span class="sd">			Glob pattern for wake element data filenames (default is</span>
-<span class="sd">			&#39;*WakeElemData_*.csv&#39;)</span>
+<span class="sd">			`*WakeElemData_*.csv`)</span>
 <span class="sd">		field_fnames_pattern : Optional[str]</span>
 <span class="sd">			Glob pattern for field data filenames (default is</span>
-<span class="sd">			&#39;*FieldData_*.csv&#39;)</span>
+<span class="sd">			`*FieldData_*.csv`)</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="c"># if input file wasn&#39;t specified, guess it</span>
