@@ -408,26 +408,41 @@ class CactusField():
 		-------
 		data_dict : dict
 			Dictionary of the time series velocity data.
+		p_nearest : list
+			List of the nearest points to those in p_list (points at which data
+			was returned).
 		"""
 		# get the grid from the first timestep
 		df_inst = self.get_df_inst(time=self.times[0])
 		grid_data, grid_dims = self.fielddata_from_df(df_inst)
 		
-		x = np.unique(grid_data['X'])
-		y = np.unique(grid_data['Y'])
-		z = np.unique(grid_data['Z'])
+		# extract grid coordinates
+		X = grid_data['X']
+		Y = grid_data['Y']
+		Z = grid_data['Z']
 
+		# initialize empty lists
 		kji_nearest = []
+		p_nearest = []
 
+		# loop through each point
 		for p in p_list:
 			xp, yp, zp = p
-		
-			# compute indices of the point closest to xp,yp,zp
-			xi = np.abs(x-xp).argmin()
-			yi = np.abs(y-yp).argmin()
-			zi = np.abs(z-zp).argmin()
 
+			# compute distance from point to each grid node
+			R = np.power(X-xp,2) + np.power(Y-yp,2) + np.power(Z-zp,2)
+
+			# find the indices of the place where r is a minimum
+			zi, yi, xi = np.unravel_index(R.argmin(),R.shape)
+
+			# add this index to the list of indices
 			kji_nearest.append((zi,yi,xi))
+
+			# get the actual coordinate of the nearest point and add to list of
+			# nearest points
+			p_nearest.append((X[zi,yi,xi],
+			                  Y[zi,yi,xi],
+			                  Z[zi,yi,xi]))
 
 		# preallocate arrays
 		num_times = len(self.times[ti_start:ti_end])
@@ -465,7 +480,7 @@ class CactusField():
 					 'vfs' : vfs,
 					 'wfs' : wfs}
 
-		return data_dict
+		return data_dict, p_nearest
 
 
 #####################################
