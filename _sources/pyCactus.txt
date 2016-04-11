@@ -22,7 +22,7 @@ CactusRun
 ^^^^^^^^^
 .. autoclass:: pyCactus.CactusRun
 	:members:
-	:special-members
+	:special-members:
 
 CactusWakeElems
 ^^^^^^^^^^^^^^^

@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyCactus.CactusRun &mdash; CACTUS-tools 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> CACTUS-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyCactus.html">pyCactus</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">CACTUS-tools</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pyCactus.CactusRun</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyCactus.CactusRun</h1><div class="highlight"><pre>
+<span class="c"># CactusRun.py</span>
+<span class="sd">&quot;&quot;&quot;A module for parsing CACTUS run (input and output) files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">pytime</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">f90nml</span>
+
+<span class="kn">from</span> <span class="nn">CactusGeom</span> <span class="kn">import</span> <span class="n">CactusGeom</span>
+<span class="kn">from</span> <span class="nn">CactusWakeElems</span> <span class="kn">import</span> <span class="n">CactusWakeElems</span>
+<span class="kn">from</span> <span class="nn">CactusField</span> <span class="kn">import</span> <span class="n">CactusField</span>
+<span class="kn">from</span> <span class="nn">CactusProbes</span> <span class="kn">import</span> <span class="n">CactusProbes</span>
+
+<span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
+
+<div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">():</span>
+<div class="viewcode-block" id="CactusRun.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span>
+	             <span class="n">input_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+	             <span class="n">geom_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+	             <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeElemData_*.csv&#39;</span><span class="p">,</span>
+	             <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*FieldData_*csv&#39;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initialize the class. Reads some data to memory.</span>
+
+<span class="sd">		This method relies on recursive searches within the specified run</span>
+<span class="sd">		directory to find the appropriate CACTUS output files. Therefore, each</span>
+<span class="sd">		run directory should only contain one set of output files (or else the</span>
+<span class="sd">		behavior cannot be guaranteed).</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		run_directory : str</span>
+<span class="sd">			Path to the directory containing the CACTUS run.</span>
+<span class="sd">		case_name : str</span>
+<span class="sd">			&#39;case name&#39; which precedes all input and output files.</span>
+<span class="sd">		input_fname : Optional[str]</span>
+<span class="sd">			Input filename (default: ./[case_name].in).</span>
+<span class="sd">		geom_fname : Optional[str]</span>
+<span class="sd">			Geometry filename (default: be ./[case_name].geom)</span>
+<span class="sd">		wakeelem_fnames_pattern : Optional[str]</span>
+<span class="sd">			Glob pattern for wake element data filenames (default is</span>
+<span class="sd">			&#39;*WakeElemData_*.csv&#39;)</span>
+<span class="sd">		field_fnames_pattern : Optional[str]</span>
+<span class="sd">			Glob pattern for field data filenames (default is</span>
+<span class="sd">			&#39;*FieldData_*.csv&#39;)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c"># if input file wasn&#39;t specified, guess it</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">input_fname</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.in&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">input_fname</span>
+
+		<span class="c"># if a geometry filename is specified, use that.</span>
+		<span class="c"># otherwise, assume its [case_name].geom</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">geom_fname</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.geom&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="n">geom_fname</span>
+
+		<span class="c"># assemble filenames</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_ElementData.csv&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span>     <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_Param.csv&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span>       <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_RevData.csv&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_TimeData.csv&#39;</span>
+		
+		<span class="c"># search for wake element and field files anywhere in the directory</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span>  <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+		                                             <span class="n">wakeelem_fnames_pattern</span><span class="p">))</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+		                                             <span class="n">field_fnames_pattern</span><span class="p">))</span>
+		
+		<span class="c"># read in the input file namelist</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">namelist</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+
+		<span class="c"># The following sections load the blade element, rev-averaged,</span>
+		<span class="c"># parameter, and time data. These methods use recursive_glob() to find</span>
+		<span class="c"># the files within the run_directory.</span>
+
+		<span class="c"># load blade element data</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+
+		<span class="c"># load revolution-averaged data</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+			
+		<span class="c"># parameter data</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+			
+		<span class="c"># time data</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+
+		<span class="c"># The following sections initialize the CactusWakeElems and CactusField</span>
+		<span class="c"># classes. Initializing these classes will search for files in the</span>
+		<span class="c"># run_directory and parse the first line of each. This may be slow,</span>
+		<span class="c"># depending on the number of files</span>
+
+		<span class="c"># wake element data</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
+				<span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
+				<span class="k">print</span> <span class="s">&#39;Read wake element data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Warning: Wake node data was found, but could not be loaded properly.&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake data files in the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
+
+		<span class="c"># field data</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
+				<span class="k">print</span> <span class="s">&#39;Read wake grid data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Warning: Wake grid data was found, but could not be loaded properly.&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake grid data files in the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
+
+		<span class="c"># read in the probe data using the CactusProbes class</span>
+		<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">read_probe_files</span><span class="p">(</span><span class="n">run_directory</span><span class="p">)</span>
+		<span class="k">print</span> <span class="s">&#39;Read probe data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+
+		<span class="c"># read in the geometry data using the CactusGeom class</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom</span> <span class="o">=</span> <span class="n">CactusGeom</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+
+
+		<span class="k">print</span> <span class="s">&#39;Success: Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span></div>
+
+
+	<span class="c">#####################################</span>
+	<span class="c">######### Private Functions #########</span>
+	<span class="c">#####################################</span>
+	<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">):</span>
+		<span class="c"># reads a CSV file using pandas and returns a pandas dataframe</span>
+		<span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+		
+		<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>	<span class="c"># strip whitespace from colnames</span>
+		<span class="k">return</span> <span class="n">df</span>
+
+
+	<span class="c">####################################</span>
+	<span class="c">######### Public Functions #########</span>
+	<span class="c">####################################</span>
+<div class="viewcode-block" id="CactusRun.blade_data_at_time_index"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun.blade_data_at_time_index">[docs]</a>	<span class="k">def</span> <span class="nf">blade_data_at_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Extracts a subset dataframe of the &quot;Element Data&quot; dataframe by time</span>
+<span class="sd">		index.</span>
+
+<span class="sd">		Returns the time corresponding to the given time_index, and a list of</span>
+<span class="sd">		dataframes containing the data, with one dataframe per blade.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			time_index : int</span>
+<span class="sd">				The time index.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			time : float</span>
+<span class="sd">				The non-dimensionalized time.</span>
+<span class="sd">			dfs_blade : list</span>
+<span class="sd">				A list of dataframes, each holding blade data.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c"># set column names</span>
+		<span class="n">time_col_name</span>  <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
+		<span class="n">blade_col_name</span> <span class="o">=</span> <span class="s">&#39;Blade&#39;</span>
+		<span class="n">elem_col_name</span>  <span class="o">=</span> <span class="s">&#39;Element&#39;</span>
+
+		<span class="c"># get the data series</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>
+
+		<span class="c"># extract data subset</span>
+		<span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+
+		<span class="c"># get number of blades </span>
+		<span class="n">num_blades</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;NBlade&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">num_elems</span>  <span class="o">=</span> <span class="p">[</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">blade</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">blades</span><span class="p">]</span>
+
+		<span class="c"># organize into a list of dataframes by blade</span>
+		<span class="n">dfs_blade</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_blades</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+			<span class="c"># extract dataframe for particular blade</span>
+			<span class="n">df_blade</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">blade_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">blade</span><span class="p">]</span>
+
+			<span class="c"># pop off the elemnts</span>
+			<span class="n">elements</span> <span class="o">=</span> <span class="n">df_blade</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">elem_col_name</span><span class="p">)</span>
+
+			<span class="c"># set the elements as the df index</span>
+			<span class="n">df_blade</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">elements</span>
+
+			<span class="c"># append the df to the list of dfs</span>
+			<span class="n">dfs_blade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_blade</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">dfs_blade</span></div>
+
+<div class="viewcode-block" id="CactusRun.blade_qty_avg"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun.blade_qty_avg">[docs]</a>	<span class="k">def</span> <span class="nf">blade_qty_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qty_name</span><span class="p">,</span> <span class="n">timesteps_from_end</span><span class="p">,</span> <span class="n">blade_num</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Computes the average value of a specified blade quantity over a</span>
+<span class="sd">		number of timesteps from the end.</span>
+
+<span class="sd">		This may be used to, for example, compute the revolution-averaged blade </span>
+<span class="sd">		quantities, such as circulation distribution, angle of attack, and local</span>
+<span class="sd">		blade relative velocity.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			qty_name : str</span>
+<span class="sd">				The column name for the desired blade quantity</span>
+<span class="sd">			timesteps_from_end : int</span>
+<span class="sd">				Number of timesteps from the end</span>
+<span class="sd">			blade_num : int</span>
+<span class="sd">				Index of the blade number</span>
+<span class="sd">			</span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			qty_avg : numpy.array</span>
+<span class="sd">				The array of averaged blade data.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="c"># set up time indices over which we would like average</span>
+		<span class="n">time_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="n">timesteps_from_end</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+		
+		<span class="c"># initialize empty array to store circulation at final timestep</span>
+		<span class="n">qty_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;NElem&#39;</span><span class="p">],)</span>
+		
+		<span class="c"># compute average </span>
+		<span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="n">time_indices</span><span class="p">:</span>
+			<span class="c"># get time (float), and a tuple containing Pandas dataframes of length num_blades.</span>
+			<span class="n">time</span><span class="p">,</span> <span class="n">elem_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_data_at_time_index</span><span class="p">(</span><span class="n">time_index</span><span class="p">)</span>
+
+			<span class="c"># get the circulation distribution at the final timestep</span>
+			<span class="n">qty</span> <span class="o">=</span> <span class="n">elem_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">qty_name</span><span class="p">]</span>
+			<span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">values</span>
+		
+		<span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span><span class="o">/</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">time_indices</span><span class="p">)))</span>
+		
+		<span class="c"># return the averaged quantity</span>
+		<span class="k">return</span> <span class="n">qty_avg</span></div>
+	
+<div class="viewcode-block" id="CactusRun.rotor_data_at_time_index"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun.rotor_data_at_time_index">[docs]</a>	<span class="k">def</span> <span class="nf">rotor_data_at_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Extracts a single time instance from the time dataframe.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns the time corresponding to the given time_index, and a dataframe </span>
+<span class="sd">		containing the appropriate subset of data.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			time_index : int</span>
+<span class="sd">				An integer of the time_index</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			time : float</span>
+<span class="sd">				The time corresponding to the given time index</span>
+<span class="sd">			df : pandas.DataFrame</span>
+<span class="sd">				The dataframe containing the time data at that particular</span>
+<span class="sd">				instance.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c"># get the data series</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>
+
+		<span class="c"># set column names</span>
+		<span class="n">time_col_name</span>  <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
+		
+		<span class="c"># extract data subset</span>
+		<span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="CactusRun.df_subset_time_index"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusRun.df_subset_time_index">[docs]</a>	<span class="k">def</span> <span class="nf">df_subset_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Extracts a subset dataframe of a given dataframe by time index.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">			df : pandas.DataFrame</span>
+<span class="sd">				The dataframe to extract a subset of.</span>
+<span class="sd">			time_index : int</span>
+<span class="sd">				An integer of the time index.</span>
+<span class="sd">			time_col_name : str</span>
+<span class="sd">				The name of the column which contains time data.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">			df : pandas.DataFrame</span>
+<span class="sd">				The dataframe subset and the time corresponding to the given</span>
+<span class="sd">				time_index.</span>
+<span class="sd">			time : float</span>
+<span class="sd">				The time corresponding to the given time index.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c"># get unique times</span>
+		<span class="n">times</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">time_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+		<span class="c"># time at which we wish to extract data</span>
+		<span class="n">time</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">time_index</span><span class="p">]</span>
+
+		<span class="c"># extract the subset of data corresponding to the desired time_index</span>
+		<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">time_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">times</span><span class="p">[</span><span class="n">time_index</span><span class="p">]]</span>
+
+		<span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">time</span></div></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Phillip Chiu, Jon Murray.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
