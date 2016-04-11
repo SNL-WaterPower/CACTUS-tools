@@ -256,10 +256,11 @@ div.nboutput  > :nth-child(2).stderr {
 
 .ansibold { font-weight: bold; }
 </style>
-<div class="section" id="module-pyCactus">
-<span id="module-documentation"></span><h1>Module Documentation<a class="headerlink" href="#module-pyCactus" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-documentation">
+<h1>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This page documents the classes available in the pyCactus module.</p>
 <div class="section" id="cactusrun">
-<span id="interfaces-label"></span><h2>CactusRun<a class="headerlink" href="#cactusrun" title="Permalink to this headline">¶</a></h2>
+<h2>CactusRun<a class="headerlink" href="#cactusrun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyCactus.CactusRun">
 <em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*csv'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
@@ -403,26 +404,26 @@ instance.</li>
 <em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusWakeElems</code><span class="sig-paren">(</span><em>filenames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusWakeElems.html#CactusWakeElems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusWakeElems" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for manipulating wake element data from CACTUS.</p>
 <dl class="attribute">
-<dt id="pyCactus.CactusWakeElems.filenames">
-<code class="descname">filenames</code><a class="headerlink" href="#pyCactus.CactusWakeElems.filenames" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusWakeElems.filenames">
+<code class="descname">filenames</code><a class="headerlink" href="#CactusWakeElems.filenames" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; Filenames (str) of wake element data files.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusWakeElems.num_times">
-<code class="descname">num_times</code><a class="headerlink" href="#pyCactus.CactusWakeElems.num_times" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusWakeElems.num_times">
+<code class="descname">num_times</code><a class="headerlink" href="#CactusWakeElems.num_times" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; Number of timesteps of wake element data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusWakeElems.times">
-<code class="descname">times</code><a class="headerlink" href="#pyCactus.CactusWakeElems.times" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusWakeElems.times">
+<code class="descname">times</code><a class="headerlink" href="#CactusWakeElems.times" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; List of times (float) of wake element data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusWakeElems.fdict">
-<code class="descname">fdict</code><a class="headerlink" href="#pyCactus.CactusWakeElems.fdict" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusWakeElems.fdict">
+<code class="descname">fdict</code><a class="headerlink" href="#CactusWakeElems.fdict" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; A dictionary of <cite>{time : fname}</cite>.</p>
 </dd></dl>
 
@@ -524,32 +525,32 @@ will be written to the VTK file regardless of id_flag.</li>
 <dd><p>Class for reading WakeData (element) from CSV files.</p>
 <p>Grid node locations X,Y,Z are assumed to be the same for all timesteps.</p>
 <dl class="attribute">
-<dt id="pyCactus.CactusField.filenames">
-<code class="descname">filenames</code><a class="headerlink" href="#pyCactus.CactusField.filenames" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusField.filenames">
+<code class="descname">filenames</code><a class="headerlink" href="#CactusField.filenames" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; Filenames (str) of wake element data files.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusField.num_times">
-<code class="descname">num_times</code><a class="headerlink" href="#pyCactus.CactusField.num_times" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusField.num_times">
+<code class="descname">num_times</code><a class="headerlink" href="#CactusField.num_times" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; Number of timesteps of wake element data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusField.times">
-<code class="descname">times</code><a class="headerlink" href="#pyCactus.CactusField.times" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusField.times">
+<code class="descname">times</code><a class="headerlink" href="#CactusField.times" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; List of times (float) of wake element data.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusField.fdict">
-<code class="descname">fdict</code><a class="headerlink" href="#pyCactus.CactusField.fdict" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusField.fdict">
+<code class="descname">fdict</code><a class="headerlink" href="#CactusField.fdict" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; A dictionary of <cite>{time : filename}</cite>.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusField.grid_dims">
-<code class="descname">grid_dims</code><a class="headerlink" href="#pyCactus.CactusField.grid_dims" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusField.grid_dims">
+<code class="descname">grid_dims</code><a class="headerlink" href="#CactusField.grid_dims" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; A dictionary of grid dimensions.</p>
 </dd></dl>
 
@@ -711,20 +712,20 @@ normalized times of each timestep.</p>
 <em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusGeom</code><span class="sig-paren">(</span><em>geom_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusGeom.html#CactusGeom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusGeom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for parsing CACTUS geometry data.</p>
 <dl class="attribute">
-<dt id="pyCactus.CactusGeom.globalvars">
-<code class="descname">globalvars</code><a class="headerlink" href="#pyCactus.CactusGeom.globalvars" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusGeom.globalvars">
+<code class="descname">globalvars</code><a class="headerlink" href="#CactusGeom.globalvars" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; Global variables from geometry file.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusGeom.blades">
-<code class="descname">blades</code><a class="headerlink" href="#pyCactus.CactusGeom.blades" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusGeom.blades">
+<code class="descname">blades</code><a class="headerlink" href="#CactusGeom.blades" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; List of dicts of blade geometry variables.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusGeom.struts">
-<code class="descname">struts</code><a class="headerlink" href="#pyCactus.CactusGeom.struts" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusGeom.struts">
+<code class="descname">struts</code><a class="headerlink" href="#CactusGeom.struts" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>list</em> &#8211; List of dicts of strut geometry variables.</p>
 </dd></dl>
 
@@ -785,14 +786,14 @@ normalized times of each timestep.</p>
 <em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusProbes</code><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probes class for CACTUS probe data.</p>
 <dl class="attribute">
-<dt id="pyCactus.CactusProbes.probe_locations">
-<code class="descname">probe_locations</code><a class="headerlink" href="#pyCactus.CactusProbes.probe_locations" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusProbes.probe_locations">
+<code class="descname">probe_locations</code><a class="headerlink" href="#CactusProbes.probe_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; Dictionary of {probe_id (int) : prob_location (numpy.array)}</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyCactus.CactusProbes.probe_filenames">
-<code class="descname">probe_filenames</code><a class="headerlink" href="#pyCactus.CactusProbes.probe_filenames" title="Permalink to this definition">¶</a></dt>
+<dt id="CactusProbes.probe_filenames">
+<code class="descname">probe_filenames</code><a class="headerlink" href="#CactusProbes.probe_filenames" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>dict</em> &#8211; Dictionary of {probe_id (int) : prob_filename (str)}</p>
 </dd></dl>
 

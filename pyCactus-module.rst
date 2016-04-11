@@ -1,6 +1,6 @@
 Module Documentation
 --------------------
-.. _interfaces-label:
+This page documents the classes available in the pyCactus module.
 
 CactusRun
 ^^^^^^^^^
