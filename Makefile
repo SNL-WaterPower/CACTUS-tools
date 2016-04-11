@@ -194,7 +194,24 @@ pseudoxml:
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
-gh-pages:
+gh-pages-noclean:
+	git checkout gh-pages
+	rm -rf _build _sources _static _modules _images
+	git checkout master $(GH_PAGES_SOURCES)
+	git reset HEAD
+	make html
+	mv -fv _build/html/* ./
+
+gh-pages-build:
+	git checkout gh-pages
+	rm -rf _build _sources _static _modules _images
+	git checkout master $(GH_PAGES_SOURCES)
+	git reset HEAD
+	make html
+	mv -fv _build/html/* ./
+	rm -rf $(GH_PAGES_SOURCES) _build
+
+gh-pages-deploy:
 	git checkout gh-pages
 	rm -rf _build _sources _static _modules _images
 	git checkout master $(GH_PAGES_SOURCES)
@@ -203,13 +220,5 @@ gh-pages:
 	mv -fv _build/html/* ./
 	rm -rf $(GH_PAGES_SOURCES) _build
 	git add -A
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
-
-gh-pages-nocommit:
-	git checkout gh-pages
-	rm -rf _build _sources _static _modules _images
-	git checkout master $(GH_PAGES_SOURCES)
-	git reset HEAD
-	make html
-	mv -fv _build/html/* ./
-	rm -rf $(GH_PAGES_SOURCES) _build
+	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages
+	
