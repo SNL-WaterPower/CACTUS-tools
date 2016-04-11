@@ -127,7 +127,121 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">tmod</span>
@@ -140,7 +254,7 @@
 <span class="c">#####################################</span>
 <span class="c">######### Wake Element Data #########</span>
 <span class="c">#####################################</span>
-<div class="viewcode-block" id="CactusWakeElems"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems">[docs]</a><span class="k">class</span> <span class="nc">CactusWakeElems</span><span class="p">():</span>
+<div class="viewcode-block" id="CactusWakeElems"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems">[docs]</a><span class="k">class</span> <span class="nc">CactusWakeElems</span><span class="p">():</span>
 	<span class="sd">&quot;&quot;&quot;Class for manipulating wake element data from CACTUS.</span>
 
 <span class="sd">	Attributes</span>
@@ -155,7 +269,7 @@
 <span class="sd">		A dictionary of `{time : fname}`.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CactusWakeElems.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusWakeElems.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Initializes the instance, reads in the headers from each file.&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
@@ -177,7 +291,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="CactusWakeElems.get_df_inst"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusWakeElems.get_df_inst"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Gets the data from a specified time or filename.</span>
 
 <span class="sd">		Either the time or the filename must be specified.</span>
@@ -211,7 +325,7 @@
 		<span class="k">return</span> <span class="n">df_inst</span></div>
 
 
-<div class="viewcode-block" id="CactusWakeElems.wakedata_from_df"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.wakedata_from_df">[docs]</a>	<span class="k">def</span> <span class="nf">wakedata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusWakeElems.wakedata_from_df"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.wakedata_from_df">[docs]</a>	<span class="k">def</span> <span class="nf">wakedata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Takes a dataframe containing wake node data at a single timestep and</span>
 <span class="sd">		returns a dictionary of the data as np.arrays.</span>
 
@@ -272,7 +386,7 @@
 		<span class="k">return</span> <span class="n">data_arrays</span><span class="p">,</span> <span class="n">has_node_ids</span></div>
 
 
-<div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+<div class="viewcode-block" id="CactusWakeElems.write_vtk_series"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
 	                     <span class="n">id_flag</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
 	                     <span class="n">num_blade_elems</span><span class="o">=</span><span class="p">[],</span>
 	                     <span class="n">print_status</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>

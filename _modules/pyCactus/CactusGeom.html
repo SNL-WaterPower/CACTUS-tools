@@ -127,10 +127,124 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for pyCactus.CactusGeom</h1><div class="highlight"><pre>
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<h1>Source code for pyCactus.CactusGeom</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-<div class="viewcode-block" id="CactusGeom"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom">[docs]</a><span class="k">class</span> <span class="nc">CactusGeom</span><span class="p">():</span>
+<div class="viewcode-block" id="CactusGeom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom">[docs]</a><span class="k">class</span> <span class="nc">CactusGeom</span><span class="p">():</span>
 	<span class="sd">&quot;&quot;&quot;Class for parsing CACTUS geometry data.</span>
 
 <span class="sd">	Attributes</span>
@@ -143,7 +257,7 @@
 <span class="sd">		List of dicts of strut geometry variables.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CactusGeom.__init__"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusGeom.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Initializes the class, reads in geometry data to class attributes.&quot;&quot;&quot;</span>
 		<span class="c"># read the geometry file into public variables</span>
 		<span class="c"># 	globalvars, blades, and struts are dictionaries whose index values</span>
@@ -218,7 +332,7 @@
 	<span class="c">####################################</span>
 	<span class="c">######### Public Functions #########</span>
 	<span class="c">####################################</span>
-<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Reads data from a CACTUS .geom file.</span>
 
 <span class="sd">		Parameters</span>
@@ -323,7 +437,7 @@
 		
 		<span class="k">return</span> <span class="n">global_vars</span><span class="p">,</span> <span class="n">blade</span><span class="p">,</span> <span class="n">strut</span></div>
 
-<div class="viewcode-block" id="CactusGeom.distance_to_rotation_axis"><a class="viewcode-back" href="../../pyCactus.html#pyCactus.CactusGeom.distance_to_rotation_axis">[docs]</a>	<span class="k">def</span> <span class="nf">distance_to_rotation_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusGeom.distance_to_rotation_axis"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.distance_to_rotation_axis">[docs]</a>	<span class="k">def</span> <span class="nf">distance_to_rotation_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Computes the distance between a point and a rotation axis.</span>
 
 <span class="sd">		http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation</span>

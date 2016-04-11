@@ -1,0 +1,1527 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyCactus Demo &mdash; CACTUS-tools 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="index.html"/>
+        <link rel="up" title="pyCactus" href="pyCactus.html"/>
+        <link rel="next" title="Module Documentation" href="pyCactus-module.html"/>
+        <link rel="prev" title="Installation" href="pyCactus-installation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CACTUS-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry tools</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyCactus.html">pyCactus</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pyCactus-installation.html">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">pyCactus</span></code> Demo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Creating-a-CactusRun-instance">Creating a <code class="docutils literal"><span class="pre">CactusRun</span></code> instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Geometry-data">Geometry data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Accessing-time,-revolution-averaged,-and-blade-element-data">Accessing time, revolution-averaged, and blade element data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Time-data">Time data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Revolution-averaged-data">Revolution-averaged data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Blade-element-data">Blade element data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Accessing-wake-element-and-field-data">Accessing wake element and field data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Wake-element-data">Wake element data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Field-data">Field data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Probe-data">Probe data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyCactus-module.html">Module Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CACTUS-tools</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="pyCactus.html">pyCactus</a> &raquo;</li>
+      
+    <li><code class="docutils literal"><span class="pre">pyCactus</span></code> Demo</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pyCactus-demo.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: navy;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: darkred;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
+
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
+</style>
+<div class="section" id="pyCactus-Demo">
+<h1><code class="docutils literal"><span class="pre">pyCactus</span></code> Demo<a class="headerlink" href="#pyCactus-Demo" title="Permalink to this headline">¶</a></h1>
+<p>This notebook demonstrates the core functionality of the <code class="docutils literal"><span class="pre">pyCactus</span></code>
+post-processing module.</p>
+<p>Author: <a class="reference external" href="mailto:pchiu&#37;&#52;&#48;sandia&#46;gov">Phillip Chiu</a></p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [1]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="c"># enable autoreload</span>
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+
+<span class="c"># set up plotting backend</span>
+<span class="c"># %matplotlib nbagg</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="c"># matplotlib.rcParams[&#39;figure.figsize&#39;] = (14.0, 10.5)  # large figures</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">&#39;figure.figsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>         <span class="c"># medium figures</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">})</span>          <span class="c"># label size</span>
+
+<span class="c"># set up paths</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">nb_root_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&#39;~/Notebooks/&#39;</span><span class="p">)</span>      <span class="c"># notebook root dir</span>
+<span class="n">nb_dir_name</span> <span class="o">=</span> <span class="s">&#39;demo1&#39;</span>                                 <span class="c"># notebook work dir name</span>
+<span class="n">nb_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nb_root_dir</span><span class="p">,</span>
+                                      <span class="n">nb_dir_name</span><span class="p">))</span>   <span class="c"># notebook work dir</span>
+
+<span class="c"># create notebook dir if it doesn&#39;t exist</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">)</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">)</span> <span class="c"># append notebook work dir to pythonpath</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">)</span>        <span class="c"># change path to notebook work dir</span>
+
+<span class="c"># import commonly-used modules</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">pytime</span>
+
+<span class="c"># apply style (from external notebook)</span>
+<span class="o">%</span><span class="k">run</span> &#39;~/Notebooks/style.ipynb&#39;
+<span class="n">clean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[1]:
+</pre></div>
+</div>
+<div class="container">
+<style type="text/css">
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+
+div.input {
+width: 105ex; /* about 80 chars + buffer */
+}
+
+div.text_cell {
+width: 60em; /* instead of 100%, */
+}
+
+div.text_cell_render {
+font-family: 'Open Sans', 'Computer Modern', 'Helvetica Neue', 'Arial', 'Helvetica', 'Geneva', sans-serif;
+line-height: 145%; /* added for some line spacing of text. */
+width: inherit; /* instead of 'inherit' for shorter lines */
+}
+
+/* Set the size of the headers */
+div.text_cell_render h1 {
+font-size: 20pt;
+font-weight: bold;
+}
+
+div.text_cell_render h2 {
+font-size: 18pt;
+}
+
+div.text_cell_render h3 {
+font-size: 16pt;
+}
+
+div.text_cell_render h4 {
+font-size: 14pt;
+}
+
+.CodeMirror {
+     font-family: Consolas, monospace;
+}
+
+.rendered_html ol {list-style:decimal; margin: 1em 2em;}
+
+/* Table of contents */
+div#toc-wrapper {
+    max-width: 300px
+}
+div#toc {
+    font-family: 'Open Sans', 'Computer Modern', 'Helvetica Neue', 'Arial', 'Helvetica', 'Geneva', sans-serif;
+}
+
+/* Code */
+code {
+    font-family: Consolas, monospace;
+}
+</style></div>
+</div>
+<p>Add the path to pyCactus and import.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [2]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_dir</span> <span class="o">+</span> <span class="s">&#39;/CACTUS-tools/&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pyCactus</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Creating-a-CactusRun-instance">
+<h2>Creating a <code class="docutils literal"><span class="pre">CactusRun</span></code> instance<a class="headerlink" href="#Creating-a-CactusRun-instance" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">CactusRun</span></code> reads and stores information about a single run. The
+path to the data files is specified when initializing the <code class="docutils literal"><span class="pre">CactusRun</span></code>
+instance. It can be instantiated as follows:</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [3]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">case_name</span>  <span class="o">=</span> <span class="s">&#39;NREL-5MW&#39;</span>
+<span class="n">run_dir</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">,</span><span class="s">&#39;NREL-5MW-CACTUS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [4]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">geom_fname</span> <span class="o">=</span> <span class="s">&#39;NREL-5MW.geom&#39;</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">pyCactus</span><span class="o">.</span><span class="n">CactusRun</span><span class="p">(</span><span class="n">run_dir</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span>
+                         <span class="n">geom_fname</span><span class="o">=</span><span class="n">geom_fname</span><span class="p">,</span>
+                         <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeData_*.csv&#39;</span><span class="p">,</span>
+                         <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeDefData_*.csv&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&#39;Time to instantiante CactusRun class: </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+Read wake element data headers in 0.00 s
+Read wake grid data headers in 0.03 s
+Read probe data in 0.00 s
+Success: Loaded case &#96;NREL-5MW&#96; from path &#96;/home/phil/Notebooks/demo1/NREL-5MW-CACTUS&#96;
+
+Time to instantiante CactusRun class: 0.12 s
+</pre></div></div>
+</div>
+<p>On instantiation, the <code class="docutils literal"><span class="pre">CactusRun</span></code> class loads the geometry file along
+with the time data, blade element data, and revolution-averaged data. It
+also parses the first line of each of the wake grid and wake node
+<code class="docutils literal"><span class="pre">.csv</span></code> files to determine the output times.</p>
+<p>The time, element, and revolution data are stored as Pandas dataframes.
+In order to reduce both memory usage and the time for class
+instantiation, data is only read from wake element and field data files
+(which may be very large) when needed.</p>
+</div>
+<div class="section" id="Geometry-data">
+<h2>Geometry data<a class="headerlink" href="#Geometry-data" title="Permalink to this headline">¶</a></h2>
+<p>The geometry data can be accessed easily by calling the
+<code class="docutils literal"><span class="pre">CactusRun.geom</span></code> attribute, which is an instance of the <code class="docutils literal"><span class="pre">CactusGeom</span></code>
+class.</p>
+<p>The geometry data is stored in the <code class="docutils literal"><span class="pre">globalvars</span></code>, <code class="docutils literal"><span class="pre">blades</span></code>, and
+<code class="docutils literal"><span class="pre">struts</span></code> attributes.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [48]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">globalvars</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[48]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+{&#39;NBlade&#39;: [3],
+ &#39;NStrut&#39;: [0],
+ &#39;RefAR&#39;: array([ 3.14159]),
+ &#39;RefR&#39;: array([ 206.693]),
+ &#39;RotN&#39;: array([ 1.,  0.,  0.]),
+ &#39;RotP&#39;: array([ 0.,  0.,  0.]),
+ &#39;Type&#39;: &#39; HAWT&#39;}
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">blades</span></code> and <code class="docutils literal"><span class="pre">struts</span></code> are lists of variable dictionaries,
+enumerated by blade number and strut number.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [53]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">blade_num</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">run</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[53]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[&#39;ECtoR&#39;,
+ &#39;nEz&#39;,
+ &#39;nEx&#39;,
+ &#39;nEy&#39;,
+ &#39;tz&#39;,
+ &#39;PEy&#39;,
+ &#39;PEz&#39;,
+ &#39;ty&#39;,
+ &#39;QCz&#39;,
+ &#39;QCy&#39;,
+ &#39;QCx&#39;,
+ &#39;iSect&#39;,
+ &#39;EAreaR&#39;,
+ &#39;NElem&#39;,
+ &#39;dr_over_R&#39;,
+ &#39;r_over_R_elem&#39;,
+ &#39;FlipN&#39;,
+ &#39;PEx&#39;,
+ &#39;CtoR&#39;,
+ &#39;tx&#39;,
+ &#39;Blade 1&#39;,
+ &#39;sEz&#39;,
+ &#39;sEy&#39;,
+ &#39;sEx&#39;,
+ &#39;tEx&#39;,
+ &#39;tEy&#39;,
+ &#39;tEz&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Accessing-time,-revolution-averaged,-and-blade-element-data">
+<h2>Accessing time, revolution-averaged, and blade element data<a class="headerlink" href="#Accessing-time,-revolution-averaged,-and-blade-element-data" title="Permalink to this headline">¶</a></h2>
+<p>Time, blade element, and revolution data can be accessed using the
+appropriate variables names:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">CactusRun.time_data</span></code></li>
+<li><code class="docutils literal"><span class="pre">CactusRun.elem_data</span></code></li>
+<li><code class="docutils literal"><span class="pre">CactusRun.rev_data</span></code></li>
+</ul>
+<p>Each returns a Pandas dataframe whose column names are shown below.</p>
+<div class="section" id="Time-data">
+<h3>Time data<a class="headerlink" href="#Time-data" title="Permalink to this headline">¶</a></h3>
+<p>The column names for the time data are shown below.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [32]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">time_data</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[32]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+Index([u&#39;Normalized Time (-)&#39;, u&#39;Theta (rad)&#39;, u&#39;Rev&#39;, u&#39;Torque Coeff. (-)&#39;,
+       u&#39;Power Coeff. (-)&#39;, u&#39;Fx Coeff. (-)&#39;, u&#39;Fy Coeff. (-)&#39;,
+       u&#39;Fz Coeff. (-)&#39;, u&#39;Blade Fx Coeff. (-)&#39;, u&#39;Blade Fy Coeff. (-)&#39;,
+       u&#39;Blade Fz Coeff. (-)&#39;, u&#39;Blade Torque Coeff. (-)&#39;,
+       u&#39;Blade Fx Coeff. (-).1&#39;, u&#39;Blade Fy Coeff. (-).1&#39;,
+       u&#39;Blade Fz Coeff. (-).1&#39;, u&#39;Blade Torque Coeff. (-).1&#39;,
+       u&#39;Blade Fx Coeff. (-).2&#39;, u&#39;Blade Fy Coeff. (-).2&#39;,
+       u&#39;Blade Fz Coeff. (-).2&#39;, u&#39;Blade Torque Coeff. (-).2&#39;],
+      dtype=&#39;object&#39;)
+</pre></div>
+</div>
+</div>
+<p>It is easy to plot this data. Here we use the built-in plotting feature
+of the Pandas dataframe, but this could also be done with NumPy.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [76]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">run</span><span class="o">.</span><span class="n">time_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&#39;Normalized Time (-)&#39;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">&#39;Power Coeff. (-)&#39;</span><span class="p">,</span>
+                   <span class="n">marker</span><span class="o">=</span><span class="s">&#39;o&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput container">
+<div class="container">
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+&lt;matplotlib.figure.Figure at 0x7f22fac7e610&gt;
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_17_1.png" src="_images/pyCactus-demo_17_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Revolution-averaged-data">
+<h3>Revolution-averaged data<a class="headerlink" href="#Revolution-averaged-data" title="Permalink to this headline">¶</a></h3>
+<p>The column names for the revolution-averaged data are shown below.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [37]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">rev_data</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[37]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+Index([u&#39;Rev&#39;, u&#39;Power Coeff. (-)&#39;, u&#39;Tip Power Coeff. (-)&#39;,
+       u&#39;Torque Coeff. (-)&#39;, u&#39;Fx Coeff. (-)&#39;, u&#39;Fy Coeff. (-)&#39;,
+       u&#39;Fz Coeff. (-)&#39;, u&#39;Power (kW)&#39;, u&#39;Torque (ft-lbs)&#39;],
+      dtype=&#39;object&#39;)
+</pre></div>
+</div>
+</div>
+<p>As with the time data, this can be easily plotted.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [80]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">run</span><span class="o">.</span><span class="n">rev_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&#39;Rev&#39;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">&#39;Fx Coeff. (-)&#39;</span><span class="p">,</span>
+                   <span class="n">marker</span><span class="o">=</span><span class="s">&#39;o&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput container">
+<div class="container">
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+&lt;matplotlib.figure.Figure at 0x7f22faf05650&gt;
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_22_1.png" src="_images/pyCactus-demo_22_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Blade-element-data">
+<h3>Blade element data<a class="headerlink" href="#Blade-element-data" title="Permalink to this headline">¶</a></h3>
+<p>The column names for the blade element data are shown below.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [58]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">elem_data</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[58]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+Index([u&#39;Normalized Time (-)&#39;, u&#39;Theta (rad)&#39;, u&#39;Blade&#39;, u&#39;Element&#39;, u&#39;Rev&#39;,
+       u&#39;x/R (-)&#39;, u&#39;y/R (-)&#39;, u&#39;z/R (-)&#39;, u&#39;AOA25 (deg)&#39;, u&#39;AOA50 (deg)&#39;,
+       u&#39;AOA75 (deg)&#39;, u&#39;AdotNorm (-)&#39;, u&#39;Re (-)&#39;, u&#39;Mach (-)&#39;, u&#39;Ur (-)&#39;,
+       u&#39;IndU (-)&#39;, u&#39;IndV (-)&#39;, u&#39;IndW (-)&#39;, u&#39;GB (?)&#39;, u&#39;CL (-)&#39;, u&#39;CD (-)&#39;,
+       u&#39;CM25 (-)&#39;, u&#39;CLCirc (-)&#39;, u&#39;CN (-)&#39;, u&#39;CT (-)&#39;, u&#39;Fx (-)&#39;, u&#39;Fy (-)&#39;,
+       u&#39;Fz (-)&#39;, u&#39;te (-)&#39;],
+      dtype=&#39;object&#39;)
+</pre></div>
+</div>
+</div>
+<p>This data can also be plotted easily. We can extract the blade data at a
+particular time index by calling
+<code class="docutils literal"><span class="pre">CactusRun.blade_data_at_time_index()</span></code>.</p>
+<p>For horizontal axis wind turbines, it is often desirable to plot a blade
+quantity against the distance from the rotation axis. This is
+demonstrated here using data from the <code class="docutils literal"><span class="pre">CactusRun.geom</span></code> instance.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [81]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">blade_num</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c"># get the blade data at the final time index</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">dfs_blade</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">blade_data_at_time_index</span><span class="p">(</span><span class="n">time_index</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;r_over_R_elem&#39;</span><span class="p">],</span>
+         <span class="n">dfs_blade</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;CT (-)&#39;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;r_over_R_elem&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;CT (-)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_27_0.png" src="_images/pyCactus-demo_27_0.png" />
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Accessing-wake-element-and-field-data">
+<h2>Accessing wake element and field data<a class="headerlink" href="#Accessing-wake-element-and-field-data" title="Permalink to this headline">¶</a></h2>
+<p>Due to their potentially large file sizes, wake element and field data
+are accessed differently than the above data &#8211; the entire data file is
+never loaded into memory.</p>
+<div class="section" id="Wake-element-data">
+<h3>Wake element data<a class="headerlink" href="#Wake-element-data" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="Viewing-times">
+<h4>Viewing times<a class="headerlink" href="#Viewing-times" title="Permalink to this headline">¶</a></h4>
+<p>The times at which we have wake element data can be easily viewed.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [6]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">num_times</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[6]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+20
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [7]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">times</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[7]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+array([ 0.       ,  0.2080525,  0.416105 ,  0.6241575,  0.83221  ,
+        1.040262 ,  1.248315 ,  1.456367 ,  1.66442  ,  1.872472 ,
+        2.080525 ,  2.288577 ,  2.49663  ,  2.704682 ,  2.912735 ,
+        3.120787 ,  3.32884  ,  3.536892 ,  3.744945 ,  3.952997 ])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Extracting-data-to-NumPy-arrays">
+<h4>Extracting data to NumPy arrays<a class="headerlink" href="#Extracting-data-to-NumPy-arrays" title="Permalink to this headline">¶</a></h4>
+<p>A dataframe containing data at a particular timestep can be extracted
+using the method <code class="docutils literal"><span class="pre">CactusWakeElem.get_df_inst()</span></code>. This returns a
+dictionary containing variables names and their values as NumPy arrays.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [8]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="c"># Get dataframe for a specific time</span>
+<span class="n">ti</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">wake_df_inst</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti</span><span class="p">])</span>
+<span class="n">wake_df_inst</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+
+<span class="c"># extract variables</span>
+<span class="n">wakeelemdata</span><span class="p">,</span> <span class="n">has_node_ids</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">wakedata_from_df</span><span class="p">(</span><span class="n">wake_df_inst</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [9]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">wakeelemdata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[9]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[&#39;node_ids&#39;, &#39;elems&#39;, &#39;u&#39;, &#39;w&#39;, &#39;v&#39;, &#39;y&#39;, &#39;x&#39;, &#39;z&#39;]
+</pre></div>
+</div>
+</div>
+<p>The second return is a flag which indicates whether the wake element
+data files have a <code class="docutils literal"><span class="pre">node_id</span></code> column. (For compatibility with data
+generated by versions of CACTUS).</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [10]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">has_node_ids</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[10]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Writing-to-VTK">
+<h4>Writing to VTK<a class="headerlink" href="#Writing-to-VTK" title="Permalink to this headline">¶</a></h4>
+<p>The wake element data can be written to a VTK file to facilitate
+post-processing with ParaView or other tools. To do this, we can use the
+<code class="docutils literal"><span class="pre">CactusWakeElems.write_vtk_series()</span></code> method. This writes a series of
+VTK files, and a <code class="docutils literal"><span class="pre">.pvd</span></code> collection file which can be read into
+ParaView directly as a time series.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [11]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">wakeelem_output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">,</span><span class="s">&#39;vtk&#39;</span><span class="p">)</span>
+<span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">write_vtk_series</span><span class="p">(</span><span class="n">wakeelem_output_path</span><span class="p">,</span>
+                               <span class="s">&#39;wakenode_name&#39;</span><span class="p">,</span>
+                               <span class="n">print_status</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[11]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+([&#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_0.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_1.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_2.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_3.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_4.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_5.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_6.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_7.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_8.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_9.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_10.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_11.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_12.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_13.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_14.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_15.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_16.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_17.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_18.vtu&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name_19.vtu&#39;],
+ &#39;/home/phil/Notebooks/demo1/vtk/wakenode_name.pvd&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Field-data">
+<h3>Field data<a class="headerlink" href="#Field-data" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="Viewing-times">
+<h4>Viewing times<a class="headerlink" href="#Viewing-times" title="Permalink to this headline">¶</a></h4>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [12]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">num_times</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[12]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+20
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [13]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">times</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[13]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+array([ 0.       ,  0.2080525,  0.416105 ,  0.6241575,  0.83221  ,
+        1.040262 ,  1.248315 ,  1.456367 ,  1.66442  ,  1.872472 ,
+        2.080525 ,  2.288577 ,  2.49663  ,  2.704682 ,  2.912735 ,
+        3.120787 ,  3.32884  ,  3.536892 ,  3.744945 ,  3.952997 ])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Extracting-data-to-NumPy-arrays">
+<h4>Extracting data to NumPy arrays<a class="headerlink" href="#Extracting-data-to-NumPy-arrays" title="Permalink to this headline">¶</a></h4>
+<p>A dataframe containing data at a particular timestep can be extracted
+using the method <code class="docutils literal"><span class="pre">CactusField.get_df_inst()</span></code>. This returns a
+dictionary containing variables names and their values as NumPy arrays.</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [14]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="c"># Get dataframe for a specific time</span>
+<span class="n">ti</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">field_df_inst</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">wakeelems</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti</span><span class="p">])</span>
+<span class="n">field_df_inst</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+
+<span class="c"># extract variables</span>
+<span class="n">fielddata</span><span class="p">,</span> <span class="n">fielddims</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">field_df_inst</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [15]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">fielddata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[15]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+[&#39;Ufs&#39;, &#39;Wfs&#39;, &#39;U&#39;, &#39;W&#39;, &#39;V&#39;, &#39;Y&#39;, &#39;X&#39;, &#39;Z&#39;, &#39;Vfs&#39;]
+</pre></div>
+</div>
+</div>
+<p>The second return is a dictionary of the field dimensions.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [16]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">fielddims</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[16]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+{&#39;dx&#39;: 0.0,
+ &#39;dy&#39;: 0.040000000000000001,
+ &#39;dz&#39;: 0.040000000000000001,
+ &#39;nx&#39;: 1,
+ &#39;ny&#39;: 100,
+ &#39;nz&#39;: 100,
+ &#39;xlim&#39;: [0.0, 0.0],
+ &#39;ylim&#39;: [-2.0, 2.0],
+ &#39;zlim&#39;: [-2.0, 2.0]}
+</pre></div>
+</div>
+</div>
+<p>The dimensions of the returned arrays match the grid dimensions.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [17]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">fielddata</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[17]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+(100, 100, 1)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Time-series-at-a-specific-location-on-the-Cartesian-grid">
+<h4>Time series at a specific location on the Cartesian grid<a class="headerlink" href="#Time-series-at-a-specific-location-on-the-Cartesian-grid" title="Permalink to this headline">¶</a></h4>
+<p>Data at a specific location can be extracted. This operation may take
+some time, since it loops through all the data files.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [18]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="c"># enter a list of point coordinates</span>
+<span class="n">point_list</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+              <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+
+<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">timeseries_dict</span><span class="p">,</span> <span class="n">nearest_points</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">pointdata_time_series</span><span class="p">(</span><span class="n">point_list</span><span class="p">,</span> <span class="n">ti_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&#39;Time to produce series: </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">nearest_points</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+Time to produce series: 0.64 s
+[(0.0, 0.50505048, 0.50505048), (0.0, -0.02020202, -0.02020202)]
+</pre></div></div>
+</div>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [19]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="c"># extract the data</span>
+<span class="n">t</span>   <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">]</span>
+<span class="n">u</span>   <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;u&#39;</span><span class="p">]</span>
+<span class="n">v</span>   <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;v&#39;</span><span class="p">]</span>
+<span class="n">w</span>   <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;w&#39;</span><span class="p">]</span>
+<span class="n">ufs</span> <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;ufs&#39;</span><span class="p">]</span>
+<span class="n">vfs</span> <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;vfs&#39;</span><span class="p">]</span>
+<span class="n">wfs</span> <span class="o">=</span> <span class="n">timeseries_dict</span><span class="p">[</span><span class="s">&#39;wfs&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [20]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">point_id</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">print</span> <span class="n">t</span>
+<span class="c"># plot the data at the point_id&#39;th point</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="n">point_id</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;$u$&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="n">point_id</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;$v$&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">w</span><span class="p">[</span><span class="n">point_id</span><span class="p">,:],</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;$w$&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Time series&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;non-dimensionalized time, $t^*$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;non-dimensionalized velocity&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;best&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+[ 0.         0.2080525  0.416105   0.6241575  0.83221    1.040262   1.248315
+  1.456367   1.66442    1.872472   2.080525   2.288577   2.49663    2.704682
+  2.912735   3.120787   3.32884    3.536892   3.744945 ]
+</pre></div></div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_56_1.png" src="_images/pyCactus-demo_56_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Field-averaging">
+<h4>Field averaging<a class="headerlink" href="#Field-averaging" title="Permalink to this headline">¶</a></h4>
+<p>We can time average the field data using the
+<code class="docutils literal"><span class="pre">CactusField.field_time_average()</span></code> method. This returns a dictionary
+containing the averaged data.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [21]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">averaged_data</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">field_time_average</span><span class="p">(</span><span class="n">ti_start</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span>
+                                             <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">&#39;Time to average fields: </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+Time to average fields: 0.13 s
+</pre></div></div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [22]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="k">print</span> <span class="n">averaged_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+[&apos;Ufs&apos;, &apos;U&apos;, &apos;t&apos;, &apos;W&apos;, &apos;V&apos;, &apos;Y&apos;, &apos;X&apos;, &apos;Z&apos;, &apos;Vfs&apos;, &apos;Wfs&apos;]
+</pre></div></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">t</span></code> field gives the normalized times which were averaged.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [23]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="k">print</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;t&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+[ 3.120787  3.32884   3.536892  3.744945]
+</pre></div></div>
+</div>
+<p>The averaged data may be plotted.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [24]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="kn">as</span> <span class="nn">cm</span>
+
+<span class="c"># Get the data</span>
+<span class="n">X</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
+<span class="n">Y</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
+<span class="n">Z</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
+<span class="n">U</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
+<span class="n">V</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
+<span class="n">W</span>   <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
+<span class="n">Ufs</span> <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
+<span class="n">Vfs</span> <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
+<span class="n">Wfs</span> <span class="o">=</span> <span class="n">averaged_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
+
+<span class="c"># Reshape to 2D</span>
+<span class="n">ny</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">grid_dims</span><span class="p">[</span><span class="s">&#39;ny&#39;</span><span class="p">]</span>
+<span class="n">nz</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">grid_dims</span><span class="p">[</span><span class="s">&#39;nz&#39;</span><span class="p">]</span>
+
+<span class="n">X</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">Y</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">Z</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">U</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">V</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">W</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">Ufs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Ufs</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">Vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Vfs</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+<span class="n">Wfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Wfs</span><span class="p">,</span> <span class="p">[</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">])</span>
+
+<span class="c"># u</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">cax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span><span class="n">U</span><span class="o">+</span><span class="n">Ufs</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">coolwarm</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;image&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;$U/U_{\infty}$, time-averaged&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;$x/R$&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;$y/R$&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_63_0.png" src="_images/pyCactus-demo_63_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Writing-to-VTK-file">
+<h4>Writing to VTK file<a class="headerlink" href="#Writing-to-VTK-file" title="Permalink to this headline">¶</a></h4>
+<p>As with the wake element data, the field data can also be written to VTK
+files, using the <code class="docutils literal"><span class="pre">CactusField.write_vtk_series()</span></code> method. This writes
+a series of structured VTK files (<code class="docutils literal"><span class="pre">.vts</span></code>), and a <code class="docutils literal"><span class="pre">.pvd</span></code> collection
+file which can be read into ParaView directly as a time series.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [25]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">field_output_path</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nb_dir</span><span class="p">,</span><span class="s">&#39;vtk&#39;</span><span class="p">)</span>
+<span class="n">run</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">write_vtk_series</span><span class="p">(</span><span class="n">field_output_path</span><span class="p">,</span>
+                           <span class="s">&#39;field&#39;</span><span class="p">,</span>
+                           <span class="n">print_status</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[25]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+([&#39;/home/phil/Notebooks/demo1/vtk/field_0.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_1.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_2.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_3.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_4.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_5.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_6.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_7.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_8.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_9.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_10.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_11.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_12.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_13.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_14.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_15.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_16.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_17.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_18.vts&#39;,
+  &#39;/home/phil/Notebooks/demo1/vtk/field_19.vts&#39;],
+ &#39;/home/phil/Notebooks/demo1/vtk/field.pvd&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Probe-data">
+<h2>Probe data<a class="headerlink" href="#Probe-data" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">CactusRun.probe</span></code> attribute is an instance of the <code class="docutils literal"><span class="pre">CactusProbe</span></code>
+class. We can check the number of probes and their locations.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [26]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">num_probes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[26]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+6
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [27]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">probe_locations</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[27]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+{0: (0.0, 0.0, 0.0),
+ 1: (1.0, 0.0, 0.0),
+ 2: (2.0, 0.0, 0.0),
+ 3: (3.0, 0.0, 0.0),
+ 4: (4.0, 0.0, 0.0),
+ 5: (5.0, 0.0, 0.0)}
+</pre></div>
+</div>
+</div>
+<p>We can also extract the probe data using <code class="docutils literal"><span class="pre">get_probe_data_by_id()</span></code>.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [28]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">get_probe_data_by_id</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[28]:
+</pre></div>
+</div>
+<div class="container">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Normalized Time (-)</th>
+      <th>U/Uinf (-)</th>
+      <th>V/Uinf (-)</th>
+      <th>W/Uinf (-)</th>
+      <th>Ufs/Uinf (-)</th>
+      <th>Vfs/Uinf (-)</th>
+      <th>Wfs/Uinf (-)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.000288</td>
+      <td>3.685064e-09</td>
+      <td>-2.268072e-09</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.041611</td>
+      <td>-0.004127</td>
+      <td>-1.330602e-09</td>
+      <td>1.217035e-09</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.083221</td>
+      <td>-0.007950</td>
+      <td>1.282547e-09</td>
+      <td>5.536929e-10</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.124832</td>
+      <td>-0.012012</td>
+      <td>4.207945e-10</td>
+      <td>3.674458e-10</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.166442</td>
+      <td>-0.016445</td>
+      <td>6.160830e-10</td>
+      <td>5.428379e-10</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The velocity for any given probe can be plotted quickly by calling
+<code class="docutils literal"><span class="pre">plot_probe_data_by_id()</span></code>.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [29]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">plot_probe_data_by_id</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">timestep</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<img alt="_images/pyCactus-demo_73_0.png" src="_images/pyCactus-demo_73_0.png" />
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pyCactus-module.html" class="btn btn-neutral float-right" title="Module Documentation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pyCactus-installation.html" class="btn btn-neutral" title="Installation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Phillip Chiu, Jon Murray.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
