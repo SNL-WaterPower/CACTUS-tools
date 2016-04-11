@@ -16,6 +16,7 @@ Author: `Phillip Chiu <mailto:pchiu@sandia.gov>`_
 
     geometry
     pyCactus
+        pyCactus-demo.ipynb
 
 .. rubric:: Appendix
 
