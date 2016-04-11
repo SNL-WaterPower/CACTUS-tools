@@ -196,7 +196,7 @@ pseudoxml:
 
 gh-pages:
 	git checkout gh-pages
-	rm -rf _build _sources _static _modules
+	rm -rf _build _sources _static _modules _images
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
 	make html
@@ -207,7 +207,7 @@ gh-pages:
 
 gh-pages-nocommit:
 	git checkout gh-pages
-	rm -rf _build _sources _static _modules
+	rm -rf _build _sources _static _modules _images
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
 	make html
