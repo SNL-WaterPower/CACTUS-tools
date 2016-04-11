@@ -391,16 +391,16 @@ class CactusField():
 		Returns
 		-------
 		data_dict : dict
-			Dictionary of the time series velocity data.
-				{
-					't' : times,
-					'u' : x-velocity,
-					'v' : y-velocity,
-					'w' : z-velocity,
-					'ufs' : freestream x-velocity,
-					'vfs' : freestream y-velocity,
-					'wfs' : freestream z-velocity
-            	}
+			Dictionary of the time series velocity data::
+
+				't'   : times
+				'u'   : x-velocity
+				'v'   : y-velocity
+				'w'   : z-velocity
+				'ufs' : freestream x-velocity
+				'vfs' : freestream y-velocity
+				'wfs' : freestream z-velocity
+
 		p_nearest : list
 			List of the nearest points to those in `p_list` (points at which
 			data was returned).
