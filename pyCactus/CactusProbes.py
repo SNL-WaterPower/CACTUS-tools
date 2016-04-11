@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from recursive_glob import recursive_glob
 
-class Probes():
+class CactusProbes():
     """Probes class for CACTUS probe data.
 
     Attributes
@@ -74,45 +74,62 @@ class Probes():
         return pd.read_csv(probe_filename,skiprows=2)
 
 
-    def plot_probe_data_by_id(self, probe_id, timestep=False, plot_fs=False):
+    def plot_probe_data_by_id(self, probe_id, ax=None, timestep=False, plot_fs=False):
         """Plots the velocity vs. time for a specific probe.
 
         Parameters
         ----------
         probe_id : int
             Probe ID to plot
+        ax : matplotlib axis
+            Axis on which to plot series. If not specified, creates a new figure.
         timestep : Optional[bool]
             True to plot x-axis as timestep instead of normalized time (default
             False).
         plot_fs : Optional[bool]
             True to plot freestream velocities in addition to induced velocities
             (default False)
+
+        Returns
+        -------
+        figure : matplotlib.figure.Figure
+            Figure handle.
+        ax : matplotlib.axes._subplots.AxesSubplot
+            Axis handle.
         """
 
         df = self.get_probe_data_by_id(probe_id)
         
-        plt.figure()
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
         # plot velocities with either timestep or normalized time for x-axis
         if timestep:
-            plt.plot(df['U/Uinf (-)'], label='U/Uinf (-)')
-            plt.plot(df['V/Uinf (-)'], label='V/Uinf (-)')
-            plt.plot(df['W/Uinf (-)'], label='W/Uinf (-)')
-            plt.xlabel('Timestep')
+            ax.plot(df['U/Uinf (-)'], label='U/Uinf (-)')
+            ax.plot(df['V/Uinf (-)'], label='V/Uinf (-)')
+            ax.plot(df['W/Uinf (-)'], label='W/Uinf (-)')
+            ax.set_xlabel('Timestep')
         else:
-            plt.plot(df['Normalized Time (-)'], df['U/Uinf (-)'], label='U/Uinf (-)')
-            plt.plot(df['Normalized Time (-)'], df['V/Uinf (-)'], label='V/Uinf (-)')
-            plt.plot(df['Normalized Time (-)'], df['W/Uinf (-)'], label='W/Uinf (-)')
-            plt.xlabel('Normalized Time (-)')
+            ax.plot(df['Normalized Time (-)'], df['U/Uinf (-)'], label='U/Uinf (-)')
+            ax.plot(df['Normalized Time (-)'], df['V/Uinf (-)'], label='V/Uinf (-)')
+            ax.plot(df['Normalized Time (-)'], df['W/Uinf (-)'], label='W/Uinf (-)')
+            ax.set_xlabel('Normalized Time (-)')
 
         # plot the free-stream (if requested)
         if plot_fs:
-            plt.plot(df['Ufs/Uinf (-)'], label='Ufs/Uinf (-)')
-            plt.plot(df['Vfs/Uinf (-)'], label='Vfs/Uinf (-)')
-            plt.plot(df['Wfs/Uinf (-)'], label='Wfs/Uinf (-)')
+            ax.plot(df['Ufs/Uinf (-)'], label='Ufs/Uinf (-)')
+            ax.plot(df['Vfs/Uinf (-)'], label='Vfs/Uinf (-)')
+            ax.plot(df['Wfs/Uinf (-)'], label='Wfs/Uinf (-)')
 
-        plt.ylabel('Normalized Velocity (-)')
-        plt.title(r'Velocity at $p=(%2.2f,%2.2f,%2.2f)$' % (self.probe_locations[probe_id]))
-        plt.grid(True)
-        plt.legend()
-        plt.show()
+        ax.set_ylabel('Normalized Velocity (-)')
+        ax.set_title(r'Velocity at $p=(%2.2f,%2.2f,%2.2f)$' % (self.probe_locations[probe_id]))
+        ax.grid(True)
+        ax.legend(loc='best')
+
+        return fig, ax
+
+    @property
+    def num_probes(self):
+        """The number of probes."""
+        return len(self.probe_locations)

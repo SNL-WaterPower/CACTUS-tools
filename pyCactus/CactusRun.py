@@ -12,7 +12,7 @@ import f90nml
 from CactusGeom import CactusGeom
 from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
-from CactusProbes import Probes
+from CactusProbes import CactusProbes
 
 from recursive_glob import recursive_glob
 
@@ -117,7 +117,7 @@ class CactusRun():
 
 		# probe data
 		tic = pytime.time() 
-		self.probes = Probes()
+		self.probes = CactusProbes()
 		self.probes.read_probe_files(run_directory)
 		print 'Read probe data in %2.2f s' % (pytime.time() - tic)
 
