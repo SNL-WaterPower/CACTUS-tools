@@ -22,7 +22,7 @@ class CactusRun():
 	             geom_fname='',
 	             wakeelem_fnames_pattern='*WakeElemData_*.csv',
 	             field_fnames_pattern='*FieldData_*csv'):
-		"""Initialize the class. Reads some data to memory.
+		"""Initialize the class, reading some data to memory.
 
 		This method relies on recursive searches within the specified run
 		directory to find the appropriate CACTUS output files. Therefore, each
@@ -36,15 +36,15 @@ class CactusRun():
 		case_name : str
 			'case name' which precedes all input and output files.
 		input_fname : Optional[str]
-			Input filename (default: ./[case_name].in).
+			Input filename (default `./[case_name].in`).
 		geom_fname : Optional[str]
-			Geometry filename (default: be ./[case_name].geom)
+			Geometry filename (default `./[case_name].geom`)
 		wakeelem_fnames_pattern : Optional[str]
 			Glob pattern for wake element data filenames (default is
-			'*WakeElemData_*.csv')
+			`*WakeElemData_*.csv`)
 		field_fnames_pattern : Optional[str]
 			Glob pattern for field data filenames (default is
-			'*FieldData_*.csv')
+			`*FieldData_*.csv`)
 		"""
 
 		# if input file wasn't specified, guess it
