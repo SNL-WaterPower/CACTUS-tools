@@ -1,7 +1,5 @@
 Module Documentation
 --------------------
-.. module:: pyCactus
-
 .. _interfaces-label:
 
 CactusRun
