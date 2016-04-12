@@ -1,10 +1,4 @@
 #!/usr/bin/env python
-# pyCactusWPDataToVtk.py
-# =====================
-# Convert CACTUS wall data files from TecPlot structured to VTK.
-#     The wall data is moved to '/WallVTK'
-#     Expects that the wall data filenames match the patterns:
-#     [case_name]_WPData_*.tp
 
 import os, sys
 import glob
@@ -16,9 +10,20 @@ from StringIO import StringIO
 import xml.etree.cElementTree as ET
 import argparse
 
+def recursive_glob(rootdir='.', pattern='*'):
+    import fnmatch
+
+    """ A function to search recursively for files matching a specified pattern.
+        Adapted from http://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python """
+
+    matches = []
+    for root, dirnames, filenames in os.walk(rootdir):
+      for filename in fnmatch.filter(filenames, pattern):
+          matches.append(os.path.join(root, filename))
+
+    return matches
 
 def convert_wall_tp_to_vts(file_list, output_path):
-    print 'output_path: ', output_path
     zts = [] # list containing information related to each zone
     zfs = []   # list containing files related to each zone
 
@@ -137,25 +142,46 @@ def convert_wall_tp_to_vts(file_list, output_path):
 if __name__ == '__main__':
 
     # parse command line arguments
-    parser = argparse.ArgumentParser(description="""Convert CACTUS wall data files from TecPlot structured to VTK.
-    The wall data is moved to '/WallVTK'
-    Expects that the wall data filenames match the patterns:
-    [case_name]_WPData_*.tp""")
+    parser = argparse.ArgumentParser(description="""
+Convert CACTUS wall data files in a given directory from TecPlot structured 
+to VTK format. The wall data is written to a folder called wallVTK.
+
+By default, expects that the wall data filenames match the patterns:
+    
+    [case_name]_WPData_*.tp
+
+Another pattern may be specified using --walldata_fnames_pattern.
+
+VTK does not support multi-block time-series data, so each block is written to a
+separate data file. Also write accompanying .pvd collection files.
+    """,formatter_class=argparse.RawDescriptionHelpFormatter)
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("case_path", help="path to TP files to be converted.", type=str)
-    parser.add_argument("case_name", help="prefix of output files, e.g. [case_name]_WakeData_1.csv", type=str)
-    parser.add_argument("output_path", help="desired output path for VTK files.", type=str)
+    parser.add_argument("case_path",
+                        help="path to TP files to be converted.",
+                        type=str)
+    parser.add_argument("case_name",
+                        help="prefix of output files, e.g. [case_name]_WakeElemData_0001.csv",
+                        type=str)
+    parser.add_argument("output_path",
+                        help="desired output path for VTK files.",
+                        type=str)
+    parser.add_argument("--walldata_fnames_pattern",
+                        help="glob pattern for wall data files.",
+                        type=str,
+                        default='*WPData_*.tp')
+
     
     args = parser.parse_args()
 
     # read in command-line arguments
-    case_path   = args.case_path
+    case_path   = os.path.abspath(args.case_path)
     case_name   = args.case_name
     output_path = args.output_path
+    walldata_fnames_pattern = args.walldata_fnames_pattern
 
-    wall_out_path = os.path.abspath(output_path + '/WallVTK')
+    wall_out_path = os.path.abspath(output_path + '/wallVTK')
 
     # make directories
     if not os.path.exists(wall_out_path):
@@ -165,11 +191,13 @@ if __name__ == '__main__':
             print 'There was an error creating the directory' + wall_out_path
 
     # find the .tp files
-    file_list = sorted(glob.glob('*WPData_*.tp'))
-
+    file_list = sorted(recursive_glob(case_path,
+                                           walldata_fnames_pattern))
 
     if not file_list:
-        sys.exit('No wall data files found.')
+        sys.exit('No wall data files found matching: \'' +
+                 case_path + '/' +
+                 walldata_fnames_pattern + '\'')
 
     # call the converter function
     convert_wall_tp_to_vts(file_list, wall_out_path)
