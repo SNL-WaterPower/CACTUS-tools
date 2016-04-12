@@ -87,7 +87,13 @@
 <li class="toctree-l2"><a class="reference internal" href="pyCactus-installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCactus-demo.html"><code class="docutils literal"><span class="pre">pyCactus</span></code> Demo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCactus-module.html">Module Documentation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Scripts</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pycactusclonecase-py"><cite>pyCactusCloneCase.py</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pycactuscsvtovtk-py"><cite>pyCactusCsvToVtk.py</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pycactuspvdsubset-py"><cite>pyCactusPvdSubset.py</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pycactuswpdatatovtk-py"><cite>pyCactusWPDataToVtk.py</cite></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -253,6 +259,112 @@ div.nboutput  > :nth-child(2).stderr {
 <div class="section" id="scripts">
 <h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h1>
 <p>pyCactus also includes a number of scripts for manipulating CACTUS run cases and output data.</p>
+<div class="section" id="pycactusclonecase-py">
+<h2><cite>pyCactusCloneCase.py</cite><a class="headerlink" href="#pycactusclonecase-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusCloneCase.py [-h] case_path output_path
+
+Copy a CACTUS case directory WITHOUT output data.&#39;
+
+positional arguments:
+  case_path    path to original case.
+  output_path  path to copied case directory.
+
+optional arguments:
+  -h, --help   show this help message and exit
+</pre></div>
+</div>
+</div>
+<div class="section" id="pycactuscsvtovtk-py">
+<h2><cite>pyCactusCsvToVtk.py</cite><a class="headerlink" href="#pycactuscsvtovtk-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusCsvToVtk.py [-h] [--delete]
+                           [--wakeelem_fnames_pattern WAKEELEM_FNAMES_PATTERN]
+                           [--field_fnames_pattern FIELD_FNAMES_PATTERN]
+                           [--path_to_pyCactus PATH_TO_PYCACTUS]
+                           case_path case_name output_path
+
+Convert CACTUS wake node and grid data files from CSV to VTK using pyCactus and
+pyCactusWake modules.
+
+The wake node data is moved to &#39;/WakeElemVTK&#39; and the field data to &#39;/FieldVTK&#39;.
+Recursive glob is used to find wake element data and field data matching the
+default patterns specified in CactusRun.
+
+However, alternate search patterns may also be specified using:
+
+    --field_fnames_pattern 
+    --wakeelem_fnames_pattern
+
+positional arguments:
+  case_path             path to CSV files to be converted.
+  case_name             prefix of output files, e.g.
+                        [case_name]_WakeElemData_0001.csv
+  output_path           desired output path for VTK files.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --delete              delete original CSV files after converting.
+  --wakeelem_fnames_pattern WAKEELEM_FNAMES_PATTERN
+                        glob pattern for wake element data files.
+  --field_fnames_pattern FIELD_FNAMES_PATTERN
+                        glob pattern for wake field data files.
+  --path_to_pyCactus PATH_TO_PYCACTUS
+                        path to pyCactus module directory (e.g., &#39;~/Repos
+                        /CACTUS-tools/&#39;). This must be specified if pyCactus
+                        is not installed (is not available in the Python path)
+</pre></div>
+</div>
+</div>
+<div class="section" id="pycactuspvdsubset-py">
+<h2><cite>pyCactusPvdSubset.py</cite><a class="headerlink" href="#pycactuspvdsubset-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusPvdSubset.py [-h] [--t_start T_START] [--t_end T_END]
+                            pvd_filename pvd_filename_new
+
+Extracts a time subset from a ParaView collection file (.pvd) given a range of
+timesteps and writes it to a new .pvd file.
+
+positional arguments:
+  pvd_filename       path to *.pvd
+  pvd_filename_new   path to new *.pvd file
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --t_start T_START  time before which to clip *.pvd file.
+  --t_end T_END      time after which to clip *.pvd file.
+</pre></div>
+</div>
+</div>
+<div class="section" id="pycactuswpdatatovtk-py">
+<h2><cite>pyCactusWPDataToVtk.py</cite><a class="headerlink" href="#pycactuswpdatatovtk-py" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusWPDataToVtk.py [-h]
+                              [--walldata_fnames_pattern WALLDATA_FNAMES_PATTERN]
+                              case_path case_name output_path
+
+Convert CACTUS wall data files in a given directory from TecPlot structured 
+to VTK format. The wall data is written to a folder called wallVTK.
+
+By default, expects that the wall data filenames match the patterns:
+    
+    [case_name]_WPData_*.tp
+
+Another pattern may be specified using --walldata_fnames_pattern.
+
+VTK does not support multi-block time-series data, so each block is written to a
+separate data file. Also write accompanying .pvd collection files.
+    
+
+positional arguments:
+  case_path             path to TP files to be converted.
+  case_name             prefix of output files, e.g.
+                        [case_name]_WakeElemData_0001.csv
+  output_path           desired output path for VTK files.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --walldata_fnames_pattern WALLDATA_FNAMES_PATTERN
+                        glob pattern for wall data files.
+</pre></div>
+</div>
+</div>
 </div>
 
 
