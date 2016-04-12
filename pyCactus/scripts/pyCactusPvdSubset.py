@@ -5,8 +5,11 @@ import xml.etree.cElementTree as ET
 
 
 def pvd_time_subset(pvd_filename,pvd_filename_new,t_start=0,t_end=None):
-    """pvd_time_subset() : Extracts a time subset from a ParaView collection file (*.pvd) in the range t_start to t_end.
-           The timesteps are stored with the "timestep" attribute. The new collection file is written to pvd_filename_new."""
+    """Extracts a time subset from a ParaView collection file (*.pvd) in the
+       range t_start to t_end.
+
+       The timesteps are expected to be stored with the "timestep" attribute.
+       The new collection file is written to the specified filename."""
     
     # load the XML file into a tree
     e = ET.parse(pvd_filename).getroot()
@@ -39,13 +42,11 @@ def pvd_time_subset(pvd_filename,pvd_filename_new,t_start=0,t_end=None):
     e.write(pvd_filename_new, xml_declaration=True)
 
 
-if __name__ == "__main__":
+def main():
     # parse command line arguments
-    parser = argparse.ArgumentParser(description="""Convert CACTUS wall data files from TecPlot structured to VTK.
-    The wall data is moved to '/WallVTK'
-    Expects that the wall data filenames match the patterns:
-    [case_name]_WPData_*.tp""")
-
+    parser = argparse.ArgumentParser(description="""
+Extracts a time subset from a ParaView collection file (.pvd) given a range of
+timesteps and writes it to a new .pvd file.""",formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("pvd_filename", help="path to *.pvd", type=str)
@@ -64,3 +65,8 @@ if __name__ == "__main__":
 
     # call the converter function
     pvd_time_subset(pvd_filename,pvd_filename_new,t_start,t_end)
+
+    return parser
+
+if __name__ == "__main__":
+    main()

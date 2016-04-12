@@ -7,8 +7,7 @@ import argparse
 
 import sys
 
-if __name__ == '__main__':
-
+def main():
     # parse command line arguments
     parser = argparse.ArgumentParser(description="""
 Convert CACTUS wake node and grid data files from CSV to VTK using pyCactus and
@@ -121,3 +120,8 @@ However, alternate search patterns may also be specified using:
             for f in run.wake_filenames:
                 os.remove(f)
                 print 'Deleted file: ' + f
+
+    return parser
+
+if __name__ == '__main__':
+    main()

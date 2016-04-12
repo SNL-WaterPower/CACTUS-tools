@@ -138,9 +138,7 @@ def convert_wall_tp_to_vts(file_list, output_path):
         tree.write(pvd_filename, xml_declaration=True)
         print 'Wrote ParaView collection file: ' + pvd_filename
 
-
-if __name__ == '__main__':
-
+def main():
     # parse command line arguments
     parser = argparse.ArgumentParser(description="""
 Convert CACTUS wall data files in a given directory from TecPlot structured 
@@ -201,3 +199,8 @@ separate data file. Also write accompanying .pvd collection files.
 
     # call the converter function
     convert_wall_tp_to_vts(file_list, wall_out_path)
+
+    return parser
+
+if __name__ == '__main__':
+    main()
