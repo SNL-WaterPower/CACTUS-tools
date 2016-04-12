@@ -33,7 +33,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'nbsphinx'
+    'nbsphinx', # pip install nbsphinx
+    'sphinxarg.ext' # pip install sphinx-argparse
 ]
 
 # Add any paths that contain templates here, relative to this directory.

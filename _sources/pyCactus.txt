@@ -10,3 +10,4 @@ A collection of Python classes for post-processing CACTUS data.
     pyCactus-installation
     pyCactus-demo.ipynb
     pyCactus-module
+    scripts
