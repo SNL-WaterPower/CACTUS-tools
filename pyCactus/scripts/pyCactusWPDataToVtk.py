@@ -4,7 +4,6 @@ import os, sys
 import glob
 import numpy as np
 
-from pyevtk.hl import gridToVTK
 from StringIO import StringIO
 
 import xml.etree.cElementTree as ET
@@ -24,6 +23,8 @@ def recursive_glob(rootdir='.', pattern='*'):
     return matches
 
 def convert_wall_tp_to_vts(file_list, output_path):
+    from pyevtk.hl import gridToVTK
+
     zts = [] # list containing information related to each zone
     zfs = []   # list containing files related to each zone
 
@@ -155,7 +156,6 @@ separate data file. Also write accompanying .pvd collection files.
     """,formatter_class=argparse.RawDescriptionHelpFormatter)
 
 
-    parser = argparse.ArgumentParser()
     parser.add_argument("case_path",
                         help="path to TP files to be converted.",
                         type=str)

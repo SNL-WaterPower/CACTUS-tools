@@ -48,7 +48,6 @@ def main():
 Extracts a time subset from a ParaView collection file (.pvd) given a range of
 timesteps and writes it to a new .pvd file.""",formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser = argparse.ArgumentParser()
     parser.add_argument("pvd_filename", help="path to *.pvd", type=str)
     parser.add_argument("pvd_filename_new", help="path to new *.pvd file", type=str)
     parser.add_argument("--t_start", help="time before which to clip *.pvd file.", type=float)

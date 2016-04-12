@@ -39,7 +39,6 @@ if __name__ == "__main__":
     # parse command line arguments
     parser = argparse.ArgumentParser(description="""Copy a CACTUS case directory WITHOUT output data.'""")
 
-    parser = argparse.ArgumentParser()
     parser.add_argument("case_path", help="path to original case.", type=str)
     parser.add_argument("output_path", help="path to copied case directory.", type=str)
     
