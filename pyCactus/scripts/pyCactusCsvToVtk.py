@@ -16,10 +16,7 @@ pyCactusWake modules.
 
 The wake node data is moved to '/WakeElemVTK' and the field data to '/FieldVTK'.
 Recursive glob is used to find wake element data and field data matching the
-default patterns:
-
-   *_WakeData_*.csv
-   *_FieldData_*.csv
+default patterns specified in CactusRun.
 
 However, alternate search patterns may also be specified using:
 
@@ -33,7 +30,7 @@ However, alternate search patterns may also be specified using:
                         type=str)
     parser.add_argument("case_name",
                         help="prefix of output files, \
-                        e.g. [case_name]_WakeData_1.csv",
+                        e.g. [case_name]_WakeElemData_0001.csv",
                         type=str)
     parser.add_argument("output_path",
                         help="desired output path for VTK files.",
@@ -86,7 +83,7 @@ However, alternate search patterns may also be specified using:
     run = pyCactus.CactusRun(case_path, case_name, **kwargs)
     
     # make output directories if they don't exist
-    wakeelem_out_path = os.path.abspath(output_path + '/wakeelementVTK')
+    wakeelem_out_path = os.path.abspath(output_path + '/wakeelemVTK')
     field_out_path     = os.path.abspath(output_path + '/fieldVTK')
 
     # make directories
