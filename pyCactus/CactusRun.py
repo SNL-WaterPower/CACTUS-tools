@@ -7,12 +7,12 @@ import time as pytime
 
 import numpy as np
 import pandas as pd
-import f90nml
 
 from CactusGeom import CactusGeom
 from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
 from CactusProbes import CactusProbes
+from CactusInput import CactusInput
 
 import warnings
 
@@ -20,15 +20,15 @@ from recursive_glob import recursive_glob
 
 class CactusRun():
 	def __init__(self, run_directory, case_name,
-	             input_fname='',
-	             geom_fname='',
-	             load_input=True,
-	             load_geom=True,
-	             load_output=True,
-	             load_field_output=True,
-	             load_wakeelem_output=True,
-	             wakeelem_fnames_pattern='*WakeElemData_*.csv',
-	             field_fnames_pattern='*FieldData_*csv'):
+				 input_fname='',
+				 geom_fname='',
+				 load_input=True,
+				 load_geom=True,
+				 load_output=True,
+				 load_field_output=True,
+				 load_wakeelem_output=True,
+				 wakeelem_fnames_pattern='*WakeElemData_*.csv',
+				 field_fnames_pattern='*FieldData_*csv'):
 		"""Initialize the class, reading some data to memory.
 
 		This method relies on recursive searches within the specified run
@@ -55,80 +55,103 @@ class CactusRun():
 		"""
 
 		# if an input file is specified, use that
-		# otherwise, assume it's [case_name].in
-		if not input_fname:
-			self.input_fname = case_name + '.in'
+		if input_fname:
+			self.input_fname = os.path.abspath(os.path.join(run_directory,
+                                                            input_fname))
 		else:
-			self.input_fname = input_fname
+			# otherwise, look for one using [case_name].in as a glob pattern
+			self.input_fname = self.find_single_file(run_directory,
+													 case_name + '.in')
 
-		# if a geometry filename is specified, use that.
-		# otherwise, assume it's [case_name].geom
-		if not geom_fname:
-			self.geom_fname = case_name + '.geom'
+		# if a geom file is specified, use that
+		if geom_fname:
+			self.geom_fname = os.path.abspath(os.path.join(run_directory,
+			                                               geom_fname))
 		else:
-			self.geom_fname = geom_fname
+			# otherwise, look for one using [case_name].geom as a glob pattern
+			self.geom_fname = self.find_single_file(run_directory,
+													 case_name + '.geom')
 
-		# assemble filenames
-		self.elem_fname      = case_name + '_ElementData.csv'
-		self.param_fname     = case_name + '_Param.csv'
-		self.rev_fname       = case_name + '_RevData.csv'
-		self.time_fname      = case_name + '_TimeData.csv'
+		# assemble filename patterns
+		elem_fname_pattern      = case_name + '_ElementData.csv'
+		param_fname_pattern     = case_name + '_Param.csv'
+		rev_fname_pattern       = case_name + '_RevData.csv'
+		time_fname_pattern      = case_name + '_TimeData.csv'
 		
 		# search for wake element and field files anywhere in the directory
 		if load_wakeelem_output:
 			self.wake_filenames  = sorted(recursive_glob(run_directory,
-		                                             	 wakeelem_fnames_pattern))
+														 wakeelem_fnames_pattern))
 			if not self.wake_filenames:
 				print 'Warning: Could not find any wake element data files in\
-				       the work directory matching %s.' %\
-				       (wakeelem_fnames_pattern)
+					   the work directory matching %s.' %\
+					   (wakeelem_fnames_pattern)
 
 		if load_field_output:
 			self.field_filenames = sorted(recursive_glob(run_directory,
-			                                             field_fnames_pattern))
+														 field_fnames_pattern))
 			if not self.wake_filenames:
 				print 'Warning: Could not find any field data files in\
-				       the work directory matching %s.' %\
-				       (wakeelem_fnames_pattern)
+					   the work directory matching %s.' %\
+					   (wakeelem_fnames_pattern)
 
-		# read in the input file namelist
-		results = recursive_glob(run_directory, self.input_fname)
-		if results:
-			self.namelist = f90nml.read(results[0])
+		# Load the input, geometry, blade element, rev-averaged, parameter,
+		# and time data. Only one of each file should be expected. The function
+		# find_single_file is used to warn if multiple files (or none) are found.
+
+		# load the input namelist
+		if self.input_fname:
+			tic = pytime.time() 
+			self.input = CactusInput(self.input_fname)
+			print 'Read input namelist in %2.2f s' % (pytime.time() - tic)
 		else:
-			print 'Warning: Could not find file %s in %s' % (self.input_fname, run_directory)
+			warnings.warn("Input file not loaded.")
 
-		# The following sections load the blade element, rev-averaged,
-		# parameter, and time data. These methods use recursive_glob() to find
-		# the files within the run_directory.
-
-		# load blade element data
-		results = recursive_glob(run_directory, self.elem_fname)
-		if results:
-			self.elem_data  = self.load_data(results[0])
+		# load geometry data
+		if self.geom_fname:
+			tic = pytime.time()
+			# load the geometry data
+			self.geom = CactusGeom(self.geom_fname)
+			print 'Read geometry file in %2.2f s' % (pytime.time() - tic)
 		else:
-			print 'Warning: Could not find file %s in %s' % (self.elem_fname, run_directory)
+			warnings.warn("Geometry file not loaded.")
+
+		# load parameter data
+		self.param_fname = self.find_single_file(run_directory, param_fname_pattern)
+		if self.param_fname:
+			tic = pytime.time()
+			self.param_data  = self.load_data(self.param_fname)
+			print 'Read parameter data in %2.2f s' % (pytime.time() - tic)
+		else:
+			warnings.warn("Parameter data file not loaded.")
 
 		# load revolution-averaged data
-		results = recursive_glob(run_directory, self.rev_fname)
-		if results:
-			self.rev_data  = self.load_data(results[0])
+		self.rev_fname = self.find_single_file(run_directory, rev_fname_pattern)
+		if self.rev_fname:
+			tic = pytime.time()
+			self.rev_data  = self.load_data(self.rev_fname)
+			print 'Read revolution-averaged data in %2.2f s' % (pytime.time() - tic)
+
 		else:
-			print 'Warning: Could not find file %s in %s' % (self.rev_fname, run_directory)
-			
-		# parameter data
-		results = recursive_glob(run_directory, self.param_fname)
-		if results:
-			self.param_data  = self.load_data(results[0])
+			warnings.warn("Revolution-averaged data file not loaded.")
+
+		# load blade element data
+		self.elem_fname = self.find_single_file(run_directory, elem_fname_pattern)
+		if self.elem_fname:
+			tic = pytime.time()
+			self.elem_data  = self.load_data(self.elem_fname)
+			print 'Read blade element data in %2.2f s' % (pytime.time() - tic)
 		else:
-			print 'Warning: Could not find file %s in %s' % (self.param_fname, run_directory)
-			
+			warnings.warn("Blade element data file not loaded.")
+
 		# time data
-		results = recursive_glob(run_directory, self.time_fname)
-		if results:
-			self.time_data  = self.load_data(results[0])
+		self.time_fname = self.find_single_file(run_directory, time_fname_pattern)
+		if self.time_fname:
+			tic = pytime.time()
+			self.time_data  = self.load_data(self.time_fname)
+			print 'Read time data in %2.2f s' % (pytime.time() - tic)
 		else:
-			print 'Warning: Could not find file %s in %s' % (self.time_fname, run_directory)
+			warnings.warn("Time data file not loaded.")
 
 		# The following sections initialize the CactusWakeElems and CactusField
 		# classes. Initializing these classes will search for files in the
@@ -145,16 +168,9 @@ class CactusRun():
 		tic = pytime.time() 
 		self.probes = CactusProbes()
 		self.probes.read_probe_files(run_directory)
+		
 		print 'Read probe data in %2.2f s' % (pytime.time() - tic)
-
-		# read in the geometry data using the CactusGeom class
-		results = recursive_glob(run_directory, self.geom_fname)
-		if results:
-			self.geom = CactusGeom(results[0])
-		else:
-			print 'Warning: Could not find file %s in %s' % (self.geom_fname, run_directory)
-
-
+		print ''
 		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
 
 
@@ -169,6 +185,25 @@ class CactusRun():
 		df.rename(columns=lambda x: x.strip(), inplace=True)	# strip whitespace from colnames
 		return df
 
+	def find_single_file(self, directory, pattern):
+		"""Looks for a glob pattern in a specified directory and returns the
+		first file, throwing a warning if multiple files are found. Returns None
+		if no files are found."""
+		results = recursive_glob(directory, pattern)
+
+		# warn if we found too many files or none at all
+		if results:
+			if len(results) > 1:
+				warnings.warn("Found multiple files matching %s in %s, using %s" %\
+							  (pattern, directory, results[0]), RuntimeWarning)
+		else:
+			warnings.warn("Warning: Could not find file %s in %s" %\
+						  (pattern, directory), RuntimeWarning)
+
+		if results:
+			return results[0]
+		else:
+			return None
 
 	####################################
 	######### Public Functions #########

@@ -88,13 +88,19 @@ class CactusGeom():
 	####################################
 	######### Public Functions #########
 	####################################
-	def read_geom(self, filename):
+	def read_geom(self, filename,
+				  blade_num_lines=24,
+				  strut_num_lines=18,):
 		"""Reads data from a CACTUS .geom file.
 
 		Parameters
 		----------
 		filename : str
 			The geometry filename.
+		blade_num_lines : int
+			Number of lines of data per blade.
+		strut_num_lines : int
+			Number of lines of data per strut.
 
 		Returns
 		-------
@@ -106,9 +112,7 @@ class CactusGeom():
 			List of dicts of strut geometry variables.
 		"""
 
-		# number of data lines for blade and strut, excluding header
-		blade_num_lines = 24
-		strut_num_lines = 18
+
 
 		def read_block(lines):
 			int_vars = ['NElem', 'FlipN']
