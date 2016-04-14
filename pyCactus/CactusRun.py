@@ -242,9 +242,9 @@ class CactusRun():
 		return df
 
 	def find_single_file(self, directory, pattern):
-		"""Looks for a glob pattern in a specified directory and returns the
-		first file, throwing a warning if multiple files are found. Returns None
-		if no files are found."""
+		# Looks for a glob pattern in a specified directory and returns the
+		# first file, throwing a warning if multiple files are found. Returns None
+		# if no files are found.
 		results = recursive_glob(directory, pattern)
 
 		# warn if we found too many files or none at all
