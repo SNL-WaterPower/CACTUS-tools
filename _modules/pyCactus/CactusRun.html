@@ -485,10 +485,10 @@ div.nboutput  > :nth-child(2).stderr {
 		<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>	<span class="c"># strip whitespace from colnames</span>
 		<span class="k">return</span> <span class="n">df</span>
 
-<div class="viewcode-block" id="CactusRun.find_single_file"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.find_single_file">[docs]</a>	<span class="k">def</span> <span class="nf">find_single_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Looks for a glob pattern in a specified directory and returns the</span>
-<span class="sd">		first file, throwing a warning if multiple files are found. Returns None</span>
-<span class="sd">		if no files are found.&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">find_single_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+		<span class="c"># Looks for a glob pattern in a specified directory and returns the</span>
+		<span class="c"># first file, throwing a warning if multiple files are found. Returns None</span>
+		<span class="c"># if no files are found.</span>
 		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
 
 		<span class="c"># warn if we found too many files or none at all</span>
@@ -503,7 +503,7 @@ div.nboutput  > :nth-child(2).stderr {
 		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
 			<span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="k">return</span> <span class="bp">None</span></div>
+			<span class="k">return</span> <span class="bp">None</span>
 
 	<span class="c">####################################</span>
 	<span class="c">######### Public Functions #########</span>
