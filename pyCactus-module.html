@@ -265,10 +265,119 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>CactusRun<a class="headerlink" href="#cactusrun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyCactus.CactusRun">
-<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_output=True</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for interrogating a CACTUS input deck.</p>
+<dl class="attribute">
+<dt id="CactusRun.input">
+<code class="descname">input</code><a class="headerlink" href="#CactusRun.input" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusInput class</em> &#8211; Input file class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.geom">
+<code class="descname">geom</code><a class="headerlink" href="#CactusRun.geom" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusGeom class</em> &#8211; Geometry data class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.param_data">
+<code class="descname">param_data</code><a class="headerlink" href="#CactusRun.param_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Parameter data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.rev_data">
+<code class="descname">rev_data</code><a class="headerlink" href="#CactusRun.rev_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Revolution-averaged data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.time_data">
+<code class="descname">time_data</code><a class="headerlink" href="#CactusRun.time_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Time data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.elem_data">
+<code class="descname">elem_data</code><a class="headerlink" href="#CactusRun.elem_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas DataFrame</em> &#8211; Element data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.wakeelems">
+<code class="descname">wakeelems</code><a class="headerlink" href="#CactusRun.wakeelems" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusWakeElems class</em> &#8211; Wake element data class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.field">
+<code class="descname">field</code><a class="headerlink" href="#CactusRun.field" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusField class</em> &#8211; Field data class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.probes">
+<code class="descname">probes</code><a class="headerlink" href="#CactusRun.probes" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusProbes class.</em> &#8211; Probe class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.input_fname">
+<code class="descname">input_fname</code><a class="headerlink" href="#CactusRun.input_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Input data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.geom_fname">
+<code class="descname">geom_fname</code><a class="headerlink" href="#CactusRun.geom_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Geometry data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.param_fname">
+<code class="descname">param_fname</code><a class="headerlink" href="#CactusRun.param_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Parameter data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.rev_fname">
+<code class="descname">rev_fname</code><a class="headerlink" href="#CactusRun.rev_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Revolution-averaged data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.elem_fname">
+<code class="descname">elem_fname</code><a class="headerlink" href="#CactusRun.elem_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Blade element data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.time_fname">
+<code class="descname">time_fname</code><a class="headerlink" href="#CactusRun.time_fname" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Time data filename.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.wake_filenames">
+<code class="descname">wake_filenames</code><a class="headerlink" href="#CactusRun.wake_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List of filenames containing wake element data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.field_filenames">
+<code class="descname">field_filenames</code><a class="headerlink" href="#CactusRun.field_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List of filenames containing field data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.probe_filenames">
+<code class="descname">probe_filenames</code><a class="headerlink" href="#CactusRun.probe_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; List of filenames containing probe data.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyCactus.CactusRun.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_output=True</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the class, reading some data to memory.</p>
 <p>This method relies on recursive searches within the specified run
 directory to find the appropriate CACTUS output files. Therefore, each
@@ -283,6 +392,9 @@ behavior cannot be guaranteed).</p>
 <li><strong>case_name</strong> (<em>str</em>) &#8211; &#8216;case name&#8217; which precedes all input and output files.</li>
 <li><strong>input_fname</strong> (<em>Optional[str]</em>) &#8211; Input filename (default <cite>./[case_name].in</cite>).</li>
 <li><strong>geom_fname</strong> (<em>Optional[str]</em>) &#8211; Geometry filename (default <cite>./[case_name].geom</cite>)</li>
+<li><strong>load_field_output</strong> (<em>bool</em>) &#8211; True (default) to load field data, False otherwise.</li>
+<li><strong>load_wakeelem_output</strong> (<em>bool</em>) &#8211; True (default) to load wake element data, False otherwise.</li>
+<li><strong>load_probe_output</strong> (<em>bool</em>) &#8211; True (default) to load probe data, False otherwise.</li>
 <li><strong>wakeelem_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for wake element data filenames (default is
 <cite>*WakeElemData_*.csv</cite>)</li>
 <li><strong>field_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for field data filenames (default is

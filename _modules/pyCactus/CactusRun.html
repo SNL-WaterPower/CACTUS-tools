@@ -263,10 +263,51 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
 
 <div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;Class for interrogating a CACTUS input deck.</span>
+
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	input : CactusInput class</span>
+<span class="sd">		Input file class.</span>
+<span class="sd">	geom : CactusGeom class</span>
+<span class="sd">		Geometry data class.</span>
+<span class="sd">	param_data : Pandas DataFrame</span>
+<span class="sd">		Parameter data.</span>
+<span class="sd">	rev_data: Pandas DataFrame</span>
+<span class="sd">		Revolution-averaged data.</span>
+<span class="sd">	time_data : Pandas DataFrame</span>
+<span class="sd">		Time data.</span>
+<span class="sd">	elem_data : Pandas DataFrame</span>
+<span class="sd">		Element data.</span>
+<span class="sd">	wakeelems : CactusWakeElems class</span>
+<span class="sd">		Wake element data class.</span>
+<span class="sd">	field : CactusField class</span>
+<span class="sd">		Field data class.</span>
+<span class="sd">	probes : CactusProbes class.</span>
+<span class="sd">		Probe class.</span>
+<span class="sd">	input_fname : str</span>
+<span class="sd">		Input data filename.</span>
+<span class="sd">	geom_fname : str</span>
+<span class="sd">		Geometry data filename.</span>
+<span class="sd">	param_fname : str</span>
+<span class="sd">		Parameter data filename.</span>
+<span class="sd">	rev_fname : str</span>
+<span class="sd">		Revolution-averaged data filename.</span>
+<span class="sd">	elem_fname : str</span>
+<span class="sd">		Blade element data filename.</span>
+<span class="sd">	time_fname : str</span>
+<span class="sd">		Time data filename.</span>
+<span class="sd">	wake_filenames : list</span>
+<span class="sd">		List of filenames containing wake element data.</span>
+<span class="sd">	field_filenames : list</span>
+<span class="sd">		List of filenames containing field data.</span>
+<span class="sd">	probe_filenames : list</span>
+<span class="sd">		List of filenames containing probe data.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="CactusRun.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span>
 				 <span class="n">input_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
 				 <span class="n">geom_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-				 <span class="n">load_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
 				 <span class="n">load_field_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
 				 <span class="n">load_wakeelem_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
 				 <span class="n">load_probe_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -290,6 +331,12 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">			Input filename (default `./[case_name].in`).</span>
 <span class="sd">		geom_fname : Optional[str]</span>
 <span class="sd">			Geometry filename (default `./[case_name].geom`)</span>
+<span class="sd">		load_field_output : bool</span>
+<span class="sd">			True (default) to load field data, False otherwise.</span>
+<span class="sd">		load_wakeelem_output : bool</span>
+<span class="sd">			True (default) to load wake element data, False otherwise.</span>
+<span class="sd">		load_probe_output : bool</span>
+<span class="sd">			True (default) to load probe data, False otherwise.</span>
 <span class="sd">		wakeelem_fnames_pattern : Optional[str]</span>
 <span class="sd">			Glob pattern for wake element data filenames (default is</span>
 <span class="sd">			`*WakeElemData_*.csv`)</span>
