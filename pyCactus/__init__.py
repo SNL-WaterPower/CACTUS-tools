@@ -3,3 +3,4 @@ from CactusGeom import CactusGeom
 from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
 from CactusProbes import CactusProbes
+from CactusInput import CactusInput
