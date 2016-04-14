@@ -22,13 +22,13 @@ class CactusRun():
 	def __init__(self, run_directory, case_name,
 				 input_fname='',
 				 geom_fname='',
-				 load_input=True,
-				 load_geom=True,
 				 load_output=True,
 				 load_field_output=True,
 				 load_wakeelem_output=True,
+				 load_probe_output=True,
 				 wakeelem_fnames_pattern='*WakeElemData_*.csv',
-				 field_fnames_pattern='*FieldData_*csv'):
+				 field_fnames_pattern='*FieldData_*.csv',
+				 probe_fnames_pattern='probe_*.csv*'):
 		"""Initialize the class, reading some data to memory.
 
 		This method relies on recursive searches within the specified run
@@ -52,6 +52,8 @@ class CactusRun():
 		field_fnames_pattern : Optional[str]
 			Glob pattern for field data filenames (default is
 			`*FieldData_*.csv`)
+		probe_fnames_pattern : Optional[str]
+			Glob pattern for probe filenames (default is `probe_*.csv`)
 		"""
 
 		# if an input file is specified, use that
@@ -78,7 +80,8 @@ class CactusRun():
 		rev_fname_pattern       = case_name + '_RevData.csv'
 		time_fname_pattern      = case_name + '_TimeData.csv'
 		
-		# search for wake element and field files anywhere in the directory
+		# search for wake element, field files, and probe files anywhere in
+		# the run directory
 		if load_wakeelem_output:
 			self.wake_filenames  = sorted(recursive_glob(run_directory,
 														 wakeelem_fnames_pattern))
@@ -90,10 +93,18 @@ class CactusRun():
 		if load_field_output:
 			self.field_filenames = sorted(recursive_glob(run_directory,
 														 field_fnames_pattern))
-			if not self.wake_filenames:
+			if not self.field_filenames:
 				print 'Warning: Could not find any field data files in\
 					   the work directory matching %s.' %\
-					   (wakeelem_fnames_pattern)
+					   (field_fnames_pattern)
+
+		if load_probe_output:
+			self.probe_filenames = sorted(recursive_glob(run_directory,
+														 probe_fnames_pattern))
+			if not self.probe_filenames:
+				print 'Warning: Could not find any probe data files in\
+					   the work directory matching %s.' %\
+					   (probe_fnames_pattern)
 
 		# Load the input, geometry, blade element, rev-averaged, parameter,
 		# and time data. Only one of each file should be expected. The function
@@ -153,10 +164,10 @@ class CactusRun():
 		else:
 			warnings.warn("Time data file not loaded.")
 
-		# The following sections initialize the CactusWakeElems and CactusField
-		# classes. Initializing these classes will search for files in the
-		# run_directory and parse the first line of each. This may be slow,
-		# depending on the number of files
+		# The following sections initialize the CactusWakeElems, CactusField,
+		# and CactusProbes classes. Initializing these classes will search for
+		# files in the run_directory and parse the first line of each. This may
+		# be slow, depending on the number of files
 
 		# wake element data
 		self.wakeelems = CactusWakeElems(self.wake_filenames)
@@ -164,14 +175,12 @@ class CactusRun():
 		# field data
 		self.field = CactusField(self.field_filenames)
 
-		# read in the probe data using the CactusProbes class
-		tic = pytime.time() 
-		self.probes = CactusProbes()
-		self.probes.read_probe_files(run_directory)
+		# probe data
+		self.probes = CactusProbes(self.probe_filenames)
 		
-		print 'Read probe data in %2.2f s' % (pytime.time() - tic)
 		print ''
-		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name, run_directory)
+		print 'Success: Loaded case `%s` from path `%s`\n' % (case_name,
+		                                                      run_directory)
 
 
 	#####################################

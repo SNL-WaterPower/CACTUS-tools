@@ -3,27 +3,32 @@
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from recursive_glob import recursive_glob
+import time as pytime
 
 class CactusProbes():
     """Probes class for CACTUS probe data.
 
     Attributes
     ----------
-    probe_locations : dict
-        Dictionary of {probe_id (int) : prob_location (numpy.array)}
-    probe_filenames : dict
-        Dictionary of {probe_id (int) : prob_filename (str)}
+    locations : dict
+        Dictionary of {id (int) : prob_location (numpy.array)}
+    filenames : dict
+        Dictionary of {id (int) : prob_filename (str)}
     """
 
-    def __init__(self):
+    def __init__(self, filenames):
         """Initializes Probes class."""
-        self.probe_locations = {}
-        self.probe_filenames = {}
+        self.locations = {}
+        self.filenames = {}
 
+        # read in the probe file headers
+        tic = pytime.time()
+        self.read_probe_files(filenames)
+        print 'Read %d probe data file headers in %2.2f s' %\
+                    (len(self.locations),
+                     pytime.time() - tic)
 
-    def read_probe_files(self, run_directory):
+    def read_probe_files(self, filenames):
         """Find probe files in run directory and read the headers.
 
         Searches within the specified run directory to find files matching the
@@ -31,17 +36,14 @@ class CactusProbes():
 
         Parameters
         ----------
-        run_directory : str
-            Path to the directory containing probe data files.
+        filenames : list
+            List of probe filenames to read in
         """
-
-        # find files in run_directory which match probe*.csv
-        probe_filenames = recursive_glob(run_directory, '*probe*.csv')
 
         # read in the location of each probe (not the data)
         # add the probe location and filenames
-        for probe_id,probe_filename in enumerate(sorted(probe_filenames)):
-            with open(probe_filename) as f:
+        for id,filename in enumerate(sorted(filenames)):
+            with open(filename) as f:
                 # read the location of the probe
                 tmp = f.readline()
                 splitline = f.readline().split(',')
@@ -52,16 +54,16 @@ class CactusProbes():
                     x,y,z,tmp = splitline
                     
                 # store probe location and filename to dictionary
-                self.probe_locations[probe_id] = (float(x),float(y),float(z))
-                self.probe_filenames[probe_id] = probe_filename
+                self.locations[id] = (float(x),float(y),float(z))
+                self.filenames[id] = filename
 
 
-    def get_probe_data_by_id(self, probe_id):
+    def get_probe_data_by_id(self, id):
         """Returns a Pandas dataframe of the probe data with given id.
 
         Parameters
         ----------
-        probe_id : int
+        id : int
             ID of the probe we wish to get data from.
 
         Returns
@@ -70,16 +72,16 @@ class CactusProbes():
             DataFrame of the probe data.
         """
 
-        probe_filename = self.probe_filenames[probe_id]
-        return pd.read_csv(probe_filename,skiprows=2)
+        filename = self.filenames[id]
+        return pd.read_csv(filename,skiprows=2)
 
 
-    def plot_probe_data_by_id(self, probe_id, ax=None, timestep=False, plot_fs=False):
+    def plot_probe_data_by_id(self, id, ax=None, timestep=False, plot_fs=False):
         """Plots the velocity vs. time for a specific probe.
 
         Parameters
         ----------
-        probe_id : int
+        id : int
             Probe ID to plot
         ax : matplotlib axis
             Axis on which to plot series. If not specified, creates a new figure.
@@ -98,7 +100,7 @@ class CactusProbes():
             Axis handle.
         """
 
-        df = self.get_probe_data_by_id(probe_id)
+        df = self.get_probe_data_by_id(id)
         
         if ax is None:
             fig = plt.figure()
@@ -123,7 +125,7 @@ class CactusProbes():
             ax.plot(df['Wfs/Uinf (-)'], label='Wfs/Uinf (-)')
 
         ax.set_ylabel('Normalized Velocity (-)')
-        ax.set_title(r'Velocity at $p=(%2.2f,%2.2f,%2.2f)$' % (self.probe_locations[probe_id]))
+        ax.set_title(r'Velocity at $p=(%2.2f,%2.2f,%2.2f)$' % (self.locations[id]))
         ax.grid(True)
         ax.legend(loc='best')
 
@@ -132,4 +134,4 @@ class CactusProbes():
     @property
     def num_probes(self):
         """The number of probes."""
-        return len(self.probe_locations)
+        return len(self.locations)
