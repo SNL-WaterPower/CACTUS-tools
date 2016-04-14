@@ -244,7 +244,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">tmod</span>
+<span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">pytime</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
@@ -269,27 +269,50 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">		A dictionary of `{time : fname}`.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CactusWakeElems.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Initializes the instance, reads in the headers from each file.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CactusWakeElems.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span>
+	             <span class="n">read_headers</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initializes the instance.&quot;&quot;&quot;</span>
+		
 		<span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
-		
-		<span class="c"># dictionary of time : filename</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
 
-		<span class="c"># get the times for each timestep</span>
+		<span class="c"># read the file headers for times</span>
+		<span class="k">if</span> <span class="n">read_headers</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">read_file_headers</span><span class="p">()</span>
+			<span class="k">print</span> <span class="s">&#39;Read </span><span class="si">%d</span><span class="s"> wake element data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
+				   		<span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">),</span>
+				   		 <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CactusWakeElems.read_file_headers"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.read_file_headers">[docs]</a>	<span class="k">def</span> <span class="nf">read_file_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Gets the times from the headers of each data file in the instance</span>
+<span class="sd">		`filenames` attribute amd stores to instance variables `self.times` and</span>
+<span class="sd">		`self.fdict`</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		times : list</span>
+<span class="sd">			List of times (float) of wake element data.</span>
+<span class="sd">		fdict : dict</span>
+<span class="sd">			A dictionary of `{time : fname}`.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># the name of the column containing time info</span>
 		<span class="n">time_col_name</span> <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
 	
-		<span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">:</span>
 			<span class="n">time</span> <span class="o">=</span> <span class="n">get_file_time</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
 
 		<span class="c"># sort the times</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span>
 
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span></div>
 
 <div class="viewcode-block" id="CactusWakeElems.get_df_inst"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusWakeElems.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Gets the data from a specified time or filename.</span>
@@ -443,7 +466,7 @@ div.nboutput  > :nth-child(2).stderr {
 		<span class="c"># loop through all the files, write the VTK files</span>
 		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)):</span>
 			<span class="c"># get the system time (for elapsed time)</span>
-			<span class="n">t_start</span> <span class="o">=</span> <span class="n">tmod</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="n">t_start</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
 			<span class="c"># get the filename containing the data at current time</span>
 			<span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
@@ -512,7 +535,7 @@ div.nboutput  > :nth-child(2).stderr {
 			<span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">data_filename</span><span class="p">))</span>
 
 			<span class="c"># print status message</span>
-			<span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">tmod</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
+			<span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
 			<span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
 				<span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span> <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
 

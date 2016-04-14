@@ -101,6 +101,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Probe-data">Probe data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Accessing-the-input-namelist">Accessing the input namelist</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pyCactus-module.html">Module Documentation</a></li>
@@ -431,9 +432,17 @@ In [4]:
 </div>
 <div class="container">
 <div class="highlight"><pre>
-Read wake element data headers in 0.00 s
-Read wake grid data headers in 0.03 s
-Read probe data in 0.00 s
+Read input namelist in 0.01 s
+Read geometry file in 0.01 s
+Read parameter data in 0.00 s
+Read revolution-averaged data in 0.00 s
+Read blade element data in 0.04 s
+Read time data in 0.00 s
+Read 20 wake element data headers in 0.00 s
+Read 20 wake element data headers in 0.00 s
+Read grid dimensions in 0.03 s
+Read 6 probe data file headers in 0.00 s
+
 Success: Loaded case &#96;NREL-5MW&#96; from path &#96;/home/phil/Notebooks/demo1/NREL-5MW-CACTUS&#96;
 
 Time to instantiante CactusRun class: 0.12 s
@@ -457,7 +466,7 @@ class.</p>
 <code class="docutils literal"><span class="pre">struts</span></code> attributes.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [48]:
+In [5]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -467,7 +476,7 @@ In [48]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[48]:
+Out[5]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -485,7 +494,7 @@ Out[48]:
 enumerated by blade number and strut number.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [53]:
+In [6]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -496,7 +505,7 @@ In [53]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[53]:
+Out[6]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -546,7 +555,7 @@ appropriate variables names:</p>
 <p>The column names for the time data are shown below.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [32]:
+In [7]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -556,7 +565,7 @@ In [32]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[32]:
+Out[7]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -576,7 +585,7 @@ Index([u&#39;Normalized Time (-)&#39;, u&#39;Theta (rad)&#39;, u&#39;Rev&#39;, u
 of the Pandas dataframe, but this could also be done with NumPy.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [76]:
+In [8]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -591,7 +600,7 @@ In [76]:
 <div class="container">
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-&lt;matplotlib.figure.Figure at 0x7f22fac7e610&gt;
+&lt;matplotlib.figure.Figure at 0x7fcde02c92d0&gt;
 </pre></div>
 </div>
 </div>
@@ -608,7 +617,7 @@ In [76]:
 <p>The column names for the revolution-averaged data are shown below.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [37]:
+In [9]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -618,7 +627,7 @@ In [37]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[37]:
+Out[9]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -632,7 +641,7 @@ Index([u&#39;Rev&#39;, u&#39;Power Coeff. (-)&#39;, u&#39;Tip Power Coeff. (-)&#
 <p>As with the time data, this can be easily plotted.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [80]:
+In [10]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -647,7 +656,7 @@ In [80]:
 <div class="container">
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
-&lt;matplotlib.figure.Figure at 0x7f22faf05650&gt;
+&lt;matplotlib.figure.Figure at 0x7fcdde57f550&gt;
 </pre></div>
 </div>
 </div>
@@ -664,7 +673,7 @@ In [80]:
 <p>The column names for the blade element data are shown below.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [58]:
+In [11]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -674,7 +683,7 @@ In [58]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[58]:
+Out[11]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -696,7 +705,7 @@ quantity against the distance from the rotation axis. This is
 demonstrated here using data from the <code class="docutils literal"><span class="pre">CactusRun.geom</span></code> instance.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [81]:
+In [12]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -736,7 +745,7 @@ never loaded into memory.</p>
 <p>The times at which we have wake element data can be easily viewed.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [6]:
+In [13]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -746,7 +755,7 @@ In [6]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[6]:
+Out[13]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -756,7 +765,7 @@ Out[6]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [7]:
+In [14]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -766,7 +775,7 @@ In [7]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[7]:
+Out[14]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -785,7 +794,7 @@ using the method <code class="docutils literal"><span class="pre">CactusWakeElem
 dictionary containing variables names and their values as NumPy arrays.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [8]:
+In [15]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -801,7 +810,7 @@ In [8]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [9]:
+In [16]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -811,7 +820,7 @@ In [9]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[9]:
+Out[16]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -824,7 +833,7 @@ data files have a <code class="docutils literal"><span class="pre">node_id</span
 generated by versions of CACTUS).</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [10]:
+In [17]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -834,7 +843,7 @@ In [10]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[10]:
+Out[17]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -852,7 +861,7 @@ VTK files, and a <code class="docutils literal"><span class="pre">.pvd</span></c
 ParaView directly as a time series.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [11]:
+In [18]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -865,7 +874,7 @@ In [11]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[11]:
+Out[18]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -901,7 +910,7 @@ Out[11]:
 <h4>Viewing times<a class="headerlink" href="#Viewing-times" title="Permalink to this headline">¶</a></h4>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [12]:
+In [19]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -911,7 +920,7 @@ In [12]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[12]:
+Out[19]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -921,7 +930,7 @@ Out[12]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [13]:
+In [20]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -931,7 +940,7 @@ In [13]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[13]:
+Out[20]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -950,7 +959,7 @@ using the method <code class="docutils literal"><span class="pre">CactusField.ge
 dictionary containing variables names and their values as NumPy arrays.</p>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [14]:
+In [21]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -966,7 +975,7 @@ In [14]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [15]:
+In [22]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -976,7 +985,7 @@ In [15]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[15]:
+Out[22]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -987,7 +996,7 @@ Out[15]:
 <p>The second return is a dictionary of the field dimensions.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [16]:
+In [23]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -997,7 +1006,7 @@ In [16]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[16]:
+Out[23]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -1016,7 +1025,7 @@ Out[16]:
 <p>The dimensions of the returned arrays match the grid dimensions.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [17]:
+In [24]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1026,7 +1035,7 @@ In [17]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[17]:
+Out[24]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -1041,7 +1050,7 @@ Out[17]:
 some time, since it loops through all the data files.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [18]:
+In [25]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1068,7 +1077,7 @@ Time to produce series: 0.64 s
 </div>
 <div class="nbinput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [19]:
+In [26]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1085,7 +1094,7 @@ In [19]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [20]:
+In [27]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1134,7 +1143,7 @@ In [20]:
 containing the averaged data.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [21]:
+In [28]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1152,12 +1161,12 @@ In [21]:
 </div>
 <div class="container">
 <div class="highlight"><pre>
-Time to average fields: 0.13 s
+Time to average fields: 0.14 s
 </pre></div></div>
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [22]:
+In [29]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1176,7 +1185,7 @@ In [22]:
 <p>The <code class="docutils literal"><span class="pre">t</span></code> field gives the normalized times which were averaged.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [23]:
+In [30]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1195,7 +1204,7 @@ In [23]:
 <p>The averaged data may be plotted.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [24]:
+In [31]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1256,7 +1265,7 @@ a series of structured VTK files (<code class="docutils literal"><span class="pr
 file which can be read into ParaView directly as a time series.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [25]:
+In [32]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1269,7 +1278,7 @@ In [25]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[25]:
+Out[32]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -1306,7 +1315,7 @@ Out[25]:
 class. We can check the number of probes and their locations.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [26]:
+In [33]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1316,7 +1325,7 @@ In [26]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[26]:
+Out[33]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -1326,17 +1335,17 @@ Out[26]:
 </div>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [27]:
+In [34]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
-<span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">probe_locations</span>
+<span class="n">run</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">locations</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[27]:
+Out[34]:
 </pre></div>
 </div>
 <div class="highlight-none"><div class="highlight"><pre>
@@ -1352,7 +1361,7 @@ Out[27]:
 <p>We can also extract the probe data using <code class="docutils literal"><span class="pre">get_probe_data_by_id()</span></code>.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [28]:
+In [35]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1362,7 +1371,7 @@ In [28]:
 </div>
 <div class="nboutput nblast container">
 <div class="highlight-none"><div class="highlight"><pre>
-Out[28]:
+Out[35]:
 </pre></div>
 </div>
 <div class="container">
@@ -1439,7 +1448,7 @@ Out[28]:
 <code class="docutils literal"><span class="pre">plot_probe_data_by_id()</span></code>.</p>
 <div class="nbinput container">
 <div class="highlight-none"><div class="highlight"><pre>
-In [29]:
+In [36]:
 </pre></div>
 </div>
 <div class="highlight-ipython2"><div class="highlight"><pre>
@@ -1453,6 +1462,154 @@ In [29]:
 <div class="container">
 <img alt="_images/pyCactus-demo_73_0.png" src="_images/pyCactus-demo_73_0.png" />
 </div>
+</div>
+</div>
+<div class="section" id="Accessing-the-input-namelist">
+<h2>Accessing the input namelist<a class="headerlink" href="#Accessing-the-input-namelist" title="Permalink to this headline">¶</a></h2>
+<p>The input file namelist can be accessed using the <code class="docutils literal"><span class="pre">namelist</span></code> instance
+attribute.</p>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [37]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">namelist</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+Out[37]:
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>
+OrderedDict([(&#39;configinputs&#39;,
+              OrderedDict([(&#39;gpflag&#39;, 0),
+                           (&#39;nr&#39;, 5),
+                           (&#39;nti&#39;, 20),
+                           (&#39;iut&#39;, 1),
+                           (&#39;convrg&#39;, -1),
+                           (&#39;ifc&#39;, 0),
+                           (&#39;nric&#39;, 9),
+                           (&#39;ntif&#39;, 30),
+                           (&#39;iutf&#39;, 1),
+                           (&#39;convrgf&#39;, 0.0001),
+                           (&#39;ixterm&#39;, 0),
+                           (&#39;xstop&#39;, 5)])),
+             (&#39;caseinputs&#39;,
+              OrderedDict([(&#39;jbtitle&#39;, &#39;NREL 5 MW&#39;),
+                           (&#39;rho&#39;, 0.002378),
+                           (&#39;vis&#39;, 3.739e-07),
+                           (&#39;tempr&#39;, 60.0),
+                           (&#39;slex&#39;, 0.0),
+                           (&#39;hblref&#39;, 0.0),
+                           (&#39;hag&#39;, 295.276),
+                           (&#39;rpm&#39;, 12.1),
+                           (&#39;ut&#39;, 7.55),
+                           (&#39;geomfilepath&#39;, &#39;./NREL-5MW.geom&#39;),
+                           (&#39;nsect&#39;, 8),
+                           (&#39;afdpath&#39;,
+                            [&#39;./airfoils/Cylinder1.dat&#39;,
+                             &#39;./airfoils/Cylinder2.dat&#39;,
+                             &#39;./airfoils/DU40_A17.dat&#39;,
+                             &#39;./airfoils/DU35_A17.dat&#39;,
+                             &#39;./airfoils/DU30_A17.dat&#39;,
+                             &#39;./airfoils/DU25_A17.dat&#39;,
+                             &#39;./airfoils/DU21_A17.dat&#39;,
+                             &#39;./airfoils/NACA64_A17.dat&#39;])])),
+             (&#39;configoutputs&#39;,
+              OrderedDict([(&#39;diagoutflag&#39;, 1),
+                           (&#39;output_elflag&#39;, 1),
+                           (&#39;wakeelementoutflag&#39;, 1),
+                           (&#39;wakegridoutflag&#39;, 1),
+                           (&#39;probeflag&#39;, 1),
+                           (&#39;probespecpath&#39;, &#39;./probes.dat&#39;)]))])
+</pre></div>
+</div>
+</div>
+<p>This namelist can easily be modified and rewritten as a separate file
+(perhaps facilitating parametric studies of parameters).</p>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [38]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="n">run</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">namelist</span><span class="p">[</span><span class="s">&#39;configinputs&#39;</span><span class="p">][</span><span class="s">&#39;nti&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [39]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">StringIO</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">StringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="n">run</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput container">
+<div class="highlight-none"><div class="highlight"><pre>
+In [40]:
+</pre></div>
+</div>
+<div class="highlight-ipython2"><div class="highlight"><pre>
+<span class="k">print</span> <span class="n">output</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast container">
+<div class="container">
+</div>
+<div class="container">
+<div class="highlight"><pre>
+&amp;configinputs
+    gpflag = 0
+    nr = 5
+    nti = 30
+    iut = 1
+    convrg = -1
+    ifc = 0
+    nric = 9
+    ntif = 30
+    iutf = 1
+    convrgf = 0.0001
+    ixterm = 0
+    xstop = 5
+/
+
+&amp;caseinputs
+    jbtitle = &apos;NREL 5 MW&apos;
+    rho = 0.002378
+    vis = 3.739e-07
+    tempr = 60.0
+    slex = 0.0
+    hblref = 0.0
+    hag = 295.276
+    rpm = 12.1
+    ut = 7.55
+    geomfilepath = &apos;./NREL-5MW.geom&apos;
+    nsect = 8
+    afdpath = &apos;./airfoils/Cylinder1.dat&apos;, &apos;./airfoils/Cylinder2.dat&apos;, &apos;./airfoils/DU40_A17.dat&apos;,
+              &apos;./airfoils/DU35_A17.dat&apos;, &apos;./airfoils/DU30_A17.dat&apos;, &apos;./airfoils/DU25_A17.dat&apos;,
+              &apos;./airfoils/DU21_A17.dat&apos;, &apos;./airfoils/NACA64_A17.dat&apos;
+/
+
+&amp;configoutputs
+    diagoutflag = 1
+    output_elflag = 1
+    wakeelementoutflag = 1
+    wakegridoutflag = 1
+    probeflag = 1
+    probespecpath = &apos;./probes.dat&apos;
+/
+
+</pre></div></div>
 </div>
 </div>
 </div>

@@ -332,13 +332,19 @@ div.nboutput  > :nth-child(2).stderr {
 	<span class="c">####################################</span>
 	<span class="c">######### Public Functions #########</span>
 	<span class="c">####################################</span>
-<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+				  <span class="n">blade_num_lines</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+				  <span class="n">strut_num_lines</span><span class="o">=</span><span class="mi">18</span><span class="p">,):</span>
 		<span class="sd">&quot;&quot;&quot;Reads data from a CACTUS .geom file.</span>
 
 <span class="sd">		Parameters</span>
 <span class="sd">		----------</span>
 <span class="sd">		filename : str</span>
 <span class="sd">			The geometry filename.</span>
+<span class="sd">		blade_num_lines : int</span>
+<span class="sd">			Number of lines of data per blade.</span>
+<span class="sd">		strut_num_lines : int</span>
+<span class="sd">			Number of lines of data per strut.</span>
 
 <span class="sd">		Returns</span>
 <span class="sd">		-------</span>
@@ -350,9 +356,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">			List of dicts of strut geometry variables.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="c"># number of data lines for blade and strut, excluding header</span>
-		<span class="n">blade_num_lines</span> <span class="o">=</span> <span class="mi">24</span>
-		<span class="n">strut_num_lines</span> <span class="o">=</span> <span class="mi">18</span>
+
 
 		<span class="k">def</span> <span class="nf">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
 			<span class="n">int_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">,</span> <span class="s">&#39;FlipN&#39;</span><span class="p">]</span>

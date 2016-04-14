@@ -251,21 +251,28 @@ div.nboutput  > :nth-child(2).stderr {
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">f90nml</span>
 
 <span class="kn">from</span> <span class="nn">CactusGeom</span> <span class="kn">import</span> <span class="n">CactusGeom</span>
 <span class="kn">from</span> <span class="nn">CactusWakeElems</span> <span class="kn">import</span> <span class="n">CactusWakeElems</span>
 <span class="kn">from</span> <span class="nn">CactusField</span> <span class="kn">import</span> <span class="n">CactusField</span>
 <span class="kn">from</span> <span class="nn">CactusProbes</span> <span class="kn">import</span> <span class="n">CactusProbes</span>
+<span class="kn">from</span> <span class="nn">CactusInput</span> <span class="kn">import</span> <span class="n">CactusInput</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
 
 <div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">():</span>
 <div class="viewcode-block" id="CactusRun.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span>
-	             <span class="n">input_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-	             <span class="n">geom_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
-	             <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeElemData_*.csv&#39;</span><span class="p">,</span>
-	             <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*FieldData_*csv&#39;</span><span class="p">):</span>
+				 <span class="n">input_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+				 <span class="n">geom_fname</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+				 <span class="n">load_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+				 <span class="n">load_field_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+				 <span class="n">load_wakeelem_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+				 <span class="n">load_probe_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+				 <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeElemData_*.csv&#39;</span><span class="p">,</span>
+				 <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*FieldData_*.csv&#39;</span><span class="p">,</span>
+				 <span class="n">probe_fnames_pattern</span><span class="o">=</span><span class="s">&#39;probe_*.csv*&#39;</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Initialize the class, reading some data to memory.</span>
 
 <span class="sd">		This method relies on recursive searches within the specified run</span>
@@ -289,115 +296,135 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">		field_fnames_pattern : Optional[str]</span>
 <span class="sd">			Glob pattern for field data filenames (default is</span>
 <span class="sd">			`*FieldData_*.csv`)</span>
+<span class="sd">		probe_fnames_pattern : Optional[str]</span>
+<span class="sd">			Glob pattern for probe filenames (default is `probe_*.csv`)</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 
-		<span class="c"># if input file wasn&#39;t specified, guess it</span>
-		<span class="k">if</span> <span class="ow">not</span> <span class="n">input_fname</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.in&#39;</span>
+		<span class="c"># if an input file is specified, use that</span>
+		<span class="k">if</span> <span class="n">input_fname</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+                                                            <span class="n">input_fname</span><span class="p">))</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="n">input_fname</span>
+			<span class="c"># otherwise, look for one using [case_name].in as a glob pattern</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+													 <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.in&#39;</span><span class="p">)</span>
 
-		<span class="c"># if a geometry filename is specified, use that.</span>
-		<span class="c"># otherwise, assume its [case_name].geom</span>
-		<span class="k">if</span> <span class="ow">not</span> <span class="n">geom_fname</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.geom&#39;</span>
+		<span class="c"># if a geom file is specified, use that</span>
+		<span class="k">if</span> <span class="n">geom_fname</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+			                                               <span class="n">geom_fname</span><span class="p">))</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="n">geom_fname</span>
+			<span class="c"># otherwise, look for one using [case_name].geom as a glob pattern</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+													 <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.geom&#39;</span><span class="p">)</span>
 
-		<span class="c"># assemble filenames</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_ElementData.csv&#39;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span>     <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_Param.csv&#39;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span>       <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_RevData.csv&#39;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_TimeData.csv&#39;</span>
+		<span class="c"># assemble filename patterns</span>
+		<span class="n">elem_fname_pattern</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_ElementData.csv&#39;</span>
+		<span class="n">param_fname_pattern</span>     <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_Param.csv&#39;</span>
+		<span class="n">rev_fname_pattern</span>       <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_RevData.csv&#39;</span>
+		<span class="n">time_fname_pattern</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_TimeData.csv&#39;</span>
 		
-		<span class="c"># search for wake element and field files anywhere in the directory</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span>  <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
-		                                             <span class="n">wakeelem_fnames_pattern</span><span class="p">))</span>
+		<span class="c"># search for wake element, field files, and probe files anywhere in</span>
+		<span class="c"># the run directory</span>
+		<span class="k">if</span> <span class="n">load_wakeelem_output</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span>  <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+														 <span class="n">wakeelem_fnames_pattern</span><span class="p">))</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake element data files in</span><span class="se">\</span>
+<span class="s">					   the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+					   <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
-		                                             <span class="n">field_fnames_pattern</span><span class="p">))</span>
-		
-		<span class="c"># read in the input file namelist</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">namelist</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="k">if</span> <span class="n">load_field_output</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+														 <span class="n">field_fnames_pattern</span><span class="p">))</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Warning: Could not find any field data files in</span><span class="se">\</span>
+<span class="s">					   the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+					   <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">load_probe_output</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+														 <span class="n">probe_fnames_pattern</span><span class="p">))</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">:</span>
+				<span class="k">print</span> <span class="s">&#39;Warning: Could not find any probe data files in</span><span class="se">\</span>
+<span class="s">					   the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+					   <span class="p">(</span><span class="n">probe_fnames_pattern</span><span class="p">)</span>
+
+		<span class="c"># Load the input, geometry, blade element, rev-averaged, parameter,</span>
+		<span class="c"># and time data. Only one of each file should be expected. The function</span>
+		<span class="c"># find_single_file is used to warn if multiple files (or none) are found.</span>
+
+		<span class="c"># load the input namelist</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">CactusInput</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read input namelist in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Input file not loaded.&quot;</span><span class="p">)</span>
 
-		<span class="c"># The following sections load the blade element, rev-averaged,</span>
-		<span class="c"># parameter, and time data. These methods use recursive_glob() to find</span>
-		<span class="c"># the files within the run_directory.</span>
-
-		<span class="c"># load blade element data</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="c"># load geometry data</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="c"># load the geometry data</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">geom</span> <span class="o">=</span> <span class="n">CactusGeom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read geometry file in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Geometry file not loaded.&quot;</span><span class="p">)</span>
+
+		<span class="c"># load parameter data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="n">param_fname_pattern</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read parameter data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter data file not loaded.&quot;</span><span class="p">)</span>
 
 		<span class="c"># load revolution-averaged data</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
-			
-		<span class="c"># parameter data</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
-			
-		<span class="c"># time data</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="n">rev_fname_pattern</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read revolution-averaged data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
 
-		<span class="c"># The following sections initialize the CactusWakeElems and CactusField</span>
-		<span class="c"># classes. Initializing these classes will search for files in the</span>
-		<span class="c"># run_directory and parse the first line of each. This may be slow,</span>
-		<span class="c"># depending on the number of files</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Revolution-averaged data file not loaded.&quot;</span><span class="p">)</span>
+
+		<span class="c"># load blade element data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="n">elem_fname_pattern</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read blade element data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Blade element data file not loaded.&quot;</span><span class="p">)</span>
+
+		<span class="c"># time data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_single_file</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="n">time_fname_pattern</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">:</span>
+			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">&#39;Read time data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Time data file not loaded.&quot;</span><span class="p">)</span>
+
+		<span class="c"># The following sections initialize the CactusWakeElems, CactusField,</span>
+		<span class="c"># and CactusProbes classes. Initializing these classes will search for</span>
+		<span class="c"># files in the run_directory and parse the first line of each. This may</span>
+		<span class="c"># be slow, depending on the number of files</span>
 
 		<span class="c"># wake element data</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
-			<span class="k">try</span><span class="p">:</span>
-				<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
-				<span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
-				<span class="k">print</span> <span class="s">&#39;Read wake element data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
-			<span class="k">except</span><span class="p">:</span>
-				<span class="k">print</span> <span class="s">&#39;Warning: Wake node data was found, but could not be loaded properly.&#39;</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake data files in the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
 
 		<span class="c"># field data</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
-			<span class="k">try</span><span class="p">:</span>
-				<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
-				<span class="k">print</span> <span class="s">&#39;Read wake grid data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
-			<span class="k">except</span><span class="p">:</span>
-				<span class="k">print</span> <span class="s">&#39;Warning: Wake grid data was found, but could not be loaded properly.&#39;</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake grid data files in the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
 
-		<span class="c"># read in the probe data using the CactusProbes class</span>
-		<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
-		<span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">probes</span><span class="o">.</span><span class="n">read_probe_files</span><span class="p">(</span><span class="n">run_directory</span><span class="p">)</span>
-		<span class="k">print</span> <span class="s">&#39;Read probe data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
-
-		<span class="c"># read in the geometry data using the CactusGeom class</span>
-		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">geom</span> <span class="o">=</span> <span class="n">CactusGeom</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span>
-
-
-		<span class="k">print</span> <span class="s">&#39;Success: Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span> <span class="n">run_directory</span><span class="p">)</span></div>
+		<span class="c"># probe data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">)</span>
+		
+		<span class="k">print</span> <span class="s">&#39;&#39;</span>
+		<span class="k">print</span> <span class="s">&#39;Success: Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span>
+		                                                      <span class="n">run_directory</span><span class="p">)</span></div>
 
 
 	<span class="c">#####################################</span>
@@ -411,6 +438,25 @@ div.nboutput  > :nth-child(2).stderr {
 		<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>	<span class="c"># strip whitespace from colnames</span>
 		<span class="k">return</span> <span class="n">df</span>
 
+<div class="viewcode-block" id="CactusRun.find_single_file"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.find_single_file">[docs]</a>	<span class="k">def</span> <span class="nf">find_single_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Looks for a glob pattern in a specified directory and returns the</span>
+<span class="sd">		first file, throwing a warning if multiple files are found. Returns None</span>
+<span class="sd">		if no files are found.&quot;&quot;&quot;</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">recursive_glob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+
+		<span class="c"># warn if we found too many files or none at all</span>
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Found multiple files matching </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">, using </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>\
+							  <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Warning: Could not find file </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>\
+						  <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">directory</span><span class="p">),</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">None</span></div>
 
 	<span class="c">####################################</span>
 	<span class="c">######### Public Functions #########</span>
