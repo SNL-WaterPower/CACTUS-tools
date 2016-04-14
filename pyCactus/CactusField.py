@@ -1,5 +1,5 @@
 import os
-import time as tmod
+import time as pytime
 
 import numpy as np
 import pandas as pd
@@ -25,20 +25,51 @@ class CactusField():
 		A dictionary of grid dimensions.
 	"""
 
-	def __init__(self, filenames):
-		"""Initializes the instance, reads in the headers from each file."""
+	def __init__(self, filenames,
+	             read_headers=True,
+	             read_grid_dims=True):
+		"""Initializes the instance."""
+		
 		self.filenames = filenames
 		self.num_times = len(filenames)
 		self.times = []
-		
-		# dictionary of time : filename
 		self.fdict = {}
 
-		# get the times for each timestep
+		# read the file headers for times
+		if read_headers:
+			tic = pytime.time()
+			self.read_file_headers()
+			print 'Read %d wake element data headers in %2.2f s' %\
+				   		(len(self.times),
+				   		 pytime.time() - tic)
+ 
+ 		# get the grid dimensions by reading the first file
+		# (note that this isn't necessarily the FIRST timestep, just the first
+		# file from glob)
+		if read_grid_dims:
+			tic = pytime.time()
+			self.grid_dims = self.read_grid_dims(self.filenames[0])
+			print 'Read grid dimensions in %2.2f s' % (pytime.time() - tic)
+
+	def read_file_headers(self):
+		"""Gets the times from the headers of each data file in the instance
+		`filenames` attribute amd stores to instance variables `self.times` and
+		`self.fdict`
+
+		Returns
+		-------
+		times : list
+			List of times (float) of wake element data.
+		fdict : dict
+			A dictionary of `{time : fname}`.
+		"""
 		# the name of the column containing time info
 		time_col_name = 'Normalized Time (-)'
 	
-		for fname in filenames:
+		self.fdict = {}
+		self.times = []
+
+		for fname in self.filenames:
 			time = get_file_time(fname, time_col_name)
 			self.times.append(time)
 			self.fdict[time] = fname
@@ -46,14 +77,23 @@ class CactusField():
 		# sort the times
 		self.times = np.sort(np.array(self.times))
 
-		# get grid dimensions by reading the first file
-		# (note that this isn't necessarily the FIRST timestep, just the first file from glob)
-		df = load_data(filenames[0])
+		return self.times, self.fdict
+
+	def read_grid_dims(self, filename):
+		"""Reads the grid dimensions of a file.
+
+		Returns
+		-------
+		grid_dims : dict
+			Dictionary of grid dimension.
+		"""
+
+		# get grid dimensions
+		df = load_data(filename)
 		_, grid_dims = self.fielddata_from_df(df)
 
-		# unpack grid dimensions, save to instance variable
-		self.grid_dims = grid_dims
-
+		# unpack grid dimensions
+		return grid_dims
 
 	def get_df_inst(self, time=None, fname=None):
 		"""Gets the data from a specified time or filename.
@@ -240,7 +280,7 @@ class CactusField():
 		# write the VTK files
 		for i, time in enumerate(np.sort(self.times)):
 			# get the system time (for elapsed time)
-			t_start = tmod.time()
+			t_start = pytime.time()
 
 			# get the filename containing the data at current time
 			fname = self.fdict[time]
@@ -290,7 +330,7 @@ class CactusField():
 			dataset.set("file", os.path.basename(data_filename))
 
 			# print status message
-			elapsed_time = tmod.time() - t_start
+			elapsed_time = pytime.time() - t_start
 			if print_status:
 				print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
 

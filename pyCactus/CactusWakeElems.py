@@ -1,6 +1,6 @@
 
 import os
-import time as tmod
+import time as pytime
 
 import numpy as np
 import pandas as pd
@@ -25,20 +25,42 @@ class CactusWakeElems():
 		A dictionary of `{time : fname}`.
 	"""
 
-	def __init__(self, filenames):
-		"""Initializes the instance, reads in the headers from each file."""
+	def __init__(self, filenames,
+	             read_headers=True):
+		"""Initializes the instance."""
+		
 		self.filenames = filenames
 		self.num_times = len(filenames)
 		self.times = []
-		
-		# dictionary of time : filename
 		self.fdict = {}
 
-		# get the times for each timestep
+		# read the file headers for times
+		if read_headers:
+			tic = pytime.time()
+			self.read_file_headers()
+			print 'Read %d wake element data headers in %2.2f s' %\
+				   		(len(self.times),
+				   		 pytime.time() - tic)
+
+	def read_file_headers(self):
+		"""Gets the times from the headers of each data file in the instance
+		`filenames` attribute amd stores to instance variables `self.times` and
+		`self.fdict`
+
+		Returns
+		-------
+		times : list
+			List of times (float) of wake element data.
+		fdict : dict
+			A dictionary of `{time : fname}`.
+		"""
 		# the name of the column containing time info
 		time_col_name = 'Normalized Time (-)'
 	
-		for fname in filenames:
+		self.fdict = {}
+		self.times = []
+
+		for fname in self.filenames:
 			time = get_file_time(fname, time_col_name)
 			self.times.append(time)
 			self.fdict[time] = fname
@@ -46,6 +68,7 @@ class CactusWakeElems():
 		# sort the times
 		self.times = np.sort(np.array(self.times))
 
+		return self.times, self.fdict
 
 	def get_df_inst(self, time=None, fname=None):
 		"""Gets the data from a specified time or filename.
@@ -199,7 +222,7 @@ class CactusWakeElems():
 		# loop through all the files, write the VTK files
 		for i, time in enumerate(np.sort(self.times)):
 			# get the system time (for elapsed time)
-			t_start = tmod.time()
+			t_start = pytime.time()
 
 			# get the filename containing the data at current time
 			fname = self.fdict[time]
@@ -268,7 +291,7 @@ class CactusWakeElems():
 			dataset.set("file", os.path.basename(data_filename))
 
 			# print status message
-			elapsed_time = tmod.time() - t_start
+			elapsed_time = pytime.time() - t_start
 			if print_status:
 				print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
 

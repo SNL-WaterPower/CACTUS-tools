@@ -14,12 +14,19 @@ from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
 from CactusProbes import CactusProbes
 
+import warnings
+
 from recursive_glob import recursive_glob
 
 class CactusRun():
 	def __init__(self, run_directory, case_name,
 	             input_fname='',
 	             geom_fname='',
+	             load_input=True,
+	             load_geom=True,
+	             load_output=True,
+	             load_field_output=True,
+	             load_wakeelem_output=True,
 	             wakeelem_fnames_pattern='*WakeElemData_*.csv',
 	             field_fnames_pattern='*FieldData_*csv'):
 		"""Initialize the class, reading some data to memory.
@@ -47,14 +54,15 @@ class CactusRun():
 			`*FieldData_*.csv`)
 		"""
 
-		# if input file wasn't specified, guess it
+		# if an input file is specified, use that
+		# otherwise, assume it's [case_name].in
 		if not input_fname:
 			self.input_fname = case_name + '.in'
 		else:
 			self.input_fname = input_fname
 
 		# if a geometry filename is specified, use that.
-		# otherwise, assume its [case_name].geom
+		# otherwise, assume it's [case_name].geom
 		if not geom_fname:
 			self.geom_fname = case_name + '.geom'
 		else:
@@ -67,12 +75,22 @@ class CactusRun():
 		self.time_fname      = case_name + '_TimeData.csv'
 		
 		# search for wake element and field files anywhere in the directory
-		self.wake_filenames  = sorted(recursive_glob(run_directory,
-		                                             wakeelem_fnames_pattern))
+		if load_wakeelem_output:
+			self.wake_filenames  = sorted(recursive_glob(run_directory,
+		                                             	 wakeelem_fnames_pattern))
+			if not self.wake_filenames:
+				print 'Warning: Could not find any wake element data files in\
+				       the work directory matching %s.' %\
+				       (wakeelem_fnames_pattern)
 
-		self.field_filenames = sorted(recursive_glob(run_directory,
-		                                             field_fnames_pattern))
-		
+		if load_field_output:
+			self.field_filenames = sorted(recursive_glob(run_directory,
+			                                             field_fnames_pattern))
+			if not self.wake_filenames:
+				print 'Warning: Could not find any field data files in\
+				       the work directory matching %s.' %\
+				       (wakeelem_fnames_pattern)
+
 		# read in the input file namelist
 		results = recursive_glob(run_directory, self.input_fname)
 		if results:
@@ -118,26 +136,10 @@ class CactusRun():
 		# depending on the number of files
 
 		# wake element data
-		if self.wake_filenames:
-			try:
-				tic = pytime.time() 
-				self.wakeelems = CactusWakeElems(self.wake_filenames)
-				print 'Read wake element data headers in %2.2f s' % (pytime.time() - tic)
-			except:
-				print 'Warning: Wake node data was found, but could not be loaded properly.'
-		else:
-			print 'Warning: Could not find any wake data files in the work directory matching %s.' % (wakeelem_fnames_pattern)
+		self.wakeelems = CactusWakeElems(self.wake_filenames)
 
 		# field data
-		if self.field_filenames:
-			try:
-				tic = pytime.time()
-				self.field = CactusField(self.field_filenames)
-				print 'Read wake grid data headers in %2.2f s' % (pytime.time() - tic)
-			except:
-				print 'Warning: Wake grid data was found, but could not be loaded properly.'
-		else:
-			print 'Warning: Could not find any wake grid data files in the work directory matching %s.' % (field_fnames_pattern)
+		self.field = CactusField(self.field_filenames)
 
 		# read in the probe data using the CactusProbes class
 		tic = pytime.time() 
