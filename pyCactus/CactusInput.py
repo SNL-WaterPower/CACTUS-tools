@@ -7,8 +7,8 @@ class CactusInput(object):
 
 	Attributes
 	----------
-	namelist : dict
-		A dictionary with the namelist contents (from f90nml).
+	namelist : f90nml.namelist.Namelist
+		A f90nml Namelist object with the namelist contents.
 	"""
 
 	def __init__(self, filename):
