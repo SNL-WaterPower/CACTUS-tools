@@ -19,10 +19,51 @@ import warnings
 from recursive_glob import recursive_glob
 
 class CactusRun():
+	"""Class for interrogating a CACTUS input deck.
+
+	Attributes
+	----------
+	input : CactusInput class
+		Input file class.
+	geom : CactusGeom class
+		Geometry data class.
+	param_data : Pandas DataFrame
+		Parameter data.
+	rev_data: Pandas DataFrame
+		Revolution-averaged data.
+	time_data : Pandas DataFrame
+		Time data.
+	elem_data : Pandas DataFrame
+		Element data.
+	wakeelems : CactusWakeElems class
+		Wake element data class.
+	field : CactusField class
+		Field data class.
+	probes : CactusProbes class.
+		Probe class.
+	input_fname : str
+		Input data filename.
+	geom_fname : str
+		Geometry data filename.
+	param_fname : str
+		Parameter data filename.
+	rev_fname : str
+		Revolution-averaged data filename.
+	elem_fname : str
+		Blade element data filename.
+	time_fname : str
+		Time data filename.
+	wake_filenames : list
+		List of filenames containing wake element data.
+	field_filenames : list
+		List of filenames containing field data.
+	probe_filenames : list
+		List of filenames containing probe data.
+	"""
+
 	def __init__(self, run_directory, case_name,
 				 input_fname='',
 				 geom_fname='',
-				 load_output=True,
 				 load_field_output=True,
 				 load_wakeelem_output=True,
 				 load_probe_output=True,
@@ -46,6 +87,12 @@ class CactusRun():
 			Input filename (default `./[case_name].in`).
 		geom_fname : Optional[str]
 			Geometry filename (default `./[case_name].geom`)
+		load_field_output : bool
+			True (default) to load field data, False otherwise.
+		load_wakeelem_output : bool
+			True (default) to load wake element data, False otherwise.
+		load_probe_output : bool
+			True (default) to load probe data, False otherwise.
 		wakeelem_fnames_pattern : Optional[str]
 			Glob pattern for wake element data filenames (default is
 			`*WakeElemData_*.csv`)
