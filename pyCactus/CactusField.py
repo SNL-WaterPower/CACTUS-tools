@@ -1,3 +1,4 @@
+"""CactusField and supporting functions."""
 import os
 import time as pytime
 
@@ -5,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from warnings import *
+
 
 class CactusField():
     """Class for reading WakeData (element) from CSV files.
@@ -28,8 +30,7 @@ class CactusField():
     def __init__(self, filenames,
                  read_headers=True,
                  read_grid_dims=True):
-        """Initializes the instance."""
-        
+        """Initialize the instance."""
         self.filenames = filenames
         self.num_times = len(filenames)
         self.times = []
@@ -40,9 +41,9 @@ class CactusField():
             tic = pytime.time()
             self.read_file_headers()
             print 'Read %d wake element data headers in %2.2f s' %\
-                        (len(self.times),
-                         pytime.time() - tic)
- 
+                (len(self.times),
+                    pytime.time() - tic)
+
         # get the grid dimensions by reading the first file
         # (note that this isn't necessarily the FIRST timestep, just the first
         # file from glob)
@@ -52,7 +53,9 @@ class CactusField():
             print 'Read grid dimensions in %2.2f s' % (pytime.time() - tic)
 
     def read_file_headers(self):
-        """Gets the times from the headers of each data file in the instance
+        """Read the file headers, store times to instance variable.
+
+        Gets the times from the headers of each data file in the instance
         `filenames` attribute amd stores to instance variables `self.times` and
         `self.fdict`
 
@@ -65,7 +68,7 @@ class CactusField():
         """
         # the name of the column containing time info
         time_col_name = 'Normalized Time (-)'
-    
+
         self.fdict = {}
         self.times = []
 
@@ -80,14 +83,13 @@ class CactusField():
         return self.times, self.fdict
 
     def read_grid_dims(self, filename):
-        """Reads the grid dimensions of a file.
+        """Read the grid dimensions of a file.
 
         Returns
         -------
         grid_dims : dict
             Dictionary of grid dimension.
         """
-
         # get grid dimensions
         df = load_data(filename)
         _, grid_dims = self.fielddata_from_df(df)
@@ -96,7 +98,7 @@ class CactusField():
         return grid_dims
 
     def get_df_inst(self, time=None, fname=None):
-        """Gets the data from a specified time or filename.
+        """Get the data from a specified time or filename.
 
         Either the time or the filename must be specified.
 
@@ -112,9 +114,9 @@ class CactusField():
         df_inst : pandas.DataFrame
             DataFrame of the time.
         """
-
         if (time is None) and (fname is None):
-             print 'Error: must specify either the time or filename of the desired data.'
+            print 'Error: must specify either the time or filename of the \
+            desired data.'
 
         if time is not None:
             # if the time is specified, get the filename
@@ -128,12 +130,12 @@ class CactusField():
 
         return df_inst
 
-    
     def fielddata_from_df(self, df):
-        """Takes a dataframe containing field data at a single timestep and
-        returns a dictionary of the data as np.arrays.
+        """Return the dictionary containing fielddata variarbles.
 
-        NumPy arrays are keyed by a descriptive variable name.
+        Take a dataframe containing field data at a single timestep, returns a
+        dictionary of the data as np.arrays. Dicttionary is keyed by a
+        descriptive variable name.
 
         Parameters
         ----------
@@ -147,7 +149,7 @@ class CactusField():
             Dictionary of grid dimensions.
         """
         # column names
-        time_col_name = 'Normalized Time (-)'
+        # time_col_name = 'Normalized Time (-)'
         x_col_name    = 'X/R (-)'
         y_col_name    = 'Y/R (-)'
         z_col_name    = 'Z/R (-)'
@@ -159,21 +161,21 @@ class CactusField():
         wfs_col_name  = 'Wfs/Uinf (-)'
 
         # extract columns
-        x   = df.loc[:,x_col_name]
-        y   = df.loc[:,y_col_name].values
-        z   = df.loc[:,z_col_name].values
-        u   = df.loc[:,u_col_name].values
-        v   = df.loc[:,v_col_name].values
-        w   = df.loc[:,w_col_name].values
+        x   = df.loc[:, x_col_name]
+        y   = df.loc[:, y_col_name].values
+        z   = df.loc[:, z_col_name].values
+        u   = df.loc[:, u_col_name].values
+        v   = df.loc[:, v_col_name].values
+        w   = df.loc[:, w_col_name].values
 
         # extract freestream velocity data if it is there
         has_vel_fs = False
 
         if ufs_col_name in df and vfs_col_name in df and wfs_col_name in df:
             has_vel_fs = True
-            ufs = df.loc[:,ufs_col_name].values
-            vfs = df.loc[:,vfs_col_name].values
-            wfs = df.loc[:,wfs_col_name].values
+            ufs = df.loc[:, ufs_col_name].values
+            vfs = df.loc[:, vfs_col_name].values
+            wfs = df.loc[:, wfs_col_name].values
 
         # compute grid dimensions
         xmin = x.min()
@@ -181,20 +183,20 @@ class CactusField():
         ymin = y.min()
         ymax = y.max()
         zmin = z.min()
-        zmax = z.max() 
-        
+        zmax = z.max()
+
         nx   = len(np.unique(x))
         ny   = len(np.unique(y))    # number of grid points
         nz   = len(np.unique(z))
-        
+
         dx   = (xmax-xmin)/nx
         dy   = (ymax-ymin)/ny       # grid spacing
         dz   = (zmax-zmin)/nz
-        
+
         xlim = [xmin, xmax]
         ylim = [ymin, ymax]         # grid extents
         zlim = [zmin, zmax]
-        
+
         # reshape to 3-D structured numpy arrays
         # (note that in Python, the final index is the fastest changing)
         X = np.float32(np.reshape(x, [nz, ny, nx]))
@@ -211,41 +213,40 @@ class CactusField():
             Wfs = np.float32(np.reshape(wfs, [nz, ny, nx]))
 
         # store data and dimensions as dicts
-        grid_data = {'X' : X,
-                     'Y' : Y,
-                     'Z' : Z,
-                     'U' : U,
-                     'V' : V,
-                     'W' : W}
+        grid_data = {'X': X,
+                     'Y': Y,
+                     'Z': Z,
+                     'U': U,
+                     'V': V,
+                     'W': W}
 
         if has_vel_fs:
             grid_data['Ufs'] = Ufs
             grid_data['Vfs'] = Vfs
             grid_data['Wfs'] = Wfs
 
-        grid_dims = {'nx' : nx,
-                     'ny' : ny,
-                     'nz' : nz,
-                     'dx' : dx,
-                     'dy' : dy,
-                     'dz' : dz,
-                     'xlim' : xlim,
-                     'ylim' : ylim,
-                     'zlim' : zlim}
+        grid_dims = {'nx': nx,
+                     'ny': ny,
+                     'nz': nz,
+                     'dx': dx,
+                     'dy': dy,
+                     'dz': dz,
+                     'xlim': xlim,
+                     'ylim': ylim,
+                     'zlim': zlim}
 
         return grid_data, grid_dims
 
-
     def write_vtk_series(self, path, name,
                          print_status=True):
-        """Writes the field data to a time series of VTK files
+        """Write the field data to a time series of VTK files.
 
         Data is written as VTK structured data (.vts). Velocity data is a
         vector field.
 
         Also writes a Paraview collection file (.pvd) which contains the
         normalized times of each timestep.
-        
+
         Parameters
         ----------
         path : str
@@ -262,9 +263,8 @@ class CactusField():
         pvd_filename : str
             .pvd collection filename.
         """
-
-        from pyevtk.hl import gridToVTK         # evtk module - import only if this function is called
-        import xml.etree.cElementTree as ET # xml module  -                 "
+        from pyevtk.hl import gridToVTK      # evtk module
+        import xml.etree.cElementTree as ET  # xml module
 
         # set the collection filename
         collection_fname = name + ".pvd"
@@ -304,10 +304,12 @@ class CactusField():
             velocity = (U, V, W)
 
             # create dictionary of data
-            pointData = {'velocity' : velocity}
-            
+            pointData = {'velocity': velocity}
+
             # check if the file has freestream velocity data
-            if 'Ufs' in grid_data and 'Vfs' in grid_data and 'Wfs' in grid_data:
+            if 'Ufs' in grid_data and \
+                'Vfs' in grid_data and \
+                    'Wfs' in grid_data:
                 # get the freestream velocity data
                 Ufs = grid_data['Ufs']
                 Vfs = grid_data['Vfs']
@@ -317,9 +319,12 @@ class CactusField():
                 velocity_fs = (Ufs, Vfs, Wfs)
 
                 # append to pointdata dictionary
-                pointData['velocity_fs']  = velocity_fs
+                pointData['velocity_fs'] = velocity_fs
 
-            data_filename = gridToVTK(os.path.abspath(os.path.join(path,vtk_name)), X, Y, Z, pointData=pointData)
+            data_filename = gridToVTK(os.path.abspath(os.path.join(path,
+                                                                   vtk_name)),
+                                      X, Y, Z,
+                                      pointData=pointData)
 
             # append filename to list
             data_filenames.append(data_filename)
@@ -332,21 +337,21 @@ class CactusField():
             # print status message
             elapsed_time = pytime.time() - t_start
             if print_status:
-                print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename + ' in %2.2f s\n' % (elapsed_time)
+                print 'Converted: ' + fname + ' -->\n\t\t\t' + data_filename +\
+                    ' in %2.2f s\n' % (elapsed_time)
 
         # write the collection file
         tree = ET.ElementTree(root)
-        pvd_filename = os.path.abspath(os.path.join(path,collection_fname))
+        pvd_filename = os.path.abspath(os.path.join(path, collection_fname))
         tree.write(pvd_filename, xml_declaration=True)
-        
+
         if print_status:
             print 'Wrote ParaView collection file: ' + pvd_filename
 
         return data_filenames, pvd_filename
 
-
     def field_time_average(self, ti_start=-5, ti_end=-1):
-        """Returns the time-averaged field data over a specified timestep range.
+        """Return the time-averaged field data over a specified timestep range.
 
         Averaging is done over the time range self.times[ti_start:ti_end].
 
@@ -362,7 +367,6 @@ class CactusField():
         data_dict_mean : dict
             A dictionary of grid coordinates and time-averaged data.
         """
-
         # number of timestep
         num_times = len(self.times[ti_start:ti_end])
 
@@ -372,7 +376,8 @@ class CactusField():
             grid_data, grid_dims = self.fielddata_from_df(df_inst)
 
             if ti == 0:
-                # on the first timestep, save the grid data and initialize variables
+                # on the first timestep, save the grid data and initialize
+                # variables
                 X   = grid_data['X']
                 Y   = grid_data['Y']
                 Z   = grid_data['Z']
@@ -400,25 +405,25 @@ class CactusField():
         Vfs = Vfs/num_times
         Wfs = Wfs/num_times
 
-        data_dict_mean = {'t' : self.times[ti_start:ti_end],
-                     'X' : X,
-                     'Y' : Y,
-                     'Z' : Z,
-                     'U' : U,
-                     'V' : V,
-                     'W' : W,
-                     'Ufs' : Ufs,
-                     'Vfs' : Vfs,
-                     'Wfs' : Wfs}
-                     
+        data_dict_mean = {'t': self.times[ti_start:ti_end],
+                          'X': X,
+                          'Y': Y,
+                          'Z': Z,
+                          'U': U,
+                          'V': V,
+                          'W': W,
+                          'Ufs': Ufs,
+                          'Vfs': Vfs,
+                          'Wfs': Wfs}
+
         return data_dict_mean
 
     def pointdata_time_series(self, p_list, ti_start=0, ti_end=-1):
-        """Extracts a time series of data at a single point or points.
+        """Extract a time series of data at a single point or points.
 
         Loops through the time data to extract a time series of data at a
-        specified point or points. Uses nearest-point to avoid interpolation. 
-        
+        specified point or points. Uses nearest-point to avoid interpolation.
+
         Parameters
         ----------
         p_list : list
@@ -448,7 +453,7 @@ class CactusField():
         # get the grid from the first timestep
         df_inst = self.get_df_inst(time=self.times[0])
         grid_data, grid_dims = self.fielddata_from_df(df_inst)
-        
+
         # extract grid coordinates
         X = grid_data['X']
         Y = grid_data['Y']
@@ -463,19 +468,19 @@ class CactusField():
             xp, yp, zp = p
 
             # compute distance from point to each grid node
-            R = np.power(X-xp,2) + np.power(Y-yp,2) + np.power(Z-zp,2)
+            R = np.power(X-xp, 2) + np.power(Y-yp, 2) + np.power(Z-zp, 2)
 
             # find the indices of the place where r is a minimum
-            zi, yi, xi = np.unravel_index(R.argmin(),R.shape)
+            zi, yi, xi = np.unravel_index(R.argmin(), R.shape)
 
             # add this index to the list of indices
-            kji_nearest.append((zi,yi,xi))
+            kji_nearest.append((zi, yi, xi))
 
             # get the actual coordinate of the nearest point and add to list of
             # nearest points
-            p_nearest.append((X[zi,yi,xi],
-                              Y[zi,yi,xi],
-                              Z[zi,yi,xi]))
+            p_nearest.append((X[zi, yi, xi],
+                              Y[zi, yi, xi],
+                              Z[zi, yi, xi]))
 
         # preallocate arrays
         num_times = len(self.times[ti_start:ti_end])
@@ -505,39 +510,38 @@ class CactusField():
                 vfs[pi, ti] = (grid_data['Vfs'])[coords]
                 wfs[pi, ti] = (grid_data['Wfs'])[coords]
 
-        data_dict = {'t' : self.times[ti_start:ti_end],
-                     'u' : u,
-                     'v' : v,
-                     'w' : w,
-                     'ufs' : ufs,
-                     'vfs' : vfs,
-                     'wfs' : wfs}
+        data_dict = {'t': self.times[ti_start:ti_end],
+                     'u': u,
+                     'v': v,
+                     'w': w,
+                     'ufs': ufs,
+                     'vfs': vfs,
+                     'wfs': wfs}
 
         return data_dict, p_nearest
 
 
-#####################################
-######### Module  Functions #########
-#####################################
 def load_data(data_filename):
-    """ load_data(data_filename) : Reads a CSV file using pandas and returns a pandas dataframe """
-    
+    """Read a CSV file using Pandas and returns a Pandas dataframe."""
     reader = pd.read_csv(data_filename, iterator=True, chunksize=1000)
     df = pd.concat(reader, ignore_index=True)
-    
-    df.rename(columns=lambda x: x.strip(), inplace=True)    # strip whitespace from colnames
+
+    # strip whitespace from colnames
+    df.rename(columns=lambda x: x.strip(), inplace=True)
     return df
 
 
 def get_file_time(data_filename, time_col_name):
-    """ get_file_time(data_filename) : Returns the time of an instantaneous data set by reading the 
-        first two rows."""
+    """Return the time of an instantaneous data set.
 
+    Reads the first two rows of a data file in order to get the time.
+    Expects that the normalized time is in the first data column.
+    """
     with open(data_filename) as f:
         header = f.readline()
         row1   = f.readline()
 
         time_col_num = header.split(',').index(time_col_name)
         time = float(row1.split(',')[time_col_num])
-    
+
     return time
