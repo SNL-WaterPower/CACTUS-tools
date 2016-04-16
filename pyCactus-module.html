@@ -692,13 +692,13 @@ will be written to the VTK file regardless of id_flag.</li>
 <dl class="method">
 <dt id="pyCactus.CactusField.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>filenames</em>, <em>read_headers=True</em>, <em>read_grid_dims=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the instance.</p>
+<dd><p>Initialize the instance.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyCactus.CactusField.field_time_average">
 <code class="descname">field_time_average</code><span class="sig-paren">(</span><em>ti_start=-5</em>, <em>ti_end=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.field_time_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.field_time_average" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the time-averaged field data over a specified timestep range.</p>
+<dd><p>Return the time-averaged field data over a specified timestep range.</p>
 <p>Averaging is done over the time range self.times[ti_start:ti_end].</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -723,9 +723,10 @@ will be written to the VTK file regardless of id_flag.</li>
 <dl class="method">
 <dt id="pyCactus.CactusField.fielddata_from_df">
 <code class="descname">fielddata_from_df</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.fielddata_from_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.fielddata_from_df" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a dataframe containing field data at a single timestep and
-returns a dictionary of the data as np.arrays.</p>
-<p>NumPy arrays are keyed by a descriptive variable name.</p>
+<dd><p>Return the dictionary containing fielddata variarbles.</p>
+<p>Take a dataframe containing field data at a single timestep, returns a
+dictionary of the data as np.arrays. Dicttionary is keyed by a
+descriptive variable name.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -745,7 +746,7 @@ returns a dictionary of the data as np.arrays.</p>
 <dl class="method">
 <dt id="pyCactus.CactusField.get_df_inst">
 <code class="descname">get_df_inst</code><span class="sig-paren">(</span><em>time=None</em>, <em>fname=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.get_df_inst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.get_df_inst" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the data from a specified time or filename.</p>
+<dd><p>Get the data from a specified time or filename.</p>
 <p>Either the time or the filename must be specified.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -770,7 +771,7 @@ returns a dictionary of the data as np.arrays.</p>
 <dl class="method">
 <dt id="pyCactus.CactusField.pointdata_time_series">
 <code class="descname">pointdata_time_series</code><span class="sig-paren">(</span><em>p_list</em>, <em>ti_start=0</em>, <em>ti_end=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.pointdata_time_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.pointdata_time_series" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a time series of data at a single point or points.</p>
+<dd><p>Extract a time series of data at a single point or points.</p>
 <p>Loops through the time data to extract a time series of data at a
 specified point or points. Uses nearest-point to avoid interpolation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -810,7 +811,8 @@ data was returned).</p>
 <dl class="method">
 <dt id="pyCactus.CactusField.read_file_headers">
 <code class="descname">read_file_headers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.read_file_headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.read_file_headers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the times from the headers of each data file in the instance
+<dd><p>Read the file headers, store times to instance variable.</p>
+<p>Gets the times from the headers of each data file in the instance
 <cite>filenames</cite> attribute amd stores to instance variables <cite>self.times</cite> and
 <cite>self.fdict</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -830,7 +832,7 @@ data was returned).</p>
 <dl class="method">
 <dt id="pyCactus.CactusField.read_grid_dims">
 <code class="descname">read_grid_dims</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.read_grid_dims"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.read_grid_dims" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the grid dimensions of a file.</p>
+<dd><p>Read the grid dimensions of a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -846,7 +848,7 @@ data was returned).</p>
 <dl class="method">
 <dt id="pyCactus.CactusField.write_vtk_series">
 <code class="descname">write_vtk_series</code><span class="sig-paren">(</span><em>path</em>, <em>name</em>, <em>print_status=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.write_vtk_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.write_vtk_series" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes the field data to a time series of VTK files</p>
+<dd><p>Write the field data to a time series of VTK files.</p>
 <p>Data is written as VTK structured data (.vts). Velocity data is a
 vector field.</p>
 <p>Also writes a Paraview collection file (.pvd) which contains the

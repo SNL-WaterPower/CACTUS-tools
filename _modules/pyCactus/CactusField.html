@@ -242,6 +242,7 @@ div.nboutput  > :nth-child(2).stderr {
 .ansibold { font-weight: bold; }
 </style>
 <h1>Source code for pyCactus.CactusField</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;CactusField and supporting functions.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">pytime</span>
 
@@ -250,541 +251,544 @@ div.nboutput  > :nth-child(2).stderr {
 
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="o">*</span>
 
+
 <div class="viewcode-block" id="CactusField"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField">[docs]</a><span class="k">class</span> <span class="nc">CactusField</span><span class="p">():</span>
-	<span class="sd">&quot;&quot;&quot;Class for reading WakeData (element) from CSV files.</span>
-
-<span class="sd">	Grid node locations X,Y,Z are assumed to be the same for all timesteps.</span>
-
-<span class="sd">	Attributes</span>
-<span class="sd">	----------</span>
-<span class="sd">	filenames : list</span>
-<span class="sd">		Filenames (str) of wake element data files.</span>
-<span class="sd">	num_times : int</span>
-<span class="sd">		Number of timesteps of wake element data.</span>
-<span class="sd">	times : list</span>
-<span class="sd">		List of times (float) of wake element data.</span>
-<span class="sd">	fdict : dict</span>
-<span class="sd">		A dictionary of `{time : filename}`.</span>
-<span class="sd">	grid_dims : dict</span>
-<span class="sd">		A dictionary of grid dimensions.</span>
-<span class="sd">	&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="CactusField.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span>
-	             <span class="n">read_headers</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-	             <span class="n">read_grid_dims</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Initializes the instance.&quot;&quot;&quot;</span>
-		
-		<span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
-
-		<span class="c"># read the file headers for times</span>
-		<span class="k">if</span> <span class="n">read_headers</span><span class="p">:</span>
-			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">read_file_headers</span><span class="p">()</span>
-			<span class="k">print</span> <span class="s">&#39;Read </span><span class="si">%d</span><span class="s"> wake element data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
-				   		<span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">),</span>
-				   		 <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
- 
- 		<span class="c"># get the grid dimensions by reading the first file</span>
-		<span class="c"># (note that this isn&#39;t necessarily the FIRST timestep, just the first</span>
-		<span class="c"># file from glob)</span>
-		<span class="k">if</span> <span class="n">read_grid_dims</span><span class="p">:</span>
-			<span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_grid_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-			<span class="k">print</span> <span class="s">&#39;Read grid dimensions in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="CactusField.read_file_headers"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.read_file_headers">[docs]</a>	<span class="k">def</span> <span class="nf">read_file_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Gets the times from the headers of each data file in the instance</span>
-<span class="sd">		`filenames` attribute amd stores to instance variables `self.times` and</span>
-<span class="sd">		`self.fdict`</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		times : list</span>
-<span class="sd">			List of times (float) of wake element data.</span>
-<span class="sd">		fdict : dict</span>
-<span class="sd">			A dictionary of `{time : fname}`.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="c"># the name of the column containing time info</span>
-		<span class="n">time_col_name</span> <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
-	
-		<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
-
-		<span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">:</span>
-			<span class="n">time</span> <span class="o">=</span> <span class="n">get_file_time</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
-
-		<span class="c"># sort the times</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span>
-
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span></div>
-
-<div class="viewcode-block" id="CactusField.read_grid_dims"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.read_grid_dims">[docs]</a>	<span class="k">def</span> <span class="nf">read_grid_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Reads the grid dimensions of a file.</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		grid_dims : dict</span>
-<span class="sd">			Dictionary of grid dimension.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="c"># get grid dimensions</span>
-		<span class="n">df</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-		<span class="n">_</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-
-		<span class="c"># unpack grid dimensions</span>
-		<span class="k">return</span> <span class="n">grid_dims</span></div>
-
-<div class="viewcode-block" id="CactusField.get_df_inst"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.get_df_inst">[docs]</a>	<span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Gets the data from a specified time or filename.</span>
-
-<span class="sd">		Either the time or the filename must be specified.</span>
-
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		time : Optional[float]</span>
-<span class="sd">		    The time at which to extract the dataframe.</span>
-<span class="sd">		fname : Optional[str]</span>
-<span class="sd">		    The filename to read (defaults to self.fdict[time]).</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		df_inst : pandas.DataFrame</span>
-<span class="sd">		    DataFrame of the time.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span>
-			 <span class="k">print</span> <span class="s">&#39;Error: must specify either the time or filename of the desired data.&#39;</span>
-
-		<span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-			<span class="c"># if the time is specified, get the filename</span>
-			<span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="c"># otherwise, use the filename given</span>
-			<span class="k">pass</span>
-
-		<span class="c"># read the CSV data file</span>
-		<span class="n">df_inst</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-
-		<span class="k">return</span> <span class="n">df_inst</span></div>
-
-	
-<div class="viewcode-block" id="CactusField.fielddata_from_df"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.fielddata_from_df">[docs]</a>	<span class="k">def</span> <span class="nf">fielddata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Takes a dataframe containing field data at a single timestep and</span>
-<span class="sd">		returns a dictionary of the data as np.arrays.</span>
-
-<span class="sd">		NumPy arrays are keyed by a descriptive variable name.</span>
-
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		df : pandas.DataFrame</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		grid_data : dict</span>
-<span class="sd">			Dictionary of np.arrays containing the data.</span>
-<span class="sd">		grid_dims : dict</span>
-<span class="sd">			Dictionary of grid dimensions.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="c"># column names</span>
-		<span class="n">time_col_name</span> <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
-		<span class="n">x_col_name</span>    <span class="o">=</span> <span class="s">&#39;X/R (-)&#39;</span>
-		<span class="n">y_col_name</span>    <span class="o">=</span> <span class="s">&#39;Y/R (-)&#39;</span>
-		<span class="n">z_col_name</span>    <span class="o">=</span> <span class="s">&#39;Z/R (-)&#39;</span>
-		<span class="n">u_col_name</span>    <span class="o">=</span> <span class="s">&#39;U/Uinf (-)&#39;</span>
-		<span class="n">v_col_name</span>    <span class="o">=</span> <span class="s">&#39;V/Uinf (-)&#39;</span>
-		<span class="n">w_col_name</span>    <span class="o">=</span> <span class="s">&#39;W/Uinf (-)&#39;</span>
-		<span class="n">ufs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Ufs/Uinf (-)&#39;</span>
-		<span class="n">vfs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Vfs/Uinf (-)&#39;</span>
-		<span class="n">wfs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Wfs/Uinf (-)&#39;</span>
-
-		<span class="c"># extract columns</span>
-		<span class="n">x</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">x_col_name</span><span class="p">]</span>
-		<span class="n">y</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">y_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-		<span class="n">z</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">z_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-		<span class="n">u</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">u_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-		<span class="n">v</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">v_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-		<span class="n">w</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">w_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-		<span class="c"># extract freestream velocity data if it is there</span>
-		<span class="n">has_vel_fs</span> <span class="o">=</span> <span class="bp">False</span>
-
-		<span class="k">if</span> <span class="n">ufs_col_name</span> <span class="ow">in</span> <span class="n">df</span> <span class="ow">and</span> <span class="n">vfs_col_name</span> <span class="ow">in</span> <span class="n">df</span> <span class="ow">and</span> <span class="n">wfs_col_name</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
-			<span class="n">has_vel_fs</span> <span class="o">=</span> <span class="bp">True</span>
-			<span class="n">ufs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">ufs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-			<span class="n">vfs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">vfs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-			<span class="n">wfs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="n">wfs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
-		<span class="c"># compute grid dimensions</span>
-		<span class="n">xmin</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-		<span class="n">xmax</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-		<span class="n">ymin</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-		<span class="n">ymax</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-		<span class="n">zmin</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-		<span class="n">zmax</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> 
-		
-		<span class="n">nx</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-		<span class="n">ny</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>    <span class="c"># number of grid points</span>
-		<span class="n">nz</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-		
-		<span class="n">dx</span>   <span class="o">=</span> <span class="p">(</span><span class="n">xmax</span><span class="o">-</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="n">nx</span>
-		<span class="n">dy</span>   <span class="o">=</span> <span class="p">(</span><span class="n">ymax</span><span class="o">-</span><span class="n">ymin</span><span class="p">)</span><span class="o">/</span><span class="n">ny</span>       <span class="c"># grid spacing</span>
-		<span class="n">dz</span>   <span class="o">=</span> <span class="p">(</span><span class="n">zmax</span><span class="o">-</span><span class="n">zmin</span><span class="p">)</span><span class="o">/</span><span class="n">nz</span>
-		
-		<span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">]</span>
-		<span class="n">ylim</span> <span class="o">=</span> <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">]</span>         <span class="c"># grid extents</span>
-		<span class="n">zlim</span> <span class="o">=</span> <span class="p">[</span><span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span><span class="p">]</span>
-		
-		<span class="c"># reshape to 3-D structured numpy arrays</span>
-		<span class="c"># (note that in Python, the final index is the fastest changing)</span>
-		<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-		<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-		<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-
-		<span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-		<span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-		<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-
-		<span class="k">if</span> <span class="n">has_vel_fs</span><span class="p">:</span>
-			<span class="n">Ufs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ufs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-			<span class="n">Vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">vfs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-			<span class="n">Wfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">wfs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
-
-		<span class="c"># store data and dimensions as dicts</span>
-		<span class="n">grid_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;X&#39;</span> <span class="p">:</span> <span class="n">X</span><span class="p">,</span>
-					 <span class="s">&#39;Y&#39;</span> <span class="p">:</span> <span class="n">Y</span><span class="p">,</span>
-					 <span class="s">&#39;Z&#39;</span> <span class="p">:</span> <span class="n">Z</span><span class="p">,</span>
-					 <span class="s">&#39;U&#39;</span> <span class="p">:</span> <span class="n">U</span><span class="p">,</span>
-					 <span class="s">&#39;V&#39;</span> <span class="p">:</span> <span class="n">V</span><span class="p">,</span>
-					 <span class="s">&#39;W&#39;</span> <span class="p">:</span> <span class="n">W</span><span class="p">}</span>
-
-		<span class="k">if</span> <span class="n">has_vel_fs</span><span class="p">:</span>
-			<span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ufs</span>
-			<span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vfs</span>
-			<span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Wfs</span>
-
-		<span class="n">grid_dims</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nx&#39;</span> <span class="p">:</span> <span class="n">nx</span><span class="p">,</span>
-					 <span class="s">&#39;ny&#39;</span> <span class="p">:</span> <span class="n">ny</span><span class="p">,</span>
-					 <span class="s">&#39;nz&#39;</span> <span class="p">:</span> <span class="n">nz</span><span class="p">,</span>
-					 <span class="s">&#39;dx&#39;</span> <span class="p">:</span> <span class="n">dx</span><span class="p">,</span>
-					 <span class="s">&#39;dy&#39;</span> <span class="p">:</span> <span class="n">dy</span><span class="p">,</span>
-					 <span class="s">&#39;dz&#39;</span> <span class="p">:</span> <span class="n">dz</span><span class="p">,</span>
-					 <span class="s">&#39;xlim&#39;</span> <span class="p">:</span> <span class="n">xlim</span><span class="p">,</span>
-					 <span class="s">&#39;ylim&#39;</span> <span class="p">:</span> <span class="n">ylim</span><span class="p">,</span>
-					 <span class="s">&#39;zlim&#39;</span> <span class="p">:</span> <span class="n">zlim</span><span class="p">}</span>
-
-		<span class="k">return</span> <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span></div>
-
-
-<div class="viewcode-block" id="CactusField.write_vtk_series"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.write_vtk_series">[docs]</a>	<span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
-	                     <span class="n">print_status</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Writes the field data to a time series of VTK files</span>
-
-<span class="sd">		Data is written as VTK structured data (.vts). Velocity data is a</span>
-<span class="sd">		vector field.</span>
-
-<span class="sd">		Also writes a Paraview collection file (.pvd) which contains the</span>
-<span class="sd">		normalized times of each timestep.</span>
-<span class="sd">		</span>
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		path : str</span>
-<span class="sd">			The path to which to write the VTK files.</span>
-<span class="sd">		name : str</span>
-<span class="sd">			The prefix of the VTK filenames.</span>
-<span class="sd">		print_status: bool</span>
-<span class="sd">			True to print the status of VTK conversion, False to suppress.</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		data_filenames : list</span>
-<span class="sd">			List of the VTK filenames.</span>
-<span class="sd">		pvd_filename : str</span>
-<span class="sd">			.pvd collection filename.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="kn">from</span> <span class="nn">pyevtk.hl</span> <span class="kn">import</span> <span class="n">gridToVTK</span> 		<span class="c"># evtk module - import only if this function is called</span>
-		<span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">ET</span> <span class="c"># xml module  -                 &quot;</span>
-
-		<span class="c"># set the collection filename</span>
-		<span class="n">collection_fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.pvd&quot;</span>
-
-		<span class="c"># set up blank list of the vtk filenames</span>
-		<span class="n">data_filenames</span> <span class="o">=</span> <span class="p">[]</span>
-
-		<span class="c"># set up XML tree for PVD collection file</span>
-		<span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;VTKFile&quot;</span><span class="p">)</span>
-		<span class="n">root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
-		<span class="n">collection</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
-
-		<span class="c"># write the VTK files</span>
-		<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)):</span>
-			<span class="c"># get the system time (for elapsed time)</span>
-			<span class="n">t_start</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-			<span class="c"># get the filename containing the data at current time</span>
-			<span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
-
-			<span class="c"># base name of data file</span>
-			<span class="n">vtk_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-
-			<span class="c"># read the CSV data file</span>
-			<span class="n">df_inst</span>              <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
-			<span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
-
-			<span class="c"># unpack the grid data</span>
-			<span class="n">X</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
-			<span class="n">Y</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
-			<span class="n">Z</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
-			<span class="n">U</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
-			<span class="n">V</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
-			<span class="n">W</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
-
-			<span class="c"># save velocity fields as tuples</span>
-			<span class="n">velocity</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
-
-			<span class="c"># create dictionary of data</span>
-			<span class="n">pointData</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;velocity&#39;</span> <span class="p">:</span> <span class="n">velocity</span><span class="p">}</span>
-			
-			<span class="c"># check if the file has freestream velocity data</span>
-			<span class="k">if</span> <span class="s">&#39;Ufs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span> <span class="ow">and</span> <span class="s">&#39;Vfs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span> <span class="ow">and</span> <span class="s">&#39;Wfs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span><span class="p">:</span>
-				<span class="c"># get the freestream velocity data</span>
-				<span class="n">Ufs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
-				<span class="n">Vfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
-				<span class="n">Wfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
-
-				<span class="c"># save as tuple</span>
-				<span class="n">velocity_fs</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ufs</span><span class="p">,</span> <span class="n">Vfs</span><span class="p">,</span> <span class="n">Wfs</span><span class="p">)</span>
-
-				<span class="c"># append to pointdata dictionary</span>
-				<span class="n">pointData</span><span class="p">[</span><span class="s">&#39;velocity_fs&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">velocity_fs</span>
-
-			<span class="n">data_filename</span> <span class="o">=</span> <span class="n">gridToVTK</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">vtk_name</span><span class="p">)),</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">pointData</span><span class="o">=</span><span class="n">pointData</span><span class="p">)</span>
-
-			<span class="c"># append filename to list</span>
-			<span class="n">data_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span>
-
-			<span class="c"># add elements to XML tree for PVD collection file</span>
-			<span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s">&quot;DataSet&quot;</span><span class="p">)</span>
-			<span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;timestep&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
-			<span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">data_filename</span><span class="p">))</span>
-
-			<span class="c"># print status message</span>
-			<span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
-			<span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
-				<span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span> <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
-
-		<span class="c"># write the collection file</span>
-		<span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-		<span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">collection_fname</span><span class="p">))</span>
-		<span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pvd_filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-		
-		<span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
-			<span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span>
-
-		<span class="k">return</span> <span class="n">data_filenames</span><span class="p">,</span> <span class="n">pvd_filename</span></div>
-
-
-<div class="viewcode-block" id="CactusField.field_time_average"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.field_time_average">[docs]</a>	<span class="k">def</span> <span class="nf">field_time_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ti_start</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Returns the time-averaged field data over a specified timestep range.</span>
-
-<span class="sd">		Averaging is done over the time range self.times[ti_start:ti_end].</span>
-
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		ti_start : Optional[int]</span>
-<span class="sd">			The timestep index to start averaging (default -5)</span>
-<span class="sd">		ti_end : Optional[int]</span>
-<span class="sd">			The timestep index to end averaging (default -1)</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		--------</span>
-<span class="sd">		data_dict_mean : dict</span>
-<span class="sd">			A dictionary of grid coordinates and time-averaged data.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="c"># number of timestep</span>
-		<span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">])</span>
-
-		<span class="c"># sum fields</span>
-		<span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">]):</span>
-			<span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
-			<span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
-
-			<span class="k">if</span> <span class="n">ti</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-				<span class="c"># on the first timestep, save the grid data and initialize variables</span>
-				<span class="n">X</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
-				<span class="n">Y</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
-				<span class="n">Z</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
-
-				<span class="n">U</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
-				<span class="n">V</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
-				<span class="n">W</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
-				<span class="n">Ufs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
-				<span class="n">Vfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
-				<span class="n">Wfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
-			<span class="k">else</span><span class="p">:</span>
-				<span class="c"># on subsequent timesteps, just add the other fields</span>
-				<span class="n">U</span>   <span class="o">=</span> <span class="n">U</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
-				<span class="n">V</span>   <span class="o">=</span> <span class="n">V</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
-				<span class="n">W</span>   <span class="o">=</span> <span class="n">W</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
-				<span class="n">Ufs</span> <span class="o">=</span> <span class="n">Ufs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
-				<span class="n">Vfs</span> <span class="o">=</span> <span class="n">Vfs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
-				<span class="n">Wfs</span> <span class="o">=</span> <span class="n">Wfs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
-
-		<span class="c"># then divide by the number of steps to get the average</span>
-		<span class="n">U</span>   <span class="o">=</span> <span class="n">U</span><span class="o">/</span><span class="n">num_times</span>
-		<span class="n">V</span>   <span class="o">=</span> <span class="n">V</span><span class="o">/</span><span class="n">num_times</span>
-		<span class="n">W</span>   <span class="o">=</span> <span class="n">W</span><span class="o">/</span><span class="n">num_times</span>
-		<span class="n">Ufs</span> <span class="o">=</span> <span class="n">Ufs</span><span class="o">/</span><span class="n">num_times</span>
-		<span class="n">Vfs</span> <span class="o">=</span> <span class="n">Vfs</span><span class="o">/</span><span class="n">num_times</span>
-		<span class="n">Wfs</span> <span class="o">=</span> <span class="n">Wfs</span><span class="o">/</span><span class="n">num_times</span>
-
-		<span class="n">data_dict_mean</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;t&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">],</span>
-					 <span class="s">&#39;X&#39;</span> <span class="p">:</span> <span class="n">X</span><span class="p">,</span>
-					 <span class="s">&#39;Y&#39;</span> <span class="p">:</span> <span class="n">Y</span><span class="p">,</span>
-					 <span class="s">&#39;Z&#39;</span> <span class="p">:</span> <span class="n">Z</span><span class="p">,</span>
-					 <span class="s">&#39;U&#39;</span> <span class="p">:</span> <span class="n">U</span><span class="p">,</span>
-					 <span class="s">&#39;V&#39;</span> <span class="p">:</span> <span class="n">V</span><span class="p">,</span>
-					 <span class="s">&#39;W&#39;</span> <span class="p">:</span> <span class="n">W</span><span class="p">,</span>
-					 <span class="s">&#39;Ufs&#39;</span> <span class="p">:</span> <span class="n">Ufs</span><span class="p">,</span>
-					 <span class="s">&#39;Vfs&#39;</span> <span class="p">:</span> <span class="n">Vfs</span><span class="p">,</span>
-					 <span class="s">&#39;Wfs&#39;</span> <span class="p">:</span> <span class="n">Wfs</span><span class="p">}</span>
-					 
-		<span class="k">return</span> <span class="n">data_dict_mean</span></div>
-
-<div class="viewcode-block" id="CactusField.pointdata_time_series"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.pointdata_time_series">[docs]</a>	<span class="k">def</span> <span class="nf">pointdata_time_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_list</span><span class="p">,</span> <span class="n">ti_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Extracts a time series of data at a single point or points.</span>
-
-<span class="sd">		Loops through the time data to extract a time series of data at a</span>
-<span class="sd">		specified point or points. Uses nearest-point to avoid interpolation. </span>
-<span class="sd">		</span>
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		p_list : list</span>
-<span class="sd">			List of points, where each point is a tuple of length 3.</span>
-<span class="sd">		ti_start : Optional[int]</span>
-<span class="sd">			The timestep index to start (default 0).</span>
-<span class="sd">		ti_end : Optional[int]</span>
-<span class="sd">			The timestep index to end (default -1)</span>
-
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		data_dict : dict</span>
-<span class="sd">			Dictionary of the time series velocity data::</span>
-
-<span class="sd">				&#39;t&#39;   : times</span>
-<span class="sd">				&#39;u&#39;   : x-velocity</span>
-<span class="sd">				&#39;v&#39;   : y-velocity</span>
-<span class="sd">				&#39;w&#39;   : z-velocity</span>
-<span class="sd">				&#39;ufs&#39; : freestream x-velocity</span>
-<span class="sd">				&#39;vfs&#39; : freestream y-velocity</span>
-<span class="sd">				&#39;wfs&#39; : freestream z-velocity</span>
-
-<span class="sd">		p_nearest : list</span>
-<span class="sd">			List of the nearest points to those in `p_list` (points at which</span>
-<span class="sd">			data was returned).</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="c"># get the grid from the first timestep</span>
-		<span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-		<span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
-		
-		<span class="c"># extract grid coordinates</span>
-		<span class="n">X</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
-		<span class="n">Y</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
-		<span class="n">Z</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
-
-		<span class="c"># initialize empty lists</span>
-		<span class="n">kji_nearest</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="n">p_nearest</span> <span class="o">=</span> <span class="p">[]</span>
-
-		<span class="c"># loop through each point</span>
-		<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">p_list</span><span class="p">:</span>
-			<span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">zp</span> <span class="o">=</span> <span class="n">p</span>
-
-			<span class="c"># compute distance from point to each grid node</span>
-			<span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">xp</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">yp</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">Z</span><span class="o">-</span><span class="n">zp</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-
-			<span class="c"># find the indices of the place where r is a minimum</span>
-			<span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">argmin</span><span class="p">(),</span><span class="n">R</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-			<span class="c"># add this index to the list of indices</span>
-			<span class="n">kji_nearest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">zi</span><span class="p">,</span><span class="n">yi</span><span class="p">,</span><span class="n">xi</span><span class="p">))</span>
-
-			<span class="c"># get the actual coordinate of the nearest point and add to list of</span>
-			<span class="c"># nearest points</span>
-			<span class="n">p_nearest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span><span class="n">yi</span><span class="p">,</span><span class="n">xi</span><span class="p">],</span>
-			                  <span class="n">Y</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span><span class="n">yi</span><span class="p">,</span><span class="n">xi</span><span class="p">],</span>
-			                  <span class="n">Z</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span><span class="n">yi</span><span class="p">,</span><span class="n">xi</span><span class="p">]))</span>
-
-		<span class="c"># preallocate arrays</span>
-		<span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">])</span>
-		<span class="n">num_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
-
-		<span class="n">u</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-		<span class="n">v</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-		<span class="n">w</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-		<span class="n">ufs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-		<span class="n">vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-		<span class="n">wfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
-
-		<span class="c"># loop through the files and extract data</span>
-		<span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">]):</span>
-			<span class="c"># get the dataframe for the current time</span>
-			<span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
-
-			<span class="c"># extract data from the dataframe</span>
-			<span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
-
-			<span class="k">for</span> <span class="n">pi</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kji_nearest</span><span class="p">):</span>
-				<span class="c"># extract data at point and store in array</span>
-				<span class="n">u</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-				<span class="n">v</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-				<span class="n">w</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-				<span class="n">ufs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-				<span class="n">vfs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-				<span class="n">wfs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
-
-		<span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;t&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">],</span>
-					 <span class="s">&#39;u&#39;</span> <span class="p">:</span> <span class="n">u</span><span class="p">,</span>
-					 <span class="s">&#39;v&#39;</span> <span class="p">:</span> <span class="n">v</span><span class="p">,</span>
-					 <span class="s">&#39;w&#39;</span> <span class="p">:</span> <span class="n">w</span><span class="p">,</span>
-					 <span class="s">&#39;ufs&#39;</span> <span class="p">:</span> <span class="n">ufs</span><span class="p">,</span>
-					 <span class="s">&#39;vfs&#39;</span> <span class="p">:</span> <span class="n">vfs</span><span class="p">,</span>
-					 <span class="s">&#39;wfs&#39;</span> <span class="p">:</span> <span class="n">wfs</span><span class="p">}</span>
-
-		<span class="k">return</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">p_nearest</span></div></div>
-
-
-<span class="c">#####################################</span>
-<span class="c">######### Module  Functions #########</span>
-<span class="c">#####################################</span>
+    <span class="sd">&quot;&quot;&quot;Class for reading WakeData (element) from CSV files.</span>
+
+<span class="sd">    Grid node locations X,Y,Z are assumed to be the same for all timesteps.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filenames : list</span>
+<span class="sd">        Filenames (str) of wake element data files.</span>
+<span class="sd">    num_times : int</span>
+<span class="sd">        Number of timesteps of wake element data.</span>
+<span class="sd">    times : list</span>
+<span class="sd">        List of times (float) of wake element data.</span>
+<span class="sd">    fdict : dict</span>
+<span class="sd">        A dictionary of `{time : filename}`.</span>
+<span class="sd">    grid_dims : dict</span>
+<span class="sd">        A dictionary of grid dimensions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CactusField.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span>
+                 <span class="n">read_headers</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">read_grid_dims</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the instance.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="n">filenames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c"># read the file headers for times</span>
+        <span class="k">if</span> <span class="n">read_headers</span><span class="p">:</span>
+            <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_file_headers</span><span class="p">()</span>
+            <span class="k">print</span> <span class="s">&#39;Read </span><span class="si">%d</span><span class="s"> wake element data headers in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">),</span>
+                    <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+
+        <span class="c"># get the grid dimensions by reading the first file</span>
+        <span class="c"># (note that this isn&#39;t necessarily the FIRST timestep, just the first</span>
+        <span class="c"># file from glob)</span>
+        <span class="k">if</span> <span class="n">read_grid_dims</span><span class="p">:</span>
+            <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_grid_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">print</span> <span class="s">&#39;Read grid dimensions in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CactusField.read_file_headers"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.read_file_headers">[docs]</a>    <span class="k">def</span> <span class="nf">read_file_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the file headers, store times to instance variable.</span>
+
+<span class="sd">        Gets the times from the headers of each data file in the instance</span>
+<span class="sd">        `filenames` attribute amd stores to instance variables `self.times` and</span>
+<span class="sd">        `self.fdict`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        times : list</span>
+<span class="sd">            List of times (float) of wake element data.</span>
+<span class="sd">        fdict : dict</span>
+<span class="sd">            A dictionary of `{time : fname}`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># the name of the column containing time info</span>
+        <span class="n">time_col_name</span> <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">:</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">get_file_time</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+
+        <span class="c"># sort the times</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span></div>
+
+<div class="viewcode-block" id="CactusField.read_grid_dims"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.read_grid_dims">[docs]</a>    <span class="k">def</span> <span class="nf">read_grid_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the grid dimensions of a file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        grid_dims : dict</span>
+<span class="sd">            Dictionary of grid dimension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># get grid dimensions</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="c"># unpack grid dimensions</span>
+        <span class="k">return</span> <span class="n">grid_dims</span></div>
+
+<div class="viewcode-block" id="CactusField.get_df_inst"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.get_df_inst">[docs]</a>    <span class="k">def</span> <span class="nf">get_df_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the data from a specified time or filename.</span>
+
+<span class="sd">        Either the time or the filename must be specified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        time : Optional[float]</span>
+<span class="sd">            The time at which to extract the dataframe.</span>
+<span class="sd">        fname : Optional[str]</span>
+<span class="sd">            The filename to read (defaults to self.fdict[time]).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df_inst : pandas.DataFrame</span>
+<span class="sd">            DataFrame of the time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&#39;Error: must specify either the time or filename of the </span><span class="se">\</span>
+<span class="s">            desired data.&#39;</span>
+
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># if the time is specified, get the filename</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># otherwise, use the filename given</span>
+            <span class="k">pass</span>
+
+        <span class="c"># read the CSV data file</span>
+        <span class="n">df_inst</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df_inst</span></div>
+
+<div class="viewcode-block" id="CactusField.fielddata_from_df"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.fielddata_from_df">[docs]</a>    <span class="k">def</span> <span class="nf">fielddata_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the dictionary containing fielddata variarbles.</span>
+
+<span class="sd">        Take a dataframe containing field data at a single timestep, returns a</span>
+<span class="sd">        dictionary of the data as np.arrays. Dicttionary is keyed by a</span>
+<span class="sd">        descriptive variable name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : pandas.DataFrame</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        grid_data : dict</span>
+<span class="sd">            Dictionary of np.arrays containing the data.</span>
+<span class="sd">        grid_dims : dict</span>
+<span class="sd">            Dictionary of grid dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># column names</span>
+        <span class="c"># time_col_name = &#39;Normalized Time (-)&#39;</span>
+        <span class="n">x_col_name</span>    <span class="o">=</span> <span class="s">&#39;X/R (-)&#39;</span>
+        <span class="n">y_col_name</span>    <span class="o">=</span> <span class="s">&#39;Y/R (-)&#39;</span>
+        <span class="n">z_col_name</span>    <span class="o">=</span> <span class="s">&#39;Z/R (-)&#39;</span>
+        <span class="n">u_col_name</span>    <span class="o">=</span> <span class="s">&#39;U/Uinf (-)&#39;</span>
+        <span class="n">v_col_name</span>    <span class="o">=</span> <span class="s">&#39;V/Uinf (-)&#39;</span>
+        <span class="n">w_col_name</span>    <span class="o">=</span> <span class="s">&#39;W/Uinf (-)&#39;</span>
+        <span class="n">ufs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Ufs/Uinf (-)&#39;</span>
+        <span class="n">vfs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Vfs/Uinf (-)&#39;</span>
+        <span class="n">wfs_col_name</span>  <span class="o">=</span> <span class="s">&#39;Wfs/Uinf (-)&#39;</span>
+
+        <span class="c"># extract columns</span>
+        <span class="n">x</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">x_col_name</span><span class="p">]</span>
+        <span class="n">y</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">y_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">z</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">z_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">u</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">u_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">v</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">v_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">w</span>   <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">w_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c"># extract freestream velocity data if it is there</span>
+        <span class="n">has_vel_fs</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">ufs_col_name</span> <span class="ow">in</span> <span class="n">df</span> <span class="ow">and</span> <span class="n">vfs_col_name</span> <span class="ow">in</span> <span class="n">df</span> <span class="ow">and</span> <span class="n">wfs_col_name</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+            <span class="n">has_vel_fs</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">ufs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">ufs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">vfs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">vfs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">wfs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">wfs_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c"># compute grid dimensions</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">zmin</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">zmax</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="n">nx</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">ny</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>    <span class="c"># number of grid points</span>
+        <span class="n">nz</span>   <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+
+        <span class="n">dx</span>   <span class="o">=</span> <span class="p">(</span><span class="n">xmax</span><span class="o">-</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="n">nx</span>
+        <span class="n">dy</span>   <span class="o">=</span> <span class="p">(</span><span class="n">ymax</span><span class="o">-</span><span class="n">ymin</span><span class="p">)</span><span class="o">/</span><span class="n">ny</span>       <span class="c"># grid spacing</span>
+        <span class="n">dz</span>   <span class="o">=</span> <span class="p">(</span><span class="n">zmax</span><span class="o">-</span><span class="n">zmin</span><span class="p">)</span><span class="o">/</span><span class="n">nz</span>
+
+        <span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">]</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">]</span>         <span class="c"># grid extents</span>
+        <span class="n">zlim</span> <span class="o">=</span> <span class="p">[</span><span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span><span class="p">]</span>
+
+        <span class="c"># reshape to 3-D structured numpy arrays</span>
+        <span class="c"># (note that in Python, the final index is the fastest changing)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+
+        <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">has_vel_fs</span><span class="p">:</span>
+            <span class="n">Ufs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ufs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+            <span class="n">Vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">vfs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+            <span class="n">Wfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">wfs</span><span class="p">,</span> <span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]))</span>
+
+        <span class="c"># store data and dimensions as dicts</span>
+        <span class="n">grid_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">,</span>
+                     <span class="s">&#39;Y&#39;</span><span class="p">:</span> <span class="n">Y</span><span class="p">,</span>
+                     <span class="s">&#39;Z&#39;</span><span class="p">:</span> <span class="n">Z</span><span class="p">,</span>
+                     <span class="s">&#39;U&#39;</span><span class="p">:</span> <span class="n">U</span><span class="p">,</span>
+                     <span class="s">&#39;V&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">,</span>
+                     <span class="s">&#39;W&#39;</span><span class="p">:</span> <span class="n">W</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">has_vel_fs</span><span class="p">:</span>
+            <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ufs</span>
+            <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vfs</span>
+            <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Wfs</span>
+
+        <span class="n">grid_dims</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nx&#39;</span><span class="p">:</span> <span class="n">nx</span><span class="p">,</span>
+                     <span class="s">&#39;ny&#39;</span><span class="p">:</span> <span class="n">ny</span><span class="p">,</span>
+                     <span class="s">&#39;nz&#39;</span><span class="p">:</span> <span class="n">nz</span><span class="p">,</span>
+                     <span class="s">&#39;dx&#39;</span><span class="p">:</span> <span class="n">dx</span><span class="p">,</span>
+                     <span class="s">&#39;dy&#39;</span><span class="p">:</span> <span class="n">dy</span><span class="p">,</span>
+                     <span class="s">&#39;dz&#39;</span><span class="p">:</span> <span class="n">dz</span><span class="p">,</span>
+                     <span class="s">&#39;xlim&#39;</span><span class="p">:</span> <span class="n">xlim</span><span class="p">,</span>
+                     <span class="s">&#39;ylim&#39;</span><span class="p">:</span> <span class="n">ylim</span><span class="p">,</span>
+                     <span class="s">&#39;zlim&#39;</span><span class="p">:</span> <span class="n">zlim</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span></div>
+
+<div class="viewcode-block" id="CactusField.write_vtk_series"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.write_vtk_series">[docs]</a>    <span class="k">def</span> <span class="nf">write_vtk_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                         <span class="n">print_status</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the field data to a time series of VTK files.</span>
+
+<span class="sd">        Data is written as VTK structured data (.vts). Velocity data is a</span>
+<span class="sd">        vector field.</span>
+
+<span class="sd">        Also writes a Paraview collection file (.pvd) which contains the</span>
+<span class="sd">        normalized times of each timestep.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The path to which to write the VTK files.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The prefix of the VTK filenames.</span>
+<span class="sd">        print_status: bool</span>
+<span class="sd">            True to print the status of VTK conversion, False to suppress.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data_filenames : list</span>
+<span class="sd">            List of the VTK filenames.</span>
+<span class="sd">        pvd_filename : str</span>
+<span class="sd">            .pvd collection filename.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyevtk.hl</span> <span class="kn">import</span> <span class="n">gridToVTK</span>      <span class="c"># evtk module</span>
+        <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>  <span class="c"># xml module</span>
+
+        <span class="c"># set the collection filename</span>
+        <span class="n">collection_fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.pvd&quot;</span>
+
+        <span class="c"># set up blank list of the vtk filenames</span>
+        <span class="n">data_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># set up XML tree for PVD collection file</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;VTKFile&quot;</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;Collection&quot;</span><span class="p">)</span>
+
+        <span class="c"># write the VTK files</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)):</span>
+            <span class="c"># get the system time (for elapsed time)</span>
+            <span class="n">t_start</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c"># get the filename containing the data at current time</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdict</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+
+            <span class="c"># base name of data file</span>
+            <span class="n">vtk_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="c"># read the CSV data file</span>
+            <span class="n">df_inst</span>              <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+            <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
+
+            <span class="c"># unpack the grid data</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
+
+            <span class="c"># save velocity fields as tuples</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+
+            <span class="c"># create dictionary of data</span>
+            <span class="n">pointData</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;velocity&#39;</span><span class="p">:</span> <span class="n">velocity</span><span class="p">}</span>
+
+            <span class="c"># check if the file has freestream velocity data</span>
+            <span class="k">if</span> <span class="s">&#39;Ufs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span> <span class="ow">and</span> \
+                <span class="s">&#39;Vfs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span> <span class="ow">and</span> \
+                    <span class="s">&#39;Wfs&#39;</span> <span class="ow">in</span> <span class="n">grid_data</span><span class="p">:</span>
+                <span class="c"># get the freestream velocity data</span>
+                <span class="n">Ufs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
+                <span class="n">Vfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
+                <span class="n">Wfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
+
+                <span class="c"># save as tuple</span>
+                <span class="n">velocity_fs</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ufs</span><span class="p">,</span> <span class="n">Vfs</span><span class="p">,</span> <span class="n">Wfs</span><span class="p">)</span>
+
+                <span class="c"># append to pointdata dictionary</span>
+                <span class="n">pointData</span><span class="p">[</span><span class="s">&#39;velocity_fs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity_fs</span>
+
+            <span class="n">data_filename</span> <span class="o">=</span> <span class="n">gridToVTK</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span>
+                                                                   <span class="n">vtk_name</span><span class="p">)),</span>
+                                      <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+                                      <span class="n">pointData</span><span class="o">=</span><span class="n">pointData</span><span class="p">)</span>
+
+            <span class="c"># append filename to list</span>
+            <span class="n">data_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span>
+
+            <span class="c"># add elements to XML tree for PVD collection file</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s">&quot;DataSet&quot;</span><span class="p">)</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;timestep&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">data_filename</span><span class="p">))</span>
+
+            <span class="c"># print status message</span>
+            <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span>
+            <span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Converted: &#39;</span> <span class="o">+</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39; --&gt;</span><span class="se">\n\t\t\t</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">data_filename</span> <span class="o">+</span>\
+                    <span class="s">&#39; in </span><span class="si">%2.2f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed_time</span><span class="p">)</span>
+
+        <span class="c"># write the collection file</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="n">pvd_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">collection_fname</span><span class="p">))</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pvd_filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">print_status</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span>
+
+        <span class="k">return</span> <span class="n">data_filenames</span><span class="p">,</span> <span class="n">pvd_filename</span></div>
+
+<div class="viewcode-block" id="CactusField.field_time_average"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.field_time_average">[docs]</a>    <span class="k">def</span> <span class="nf">field_time_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ti_start</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the time-averaged field data over a specified timestep range.</span>
+
+<span class="sd">        Averaging is done over the time range self.times[ti_start:ti_end].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ti_start : Optional[int]</span>
+<span class="sd">            The timestep index to start averaging (default -5)</span>
+<span class="sd">        ti_end : Optional[int]</span>
+<span class="sd">            The timestep index to end averaging (default -1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        data_dict_mean : dict</span>
+<span class="sd">            A dictionary of grid coordinates and time-averaged data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># number of timestep</span>
+        <span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">])</span>
+
+        <span class="c"># sum fields</span>
+        <span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">]):</span>
+            <span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+            <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">ti</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># on the first timestep, save the grid data and initialize</span>
+                <span class="c"># variables</span>
+                <span class="n">X</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
+                <span class="n">Y</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
+                <span class="n">Z</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
+
+                <span class="n">U</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
+                <span class="n">V</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
+                <span class="n">W</span>   <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
+                <span class="n">Ufs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
+                <span class="n">Vfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
+                <span class="n">Wfs</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># on subsequent timesteps, just add the other fields</span>
+                <span class="n">U</span>   <span class="o">=</span> <span class="n">U</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
+                <span class="n">V</span>   <span class="o">=</span> <span class="n">V</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">]</span>
+                <span class="n">W</span>   <span class="o">=</span> <span class="n">W</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">]</span>
+                <span class="n">Ufs</span> <span class="o">=</span> <span class="n">Ufs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">]</span>
+                <span class="n">Vfs</span> <span class="o">=</span> <span class="n">Vfs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">]</span>
+                <span class="n">Wfs</span> <span class="o">=</span> <span class="n">Wfs</span> <span class="o">+</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">]</span>
+
+        <span class="c"># then divide by the number of steps to get the average</span>
+        <span class="n">U</span>   <span class="o">=</span> <span class="n">U</span><span class="o">/</span><span class="n">num_times</span>
+        <span class="n">V</span>   <span class="o">=</span> <span class="n">V</span><span class="o">/</span><span class="n">num_times</span>
+        <span class="n">W</span>   <span class="o">=</span> <span class="n">W</span><span class="o">/</span><span class="n">num_times</span>
+        <span class="n">Ufs</span> <span class="o">=</span> <span class="n">Ufs</span><span class="o">/</span><span class="n">num_times</span>
+        <span class="n">Vfs</span> <span class="o">=</span> <span class="n">Vfs</span><span class="o">/</span><span class="n">num_times</span>
+        <span class="n">Wfs</span> <span class="o">=</span> <span class="n">Wfs</span><span class="o">/</span><span class="n">num_times</span>
+
+        <span class="n">data_dict_mean</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">],</span>
+                          <span class="s">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">,</span>
+                          <span class="s">&#39;Y&#39;</span><span class="p">:</span> <span class="n">Y</span><span class="p">,</span>
+                          <span class="s">&#39;Z&#39;</span><span class="p">:</span> <span class="n">Z</span><span class="p">,</span>
+                          <span class="s">&#39;U&#39;</span><span class="p">:</span> <span class="n">U</span><span class="p">,</span>
+                          <span class="s">&#39;V&#39;</span><span class="p">:</span> <span class="n">V</span><span class="p">,</span>
+                          <span class="s">&#39;W&#39;</span><span class="p">:</span> <span class="n">W</span><span class="p">,</span>
+                          <span class="s">&#39;Ufs&#39;</span><span class="p">:</span> <span class="n">Ufs</span><span class="p">,</span>
+                          <span class="s">&#39;Vfs&#39;</span><span class="p">:</span> <span class="n">Vfs</span><span class="p">,</span>
+                          <span class="s">&#39;Wfs&#39;</span><span class="p">:</span> <span class="n">Wfs</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">data_dict_mean</span></div>
+
+<div class="viewcode-block" id="CactusField.pointdata_time_series"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusField.pointdata_time_series">[docs]</a>    <span class="k">def</span> <span class="nf">pointdata_time_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_list</span><span class="p">,</span> <span class="n">ti_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ti_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract a time series of data at a single point or points.</span>
+
+<span class="sd">        Loops through the time data to extract a time series of data at a</span>
+<span class="sd">        specified point or points. Uses nearest-point to avoid interpolation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p_list : list</span>
+<span class="sd">            List of points, where each point is a tuple of length 3.</span>
+<span class="sd">        ti_start : Optional[int]</span>
+<span class="sd">            The timestep index to start (default 0).</span>
+<span class="sd">        ti_end : Optional[int]</span>
+<span class="sd">            The timestep index to end (default -1)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data_dict : dict</span>
+<span class="sd">            Dictionary of the time series velocity data::</span>
+
+<span class="sd">                &#39;t&#39;   : times</span>
+<span class="sd">                &#39;u&#39;   : x-velocity</span>
+<span class="sd">                &#39;v&#39;   : y-velocity</span>
+<span class="sd">                &#39;w&#39;   : z-velocity</span>
+<span class="sd">                &#39;ufs&#39; : freestream x-velocity</span>
+<span class="sd">                &#39;vfs&#39; : freestream y-velocity</span>
+<span class="sd">                &#39;wfs&#39; : freestream z-velocity</span>
+
+<span class="sd">        p_nearest : list</span>
+<span class="sd">            List of the nearest points to those in `p_list` (points at which</span>
+<span class="sd">            data was returned).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># get the grid from the first timestep</span>
+        <span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
+
+        <span class="c"># extract grid coordinates</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;X&#39;</span><span class="p">]</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Y&#39;</span><span class="p">]</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Z&#39;</span><span class="p">]</span>
+
+        <span class="c"># initialize empty lists</span>
+        <span class="n">kji_nearest</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p_nearest</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># loop through each point</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">p_list</span><span class="p">:</span>
+            <span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">zp</span> <span class="o">=</span> <span class="n">p</span>
+
+            <span class="c"># compute distance from point to each grid node</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">xp</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">yp</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">Z</span><span class="o">-</span><span class="n">zp</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="c"># find the indices of the place where r is a minimum</span>
+            <span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">argmin</span><span class="p">(),</span> <span class="n">R</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="c"># add this index to the list of indices</span>
+            <span class="n">kji_nearest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span><span class="p">))</span>
+
+            <span class="c"># get the actual coordinate of the nearest point and add to list of</span>
+            <span class="c"># nearest points</span>
+            <span class="n">p_nearest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span><span class="p">],</span>
+                              <span class="n">Y</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span><span class="p">],</span>
+                              <span class="n">Z</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="n">xi</span><span class="p">]))</span>
+
+        <span class="c"># preallocate arrays</span>
+        <span class="n">num_times</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">])</span>
+        <span class="n">num_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_list</span><span class="p">)</span>
+
+        <span class="n">u</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+        <span class="n">v</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+        <span class="n">w</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+        <span class="n">ufs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+        <span class="n">vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+        <span class="n">wfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_points</span><span class="p">,</span> <span class="n">num_times</span><span class="p">])</span>
+
+        <span class="c"># loop through the files and extract data</span>
+        <span class="k">for</span> <span class="n">ti</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">]):</span>
+            <span class="c"># get the dataframe for the current time</span>
+            <span class="n">df_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_df_inst</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+
+            <span class="c"># extract data from the dataframe</span>
+            <span class="n">grid_data</span><span class="p">,</span> <span class="n">grid_dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fielddata_from_df</span><span class="p">(</span><span class="n">df_inst</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">pi</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kji_nearest</span><span class="p">):</span>
+                <span class="c"># extract data at point and store in array</span>
+                <span class="n">u</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">v</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">w</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span>   <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;W&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">ufs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Ufs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">vfs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Vfs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+                <span class="n">wfs</span><span class="p">[</span><span class="n">pi</span><span class="p">,</span> <span class="n">ti</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid_data</span><span class="p">[</span><span class="s">&#39;Wfs&#39;</span><span class="p">])[</span><span class="n">coords</span><span class="p">]</span>
+
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">ti_start</span><span class="p">:</span><span class="n">ti_end</span><span class="p">],</span>
+                     <span class="s">&#39;u&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">,</span>
+                     <span class="s">&#39;v&#39;</span><span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+                     <span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+                     <span class="s">&#39;ufs&#39;</span><span class="p">:</span> <span class="n">ufs</span><span class="p">,</span>
+                     <span class="s">&#39;vfs&#39;</span><span class="p">:</span> <span class="n">vfs</span><span class="p">,</span>
+                     <span class="s">&#39;wfs&#39;</span><span class="p">:</span> <span class="n">wfs</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">p_nearest</span></div></div>
+
+
 <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_filename</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot; load_data(data_filename) : Reads a CSV file using pandas and returns a pandas dataframe &quot;&quot;&quot;</span>
-	
-	<span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-	<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-	
-	<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>	<span class="c"># strip whitespace from colnames</span>
-	<span class="k">return</span> <span class="n">df</span>
+    <span class="sd">&quot;&quot;&quot;Read a CSV file using Pandas and returns a Pandas dataframe.&quot;&quot;&quot;</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c"># strip whitespace from colnames</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
 
 
 <span class="k">def</span> <span class="nf">get_file_time</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot; get_file_time(data_filename) : Returns the time of an instantaneous data set by reading the </span>
-<span class="sd">		first two rows.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Return the time of an instantaneous data set.</span>
 
-	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-		<span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-		<span class="n">row1</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+<span class="sd">    Reads the first two rows of a data file in order to get the time.</span>
+<span class="sd">    Expects that the normalized time is in the first data column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">row1</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
 
-		<span class="n">time_col_num</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time_col_name</span><span class="p">)</span>
-		<span class="n">time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[</span><span class="n">time_col_num</span><span class="p">])</span>
-	
-	<span class="k">return</span> <span class="n">time</span>
+        <span class="n">time_col_num</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time_col_name</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[</span><span class="n">time_col_num</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">time</span>
 </pre></div>
 
            </div>

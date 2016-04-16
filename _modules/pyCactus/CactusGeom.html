@@ -245,219 +245,219 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <div class="viewcode-block" id="CactusGeom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom">[docs]</a><span class="k">class</span> <span class="nc">CactusGeom</span><span class="p">():</span>
-	<span class="sd">&quot;&quot;&quot;Class for parsing CACTUS geometry data.</span>
+    <span class="sd">&quot;&quot;&quot;Class for parsing CACTUS geometry data.</span>
 
-<span class="sd">	Attributes</span>
-<span class="sd">	----------</span>
-<span class="sd">	globalvars : dict</span>
-<span class="sd">		Global variables from geometry file.</span>
-<span class="sd">	blades : list</span>
-<span class="sd">		List of dicts of blade geometry variables.</span>
-<span class="sd">	struts : list</span>
-<span class="sd">		List of dicts of strut geometry variables.</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    globalvars : dict</span>
+<span class="sd">        Global variables from geometry file.</span>
+<span class="sd">    blades : list</span>
+<span class="sd">        List of dicts of blade geometry variables.</span>
+<span class="sd">    struts : list</span>
+<span class="sd">        List of dicts of strut geometry variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CactusGeom.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Initializes the class, reads in geometry data to class attributes.&quot;&quot;&quot;</span>
-		<span class="c"># read the geometry file into public variables</span>
-		<span class="c"># 	globalvars, blades, and struts are dictionaries whose index values</span>
-		<span class="c"># 	are the variable names as strings	</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_geom</span><span class="p">(</span><span class="n">geom_filename</span><span class="p">)</span>
+<div class="viewcode-block" id="CactusGeom.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the class, reads in geometry data to class attributes.&quot;&quot;&quot;</span>
+        <span class="c"># read the geometry file into public variables</span>
+        <span class="c">#   globalvars, blades, and struts are dictionaries whose index values</span>
+        <span class="c">#   are the variable names as strings   </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">struts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_geom</span><span class="p">(</span><span class="n">geom_filename</span><span class="p">)</span>
 
-		<span class="c"># calculate the radial positions of blade elements</span>
-		<span class="c"># 	(useful for calculating torques/moments, and for plotting against radial position on</span>
-		<span class="c"># 	axial flow turbines)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_r_elem</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_dr_elem</span><span class="p">()</span></div>
-
-
-	<span class="c">#####################################</span>
-	<span class="c">######### Private Functions #########</span>
-	<span class="c">#####################################		</span>
-	<span class="k">def</span> <span class="nf">__calculate_r_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized distance from blade elements to\</span>
-<span class="sd">		the rotation axis.&quot;&quot;&quot;</span>
-		<span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
-			<span class="c"># allocate space for an array</span>
-			<span class="n">r_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
-
-			<span class="c"># get the coordinates element centers</span>
-			<span class="n">pex</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEx&#39;</span><span class="p">]</span>
-			<span class="n">pey</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEy&#39;</span><span class="p">]</span>
-			<span class="n">pez</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEz&#39;</span><span class="p">]</span>
-
-			<span class="c"># get axis of rotation and rotation axis coincident point</span>
-			<span class="n">rot_axis</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotN&#39;</span><span class="p">]</span>
-			<span class="n">rot_coincident</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotP&#39;</span><span class="p">]</span>
-
-			<span class="c"># reshape, loop through the points</span>
-			<span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">pex</span><span class="p">,</span><span class="n">pey</span><span class="p">,</span><span class="n">pez</span><span class="p">)))</span>
-			<span class="k">for</span> <span class="n">elem_num</span><span class="p">,</span> <span class="n">element_center</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positions</span><span class="p">):</span>
-				<span class="n">r_temp</span><span class="p">[</span><span class="n">elem_num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">element_center</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
-
-			<span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;r_over_R_elem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_temp</span>
-
-	<span class="k">def</span> <span class="nf">__calculate_dr_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized dr distribution.&quot;&quot;&quot;</span>
-		<span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
-			<span class="c"># allocate space for an array</span>
-			<span class="n">dr_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
-
-			<span class="c"># get the location of element node points (based on quarter chord lines)</span>
-			<span class="n">qcx</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCx&#39;</span><span class="p">]</span>
-			<span class="n">qcy</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCy&#39;</span><span class="p">]</span>
-			<span class="n">qcz</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCz&#39;</span><span class="p">]</span>
-
-			<span class="c"># get axis of rotation and rotation axis coincident point</span>
-			<span class="n">rot_axis</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotN&#39;</span><span class="p">]</span>
-			<span class="n">rot_coincident</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotP&#39;</span><span class="p">]</span>
-
-			<span class="c"># for each node location</span>
-			<span class="n">node_locations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">qcx</span><span class="p">,</span><span class="n">qcy</span><span class="p">,</span><span class="n">qcz</span><span class="p">)))</span>
-			<span class="k">for</span> <span class="n">elem_num</span><span class="p">,</span> <span class="n">node_loc_pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">node_locations</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">node_locations</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>
-				<span class="c"># get the endpoints of node and subsequent node</span>
-				<span class="n">node_A</span> <span class="o">=</span> <span class="n">node_loc_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-				<span class="n">node_B</span> <span class="o">=</span> <span class="n">node_loc_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-				<span class="c"># compute radial location of both</span>
-				<span class="n">r_over_R_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">node_A</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
-				<span class="n">r_over_R_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">node_B</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
-
-				<span class="c"># compute dr as the distance between radial location of node and next node</span>
-				<span class="n">dr_temp</span><span class="p">[</span><span class="n">elem_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_over_R_B</span> <span class="o">-</span> <span class="n">r_over_R_A</span>
-
-			<span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;dr_over_R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_temp</span>
+        <span class="c"># calculate the radial positions of blade elements</span>
+        <span class="c">#   (useful for calculating torques/moments, and for plotting against radial position on</span>
+        <span class="c">#   axial flow turbines)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__calculate_r_elem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__calculate_dr_elem</span><span class="p">()</span></div>
 
 
-	<span class="c">####################################</span>
-	<span class="c">######### Public Functions #########</span>
-	<span class="c">####################################</span>
-<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.read_geom">[docs]</a>	<span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
-				  <span class="n">blade_num_lines</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
-				  <span class="n">strut_num_lines</span><span class="o">=</span><span class="mi">18</span><span class="p">,):</span>
-		<span class="sd">&quot;&quot;&quot;Reads data from a CACTUS .geom file.</span>
+    <span class="c">#####################################</span>
+    <span class="c">######### Private Functions #########</span>
+    <span class="c">#####################################       </span>
+    <span class="k">def</span> <span class="nf">__calculate_r_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized distance from blade elements to\</span>
+<span class="sd">        the rotation axis.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
+            <span class="c"># allocate space for an array</span>
+            <span class="n">r_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		filename : str</span>
-<span class="sd">			The geometry filename.</span>
-<span class="sd">		blade_num_lines : int</span>
-<span class="sd">			Number of lines of data per blade.</span>
-<span class="sd">		strut_num_lines : int</span>
-<span class="sd">			Number of lines of data per strut.</span>
+            <span class="c"># get the coordinates element centers</span>
+            <span class="n">pex</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEx&#39;</span><span class="p">]</span>
+            <span class="n">pey</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEy&#39;</span><span class="p">]</span>
+            <span class="n">pez</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;PEz&#39;</span><span class="p">]</span>
 
-<span class="sd">		Returns</span>
-<span class="sd">		-------</span>
-<span class="sd">		globalvars : dict</span>
-<span class="sd">			Global variables from geometry file.</span>
-<span class="sd">		blade : list</span>
-<span class="sd">			List of dicts of blade geometry variables.</span>
-<span class="sd">		strut : list</span>
-<span class="sd">			List of dicts of strut geometry variables.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+            <span class="c"># get axis of rotation and rotation axis coincident point</span>
+            <span class="n">rot_axis</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotN&#39;</span><span class="p">]</span>
+            <span class="n">rot_coincident</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotP&#39;</span><span class="p">]</span>
+
+            <span class="c"># reshape, loop through the points</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">pex</span><span class="p">,</span><span class="n">pey</span><span class="p">,</span><span class="n">pez</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">elem_num</span><span class="p">,</span> <span class="n">element_center</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positions</span><span class="p">):</span>
+                <span class="n">r_temp</span><span class="p">[</span><span class="n">elem_num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">element_center</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;r_over_R_elem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_temp</span>
+
+    <span class="k">def</span> <span class="nf">__calculate_dr_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the non-dimensionalized dr distribution.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">blade_num</span><span class="p">,</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">):</span>
+            <span class="c"># allocate space for an array</span>
+            <span class="n">dr_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">blade</span><span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">])</span>
+
+            <span class="c"># get the location of element node points (based on quarter chord lines)</span>
+            <span class="n">qcx</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCx&#39;</span><span class="p">]</span>
+            <span class="n">qcy</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCy&#39;</span><span class="p">]</span>
+            <span class="n">qcz</span> <span class="o">=</span> <span class="n">blade</span><span class="p">[</span><span class="s">&#39;QCz&#39;</span><span class="p">]</span>
+
+            <span class="c"># get axis of rotation and rotation axis coincident point</span>
+            <span class="n">rot_axis</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotN&#39;</span><span class="p">]</span>
+            <span class="n">rot_coincident</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;RotP&#39;</span><span class="p">]</span>
+
+            <span class="c"># for each node location</span>
+            <span class="n">node_locations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">qcx</span><span class="p">,</span><span class="n">qcy</span><span class="p">,</span><span class="n">qcz</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">elem_num</span><span class="p">,</span> <span class="n">node_loc_pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">node_locations</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">node_locations</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>
+                <span class="c"># get the endpoints of node and subsequent node</span>
+                <span class="n">node_A</span> <span class="o">=</span> <span class="n">node_loc_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">node_B</span> <span class="o">=</span> <span class="n">node_loc_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c"># compute radial location of both</span>
+                <span class="n">r_over_R_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">node_A</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
+                <span class="n">r_over_R_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_rotation_axis</span><span class="p">(</span><span class="n">node_B</span><span class="p">,</span> <span class="n">rot_axis</span><span class="p">,</span> <span class="n">rot_coincident</span><span class="p">)</span>
+
+                <span class="c"># compute dr as the distance between radial location of node and next node</span>
+                <span class="n">dr_temp</span><span class="p">[</span><span class="n">elem_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_over_R_B</span> <span class="o">-</span> <span class="n">r_over_R_A</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;dr_over_R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_temp</span>
+
+
+    <span class="c">####################################</span>
+    <span class="c">######### Public Functions #########</span>
+    <span class="c">####################################</span>
+<div class="viewcode-block" id="CactusGeom.read_geom"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.read_geom">[docs]</a>    <span class="k">def</span> <span class="nf">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+                  <span class="n">blade_num_lines</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                  <span class="n">strut_num_lines</span><span class="o">=</span><span class="mi">18</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot;Reads data from a CACTUS .geom file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The geometry filename.</span>
+<span class="sd">        blade_num_lines : int</span>
+<span class="sd">            Number of lines of data per blade.</span>
+<span class="sd">        strut_num_lines : int</span>
+<span class="sd">            Number of lines of data per strut.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        globalvars : dict</span>
+<span class="sd">            Global variables from geometry file.</span>
+<span class="sd">        blade : list</span>
+<span class="sd">            List of dicts of blade geometry variables.</span>
+<span class="sd">        strut : list</span>
+<span class="sd">            List of dicts of strut geometry variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 
 
-		<span class="k">def</span> <span class="nf">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-			<span class="n">int_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">,</span> <span class="s">&#39;FlipN&#39;</span><span class="p">]</span>
+        <span class="k">def</span> <span class="nf">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="n">int_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;NElem&#39;</span><span class="p">,</span> <span class="s">&#39;FlipN&#39;</span><span class="p">]</span>
 
-			<span class="n">block_vars</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">block_vars</span> <span class="o">=</span> <span class="p">{}</span>
 
-			<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-				<span class="c"># split the line at the colon</span>
-				<span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="c"># split the line at the colon</span>
+                <span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
 
-				<span class="c"># if the variable is an integer, cast it as such</span>
-				<span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">int_vars</span><span class="p">:</span>
-					<span class="n">values</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-					<span class="n">block_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="c"># if the variable is an integer, cast it as such</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">int_vars</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                    <span class="n">block_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-				<span class="c"># otherwise, store it as a float np.array</span>
-				<span class="k">else</span><span class="p">:</span>
-					<span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-					<span class="n">block_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="c"># otherwise, store it as a float np.array</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+                    <span class="n">block_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-			<span class="k">return</span> <span class="n">block_vars</span>
+            <span class="k">return</span> <span class="n">block_vars</span>
 
-		<span class="n">int_vars</span>    <span class="o">=</span> <span class="p">[</span><span class="s">&#39;iSect&#39;</span><span class="p">,</span> <span class="s">&#39;NBlade&#39;</span><span class="p">,</span> <span class="s">&#39;NStrut&#39;</span><span class="p">]</span>
-		<span class="n">string_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Type&#39;</span><span class="p">]</span>
+        <span class="n">int_vars</span>    <span class="o">=</span> <span class="p">[</span><span class="s">&#39;iSect&#39;</span><span class="p">,</span> <span class="s">&#39;NBlade&#39;</span><span class="p">,</span> <span class="s">&#39;NStrut&#39;</span><span class="p">]</span>
+        <span class="n">string_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Type&#39;</span><span class="p">]</span>
 
-		<span class="c"># open the file for reading</span>
-		<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="c"># open the file for reading</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
 
-		<span class="c"># initialize dict for global variables</span>
-		<span class="n">global_vars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># initialize dict for global variables</span>
+        <span class="n">global_vars</span> <span class="o">=</span> <span class="p">{}</span>
 
-		<span class="c"># initialize empty list for blade and strut variables</span>
-		<span class="n">blade</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="n">strut</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># initialize empty list for blade and strut variables</span>
+        <span class="n">blade</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">strut</span> <span class="o">=</span> <span class="p">[]</span>
 
-		<span class="c"># initialize lists for starting line numbers of blades and struts</span>
-		<span class="n">blade_line_nums</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="n">strut_line_nums</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># initialize lists for starting line numbers of blades and struts</span>
+        <span class="n">blade_line_nums</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">strut_line_nums</span> <span class="o">=</span> <span class="p">[]</span>
 
-		<span class="c"># read file line by line</span>
-		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
-			<span class="n">lines</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-			<span class="k">for</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="c"># read file line by line</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fid</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
 
-				<span class="c"># split the line at the colon</span>
-				<span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-					<span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
-				<span class="k">else</span><span class="p">:</span>
-					<span class="k">break</span>
+                <span class="c"># split the line at the colon</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
 
-				<span class="c"># if the variable name is Blade or Strut, take note of the line number</span>
-				<span class="k">if</span> <span class="n">var_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Blade&#39;</span><span class="p">):</span>
-					<span class="n">blade_line_nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_num</span><span class="p">)</span>
+                <span class="c"># if the variable name is Blade or Strut, take note of the line number</span>
+                <span class="k">if</span> <span class="n">var_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Blade&#39;</span><span class="p">):</span>
+                    <span class="n">blade_line_nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_num</span><span class="p">)</span>
 
-				<span class="k">if</span> <span class="n">var_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Strut&#39;</span><span class="p">):</span>
-					<span class="n">strut_line_nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_num</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">var_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Strut&#39;</span><span class="p">):</span>
+                    <span class="n">strut_line_nums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_num</span><span class="p">)</span>
 
-			<span class="c"># starting at the beginning, read in the global variables</span>
-			<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">blade_line_nums</span> <span class="o">+</span> <span class="n">strut_line_nums</span><span class="p">)]:</span>
-				<span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+            <span class="c"># starting at the beginning, read in the global variables</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[:</span><span class="nb">min</span><span class="p">(</span><span class="n">blade_line_nums</span> <span class="o">+</span> <span class="n">strut_line_nums</span><span class="p">)]:</span>
+                <span class="n">var_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
 
-				<span class="c"># if the variable is an integer or string, cast it as such</span>
-				<span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">int_vars</span><span class="p">:</span>
-					<span class="n">values</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-					<span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="c"># if the variable is an integer or string, cast it as such</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">int_vars</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                    <span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-				<span class="k">elif</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">string_vars</span><span class="p">:</span>
-					<span class="n">values</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-					<span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="k">elif</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">string_vars</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-				<span class="c"># otherwise, cast it as a float np.array</span>
-				<span class="k">else</span><span class="p">:</span>
-					<span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-					<span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+                <span class="c"># otherwise, cast it as a float np.array</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+                    <span class="n">global_vars</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-			<span class="c"># read in the blocks</span>
-			<span class="k">for</span> <span class="n">line_start</span> <span class="ow">in</span> <span class="n">blade_line_nums</span><span class="p">:</span>
-				<span class="n">blade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">line_start</span><span class="p">:</span><span class="n">line_start</span> <span class="o">+</span> <span class="n">blade_num_lines</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+            <span class="c"># read in the blocks</span>
+            <span class="k">for</span> <span class="n">line_start</span> <span class="ow">in</span> <span class="n">blade_line_nums</span><span class="p">:</span>
+                <span class="n">blade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">line_start</span><span class="p">:</span><span class="n">line_start</span> <span class="o">+</span> <span class="n">blade_num_lines</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
 
-			<span class="k">for</span> <span class="n">line_start</span><span class="p">,</span> <span class="n">line_end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strut_line_nums</span><span class="p">,</span> <span class="n">strut_line_nums</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
-				<span class="n">strut</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">line_start</span><span class="p">:</span><span class="n">line_start</span> <span class="o">+</span> <span class="n">strut_num_lines</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
-		
-		<span class="k">return</span> <span class="n">global_vars</span><span class="p">,</span> <span class="n">blade</span><span class="p">,</span> <span class="n">strut</span></div>
+            <span class="k">for</span> <span class="n">line_start</span><span class="p">,</span> <span class="n">line_end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">strut_line_nums</span><span class="p">,</span> <span class="n">strut_line_nums</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">strut</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_block</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">line_start</span><span class="p">:</span><span class="n">line_start</span> <span class="o">+</span> <span class="n">strut_num_lines</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+        
+        <span class="k">return</span> <span class="n">global_vars</span><span class="p">,</span> <span class="n">blade</span><span class="p">,</span> <span class="n">strut</span></div>
 
-<div class="viewcode-block" id="CactusGeom.distance_to_rotation_axis"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.distance_to_rotation_axis">[docs]</a>	<span class="k">def</span> <span class="nf">distance_to_rotation_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Computes the distance between a point and a rotation axis.</span>
+<div class="viewcode-block" id="CactusGeom.distance_to_rotation_axis"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusGeom.distance_to_rotation_axis">[docs]</a>    <span class="k">def</span> <span class="nf">distance_to_rotation_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes the distance between a point and a rotation axis.</span>
 
-<span class="sd">		http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation</span>
+<span class="sd">        http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation</span>
 
-<span class="sd">		Parameters</span>
-<span class="sd">		----------</span>
-<span class="sd">		p : numpy.array</span>
-<span class="sd">			The coordinates of the point.</span>
-<span class="sd">		n : numpy.array</span>
-<span class="sd">			Vector of the rotation axis.</span>
-<span class="sd">		a : numpy.array</span>
-<span class="sd">			Coincident point of the rotation axis.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p : numpy.array</span>
+<span class="sd">            The coordinates of the point.</span>
+<span class="sd">        n : numpy.array</span>
+<span class="sd">            Vector of the rotation axis.</span>
+<span class="sd">        a : numpy.array</span>
+<span class="sd">            Coincident point of the rotation axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span></div></div>
-		
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">p</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span></div></div>
+        
 </pre></div>
 
            </div>
