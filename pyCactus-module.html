@@ -410,10 +410,10 @@ behavior cannot be guaranteed).</p>
 <dl class="method">
 <dt id="pyCactus.CactusRun.blade_data_at_time_index">
 <code class="descname">blade_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_data_at_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a subset dataframe of the &#8220;Element Data&#8221; dataframe by time
-index.</p>
-<p>Returns the time corresponding to the given time_index, and a list of
-dataframes containing the data, with one dataframe per blade.</p>
+<dd><p>Get blade data a specified time.</p>
+<p>Extract a subset dataframe of the &#8220;Element Data&#8221; dataframe by time
+index. Returns the time corresponding to the given time_index, and a
+list of dataframes containing the data, with one dataframe per blade.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -433,11 +433,11 @@ dataframes containing the data, with one dataframe per blade.</p>
 <dl class="method">
 <dt id="pyCactus.CactusRun.blade_qty_avg">
 <code class="descname">blade_qty_avg</code><span class="sig-paren">(</span><em>qty_name</em>, <em>timesteps_from_end</em>, <em>blade_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_qty_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_qty_avg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the average value of a specified blade quantity over a
-number of timesteps from the end.</p>
-<p>This may be used to, for example, compute the revolution-averaged blade
-quantities, such as circulation distribution, angle of attack, and local
-blade relative velocity.</p>
+<dd><p>Compute atime-averaged a blade quantity distribution.</p>
+<p>Compute a time-averaged blade quantity distribution over a number of
+timesteps from the end. This may be used to, for example, compute the
+revolution-averaged blade quantities, such as circulation distribution,
+angle of attack, and local blade relative velocity.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -462,7 +462,7 @@ blade relative velocity.</p>
 <dl class="method">
 <dt id="pyCactus.CactusRun.df_subset_time_index">
 <code class="descname">df_subset_time_index</code><span class="sig-paren">(</span><em>df</em>, <em>time_index</em>, <em>time_col_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.df_subset_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.df_subset_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a subset dataframe of a given dataframe by time index.</p>
+<dd><p>Extract a subset dataframe of a given dataframe by time index.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -489,7 +489,7 @@ time_index.</li>
 <dl class="method">
 <dt id="pyCactus.CactusRun.rotor_data_at_time_index">
 <code class="descname">rotor_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rotor_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rotor_data_at_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts a single time instance from the time dataframe.</p>
+<dd><p>Extract a single time instance from the time dataframe.</p>
 <p>Returns the time corresponding to the given time_index, and a dataframe
 containing the appropriate subset of data.</p>
 <table class="docutils field-list" frame="void" rules="none">
