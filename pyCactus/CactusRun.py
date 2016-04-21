@@ -126,32 +126,6 @@ class CactusRun():
         rev_fname_pattern       = case_name + '_RevData.csv'
         time_fname_pattern      = case_name + '_TimeData.csv'
 
-        # search for wake element, field files, and probe files anywhere in
-        # the run directory
-        if load_wakeelem_output:
-            self.wake_filenames = sorted(recursive_glob(run_directory,
-                                                        wakeelem_fnames_pattern))
-            if not self.wake_filenames:
-                print 'Warning: Could not find any wake element data files in\
-                       the work directory matching %s.' %\
-                    (wakeelem_fnames_pattern)
-
-        if load_field_output:
-            self.field_filenames = sorted(recursive_glob(run_directory,
-                                                         field_fnames_pattern))
-            if not self.field_filenames:
-                print 'Warning: Could not find any field data files in\
-                       the work directory matching %s.' %\
-                    (field_fnames_pattern)
-
-        if load_probe_output:
-            self.probe_filenames = sorted(recursive_glob(run_directory,
-                                                         probe_fnames_pattern))
-            if not self.probe_filenames:
-                print 'Warning: Could not find any probe data files in\
-                       the work directory matching %s.' %\
-                    (probe_fnames_pattern)
-
         # Load the input, geometry, blade element, rev-averaged, parameter,
         # and time data. Only one of each file should be expected. The function
         # find_single_file is used to warn if multiple files (or none) are
@@ -221,14 +195,37 @@ class CactusRun():
         # files in the run_directory and parse the first line of each. This may
         # be slow, depending on the number of files
 
-        # wake element data
-        self.wakeelems = CactusWakeElems(self.wake_filenames)
+        # search for wake element, field files, and probe files anywhere in
+        # the run directory
+        if load_wakeelem_output:
+            self.wake_filenames = sorted(recursive_glob(run_directory,
+                                                        wakeelem_fnames_pattern))
+            if self.wake_filenames:
+                self.wakeelems = CactusWakeElems(self.wake_filenames)
+            else:
+                print 'Warning: Could not find any wake element data files in \
+the work directory matching %s.' %\
+                    (wakeelem_fnames_pattern)
 
-        # field data
-        self.field = CactusField(self.field_filenames)
+        if load_field_output:
+            self.field_filenames = sorted(recursive_glob(run_directory,
+                                                         field_fnames_pattern))
+            if self.field_filenames:
+                self.field = CactusField(self.field_filenames)
+            else:
+                print 'Warning: Could not find any field data files in \
+the work directory matching %s.' %\
+                    (field_fnames_pattern)
 
-        # probe data
-        self.probes = CactusProbes(self.probe_filenames)
+        if load_probe_output:
+            self.probe_filenames = sorted(recursive_glob(run_directory,
+                                                         probe_fnames_pattern))
+            if self.probe_filenames:
+                self.probes = CactusProbes(self.probe_filenames)
+            else:
+                print 'Warning: Could not find any probe data files in \
+the work directory matching %s.' %\
+                    (probe_fnames_pattern)
 
         print ''
         print 'Success: Loaded case `%s` from path `%s`\n' % (case_name,
