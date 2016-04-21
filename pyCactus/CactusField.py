@@ -7,7 +7,6 @@ import pandas as pd
 
 from warnings import *
 
-
 class CactusField():
     """Class for reading WakeData (element) from CSV files.
 
@@ -49,7 +48,7 @@ class CactusField():
         # file from glob)
         if read_grid_dims:
             tic = pytime.time()
-            self.grid_dims = self.read_grid_dims(self.filenames[0])
+            self.grid_dims = self.read_grid_dims(self.filenames[:-1])
             print 'Read grid dimensions in %2.2f s' % (pytime.time() - tic)
 
     def read_file_headers(self):
