@@ -162,6 +162,11 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
+/* avoid gaps between output lines */
+div.nboutput div[class^=highlight] pre {
+    line-height: unset;
+}
+
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -183,12 +188,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: navy;
+    color: #303F9F;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: darkred;
+    color: #D84315;
 }
 
 /* all prompts */
@@ -234,36 +239,58 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansiblack { color: black; }
-.ansired { color: darkred; }
-.ansigreen { color: darkgreen; }
-.ansiyellow { color: #c4a000; }
-.ansiblue { color: darkblue; }
-.ansipurple { color: darkviolet; }
-.ansicyan { color: steelblue; }
-/* See https://github.com/jupyter/nbconvert/issues/174 */
-.ansigray { color: gray; }  /* nbconvert CSS */
-.ansigrey { color: gray; }  /* nbconvert HTML output */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
 
-.ansibgblack { background-color: black; }
-.ansibgred { background-color: red; }
-.ansibggreen { background-color: green; }
-.ansibgyellow { background-color: yellow; }
-.ansibgblue { background-color: blue; }
-.ansibgpurple { background-color: magenta; }
-.ansibgcyan { background-color: cyan; }
-.ansibggray { background-color: gray; }
-
-.ansibold { font-weight: bold; }
+.ansi-bold { font-weight: bold; }
 </style>
 <div class="section" id="scripts">
 <h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h1>
 <p>pyCactus also includes a number of scripts for manipulating CACTUS run cases and output data.</p>
 <div class="section" id="pycactusclonecase-py">
 <h2><cite>pyCactusCloneCase.py</cite><a class="headerlink" href="#pycactusclonecase-py" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusCloneCase.py [-h] case_path output_path
+<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusCloneCase.py [-h] [--clean] case_path output_path
 
-Copy a CACTUS case directory WITHOUT output data.&#39;
+Copy a CACTUS case directory without output data.
+
+Copy all files except those matching:
+    &#39;*.csv&#39;,
+    &#39;*.pvd&#39;,
+    &#39;*.vts&#39;,
+    &#39;*.vtu&#39;,
+    &#39;*.out&#39;,
+    &#39;*.tp&#39;,
+    &#39;output&#39;
 
 positional arguments:
   case_path    path to original case.
@@ -271,6 +298,7 @@ positional arguments:
 
 optional arguments:
   -h, --help   show this help message and exit
+  --clean      delete existing directory if it exists -- danger!
 </pre></div>
 </div>
 </div>
@@ -335,33 +363,10 @@ optional arguments:
 </div>
 <div class="section" id="pycactuswpdatatovtk-py">
 <h2><cite>pyCactusWPDataToVtk.py</cite><a class="headerlink" href="#pycactuswpdatatovtk-py" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-text"><div class="highlight"><pre>usage: pyCactusWPDataToVtk.py [-h]
-                              [--walldata_fnames_pattern WALLDATA_FNAMES_PATTERN]
-                              case_path case_name output_path
-
-Convert CACTUS wall data files in a given directory from TecPlot structured 
-to VTK format. The wall data is written to a folder called wallVTK.
-
-By default, expects that the wall data filenames match the patterns:
-    
-    [case_name]_WPData_*.tp
-
-Another pattern may be specified using --walldata_fnames_pattern.
-
-VTK does not support multi-block time-series data, so each block is written to a
-separate data file. Also write accompanying .pvd collection files.
-    
-
-positional arguments:
-  case_path             path to TP files to be converted.
-  case_name             prefix of output files, e.g.
-                        [case_name]_WakeElemData_0001.csv
-  output_path           desired output path for VTK files.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --walldata_fnames_pattern WALLDATA_FNAMES_PATTERN
-                        glob pattern for wall data files.
+<div class="highlight-text"><div class="highlight"><pre>Traceback (most recent call last):
+  File &quot;./pyCactus/scripts/pyCactusWPDataToVtk.py&quot;, line 5, in &lt;module&gt;
+    import numpy as np
+ImportError: No module named numpy
 </pre></div>
 </div>
 </div>

@@ -147,6 +147,11 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
+/* avoid gaps between output lines */
+div.nboutput div[class^=highlight] pre {
+    line-height: unset;
+}
+
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -168,12 +173,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: navy;
+    color: #303F9F;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: darkred;
+    color: #D84315;
 }
 
 /* all prompts */
@@ -219,27 +224,40 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansiblack { color: black; }
-.ansired { color: darkred; }
-.ansigreen { color: darkgreen; }
-.ansiyellow { color: #c4a000; }
-.ansiblue { color: darkblue; }
-.ansipurple { color: darkviolet; }
-.ansicyan { color: steelblue; }
-/* See https://github.com/jupyter/nbconvert/issues/174 */
-.ansigray { color: gray; }  /* nbconvert CSS */
-.ansigrey { color: gray; }  /* nbconvert HTML output */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
 
-.ansibgblack { background-color: black; }
-.ansibgred { background-color: red; }
-.ansibggreen { background-color: green; }
-.ansibgyellow { background-color: yellow; }
-.ansibgblue { background-color: blue; }
-.ansibgpurple { background-color: magenta; }
-.ansibgcyan { background-color: cyan; }
-.ansibggray { background-color: gray; }
-
-.ansibold { font-weight: bold; }
+.ansi-bold { font-weight: bold; }
 </style>
 <h1>Source code for pyCactus.CactusWakeElems</h1><div class="highlight"><pre>
 
@@ -250,6 +268,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">common_utils</span> <span class="kn">import</span> <span class="n">load_data</span><span class="p">,</span> <span class="n">get_file_time</span>
 
 <span class="c">#####################################</span>
 <span class="c">######### Wake Element Data #########</span>
@@ -548,32 +568,6 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">print</span> <span class="s">&#39;Wrote ParaView collection file: &#39;</span> <span class="o">+</span> <span class="n">pvd_filename</span>
 
         <span class="k">return</span> <span class="n">data_filenames</span><span class="p">,</span> <span class="n">pvd_filename</span></div></div>
-
-<span class="c">#####################################</span>
-<span class="c">######### Module  Functions #########</span>
-<span class="c">#####################################</span>
-<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; load_data(data_filename) : Reads a CSV file using pandas and returns a pandas dataframe &quot;&quot;&quot;</span>
-    
-    <span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    
-    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>    <span class="c"># strip whitespace from colnames</span>
-    <span class="k">return</span> <span class="n">df</span>
-
-
-<span class="k">def</span> <span class="nf">get_file_time</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; get_file_time(data_filename) : Returns the time of an instantaneous data set by reading the </span>
-<span class="sd">        first two rows.&quot;&quot;&quot;</span>
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-        <span class="n">row1</span>   <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-
-        <span class="n">time_col_num</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time_col_name</span><span class="p">)</span>
-        <span class="n">time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[</span><span class="n">time_col_num</span><span class="p">])</span>
-    
-    <span class="k">return</span> <span class="n">time</span>
 </pre></div>
 
            </div>

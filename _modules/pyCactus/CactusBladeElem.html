@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyCactus.CactusBladeElem &mdash; CACTUS-tools 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CACTUS-tools 0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> CACTUS-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyCactus.html">pyCactus</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">CACTUS-tools</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pyCactus.CactusBladeElem</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput > div,
+div.nbinput div[class^=highlight],
+div.nbinput div[class^=highlight] pre,
+div.nboutput,
+div.nboutput > div,
+div.nboutput div[class^=highlight],
+div.nboutput div[class^=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class^=highlight] pre {
+    line-height: unset;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput > :first-child pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput > :first-child pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput > :first-child[class^=highlight],
+div.nboutput > :first-child[class^=highlight],
+div.nboutput > :first-child {
+    min-width: 11ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+
+/* input/output area */
+div.nbinput > :nth-child(2)[class^=highlight],
+div.nboutput > :nth-child(2),
+div.nboutput > :nth-child(2)[class^=highlight] {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+/* input area */
+div.nbinput > :nth-child(2)[class^=highlight] {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput  > :nth-child(2).stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-bold { font-weight: bold; }
+</style>
+<h1>Source code for pyCactus.CactusBladeElem</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;CactusBladeElem module containing CactusBladeElem class.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">common_utils</span> <span class="kn">import</span> <span class="n">load_data</span><span class="p">,</span> <span class="n">df_subset_time_index</span>
+
+
+<div class="viewcode-block" id="CactusBladeElem"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusBladeElem">[docs]</a><span class="k">class</span> <span class="nc">CactusBladeElem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to manage CACTUS blade element data.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Pandas dataframe</span>
+<span class="sd">        Raw blade element data.</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path to raw blade element data file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CactusBladeElem.__init__"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusBladeElem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize class, read in data.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CactusBladeElem.data_at_time_index"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusBladeElem.data_at_time_index">[docs]</a>    <span class="k">def</span> <span class="nf">data_at_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get blade data a specified time.</span>
+
+<span class="sd">        Extract a subset dataframe of the &quot;Element Data&quot; dataframe by time</span>
+<span class="sd">        index. Returns the time corresponding to the given time_index, and a</span>
+<span class="sd">        list of dataframes containing the data, with one dataframe per blade.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            time_index : int</span>
+<span class="sd">                The time index.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            time : float</span>
+<span class="sd">                The non-dimensionalized time.</span>
+<span class="sd">            dfs_blade : list</span>
+<span class="sd">                A list of dataframes, each holding blade data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># set column names</span>
+        <span class="n">time_col_name</span>  <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
+        <span class="n">blade_col_name</span> <span class="o">=</span> <span class="s">&#39;Blade&#39;</span>
+        <span class="n">elem_col_name</span>  <span class="o">=</span> <span class="s">&#39;Element&#39;</span>
+
+        <span class="c"># get the data series</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="c"># extract data subset</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+
+        <span class="c"># get number of blades</span>
+        <span class="n">num_blades</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">blade_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+
+        <span class="c"># organize into a list of dataframes by blade</span>
+        <span class="n">dfs_blade</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_blades</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c"># extract dataframe for particular blade</span>
+            <span class="n">df_blade</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">blade_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">blade</span><span class="p">]</span>
+
+            <span class="c"># pop off the elemnts</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">df_blade</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">elem_col_name</span><span class="p">)</span>
+
+            <span class="c"># set the elements as the df index</span>
+            <span class="n">df_blade</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">elements</span>
+
+            <span class="c"># append the df to the list of dfs</span>
+            <span class="n">dfs_blade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_blade</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">dfs_blade</span></div>
+
+<div class="viewcode-block" id="CactusBladeElem.data_time_average"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusBladeElem.data_time_average">[docs]</a>    <span class="k">def</span> <span class="nf">data_time_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qty_name</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">blade_num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute a time-averaged a blade quantity distribution.</span>
+
+<span class="sd">        Compute a time-averaged blade quantity distribution over a number of</span>
+<span class="sd">        timesteps. This may be used to, for example, compute the revolution-</span>
+<span class="sd">        averaged blade quantities, such as circulation distribution, angle</span>
+<span class="sd">        of attack, and local blade relative velocity.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            qty_name : str</span>
+<span class="sd">                The column name for the desired blade quantity.</span>
+<span class="sd">            timesteps : list</span>
+<span class="sd">                List of timesteps (integer).</span>
+<span class="sd">            blade_num : int</span>
+<span class="sd">                Index of the blade number, indexed from 0).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            qty_avg : numpy.array</span>
+<span class="sd">                The array of averaged blade data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># set column names</span>
+        <span class="n">blade_col_name</span> <span class="o">=</span> <span class="s">&#39;Blade&#39;</span>
+        <span class="n">elem_col_name</span>  <span class="o">=</span> <span class="s">&#39;Element&#39;</span>
+
+        <span class="c"># get number of elements for the specified blade</span>
+        <span class="n">num_elems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">elem_col_name</span><span class="p">]</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">blade_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">blade_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+
+        <span class="c"># initialize empty array to store circulation at final timestep</span>
+        <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_elems</span><span class="p">)</span>
+
+        <span class="c"># compute average</span>
+        <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="n">timesteps</span><span class="p">:</span>
+            <span class="c"># get time (float), and a tuple containing Pandas dataframes of</span>
+            <span class="c"># length num_blades.</span>
+            <span class="n">time</span><span class="p">,</span> <span class="n">elem_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_at_time_index</span><span class="p">(</span><span class="n">time_index</span><span class="p">)</span>
+
+            <span class="c"># get the circulation distribution at the final timestep</span>
+            <span class="n">qty</span> <span class="o">=</span> <span class="n">elem_data</span><span class="p">[</span><span class="n">blade_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">qty_name</span><span class="p">]</span>
+            <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span> <span class="o">/</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)))</span>
+
+        <span class="c"># return the averaged quantity</span>
+        <span class="k">return</span> <span class="n">qty_avg</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Phillip Chiu, Jon Murray.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

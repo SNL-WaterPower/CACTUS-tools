@@ -8,6 +8,12 @@ CactusRun
 	:members:
 	:special-members:
 
+CactusBladeElem
+^^^^^^^^^^^^^^^
+.. autoclass:: pyCactus.CactusBladeElem
+	:members:
+	:special-members:
+
 CactusWakeElems
 ^^^^^^^^^^^^^^^
 .. autoclass:: pyCactus.CactusWakeElems

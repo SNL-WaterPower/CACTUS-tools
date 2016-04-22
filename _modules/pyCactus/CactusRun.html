@@ -147,6 +147,11 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
+/* avoid gaps between output lines */
+div.nboutput div[class^=highlight] pre {
+    line-height: unset;
+}
+
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -168,12 +173,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: navy;
+    color: #303F9F;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: darkred;
+    color: #D84315;
 }
 
 /* all prompts */
@@ -219,27 +224,40 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansiblack { color: black; }
-.ansired { color: darkred; }
-.ansigreen { color: darkgreen; }
-.ansiyellow { color: #c4a000; }
-.ansiblue { color: darkblue; }
-.ansipurple { color: darkviolet; }
-.ansicyan { color: steelblue; }
-/* See https://github.com/jupyter/nbconvert/issues/174 */
-.ansigray { color: gray; }  /* nbconvert CSS */
-.ansigrey { color: gray; }  /* nbconvert HTML output */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
 
-.ansibgblack { background-color: black; }
-.ansibgred { background-color: red; }
-.ansibggreen { background-color: green; }
-.ansibgyellow { background-color: yellow; }
-.ansibgblue { background-color: blue; }
-.ansibgpurple { background-color: magenta; }
-.ansibgcyan { background-color: cyan; }
-.ansibggray { background-color: gray; }
-
-.ansibold { font-weight: bold; }
+.ansi-bold { font-weight: bold; }
 </style>
 <h1>Source code for pyCactus.CactusRun</h1><div class="highlight"><pre>
 <span class="c"># CactusRun.py</span>
@@ -256,10 +274,11 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">CactusField</span> <span class="kn">import</span> <span class="n">CactusField</span>
 <span class="kn">from</span> <span class="nn">CactusProbes</span> <span class="kn">import</span> <span class="n">CactusProbes</span>
 <span class="kn">from</span> <span class="nn">CactusInput</span> <span class="kn">import</span> <span class="n">CactusInput</span>
+<span class="kn">from</span> <span class="nn">CactusBladeElem</span> <span class="kn">import</span> <span class="n">CactusBladeElem</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">recursive_glob</span> <span class="kn">import</span> <span class="n">recursive_glob</span>
+<span class="kn">from</span> <span class="nn">common_utils</span> <span class="kn">import</span> <span class="n">load_data</span><span class="p">,</span> <span class="n">df_subset_time_index</span><span class="p">,</span> <span class="n">recursive_glob</span>
 
 
 <div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">():</span>
@@ -277,8 +296,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Revolution-averaged data.</span>
 <span class="sd">    time_data : Pandas DataFrame</span>
 <span class="sd">        Time data.</span>
-<span class="sd">    elem_data : Pandas DataFrame</span>
-<span class="sd">        Element data.</span>
+<span class="sd">    bladeelem_data : CactusBladeElem class</span>
+<span class="sd">        Blade element data.</span>
 <span class="sd">    wakeelems : CactusWakeElems class</span>
 <span class="sd">        Wake element data class.</span>
 <span class="sd">    field : CactusField class</span>
@@ -365,36 +384,10 @@ div.nboutput  > :nth-child(2).stderr {
                                                       <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;.geom&#39;</span><span class="p">)</span>
 
         <span class="c"># assemble filename patterns</span>
-        <span class="n">elem_fname_pattern</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_ElementData.csv&#39;</span>
+        <span class="n">bladeelem_fname_pattern</span> <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_ElementData.csv&#39;</span>
         <span class="n">param_fname_pattern</span>     <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_Param.csv&#39;</span>
         <span class="n">rev_fname_pattern</span>       <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_RevData.csv&#39;</span>
         <span class="n">time_fname_pattern</span>      <span class="o">=</span> <span class="n">case_name</span> <span class="o">+</span> <span class="s">&#39;_TimeData.csv&#39;</span>
-
-        <span class="c"># search for wake element, field files, and probe files anywhere in</span>
-        <span class="c"># the run directory</span>
-        <span class="k">if</span> <span class="n">load_wakeelem_output</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
-                                                        <span class="n">wakeelem_fnames_pattern</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake element data files in</span><span class="se">\</span>
-<span class="s">                       the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">load_field_output</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
-                                                         <span class="n">field_fnames_pattern</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any field data files in</span><span class="se">\</span>
-<span class="s">                       the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">load_probe_output</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
-                                                         <span class="n">probe_fnames_pattern</span><span class="p">))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any probe data files in</span><span class="se">\</span>
-<span class="s">                       the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">probe_fnames_pattern</span><span class="p">)</span>
 
         <span class="c"># Load the input, geometry, blade element, rev-averaged, parameter,</span>
         <span class="c"># and time data. Only one of each file should be expected. The function</span>
@@ -423,7 +416,7 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">run_directory</span><span class="p">,</span> <span class="n">param_fname_pattern</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
             <span class="k">print</span> <span class="s">&#39;Read parameter data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter data file not loaded.&quot;</span><span class="p">)</span>
@@ -433,7 +426,7 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">run_directory</span><span class="p">,</span> <span class="n">rev_fname_pattern</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
             <span class="k">print</span> <span class="s">&#39;Read revolution-averaged data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
                 <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
 
@@ -441,11 +434,11 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Revolution-averaged data file not loaded.&quot;</span><span class="p">)</span>
 
         <span class="c"># load blade element data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_single_file</span><span class="p">(</span>
-            <span class="n">run_directory</span><span class="p">,</span> <span class="n">elem_fname_pattern</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_single_file</span><span class="p">(</span>
+            <span class="n">run_directory</span><span class="p">,</span> <span class="n">bladeelem_fname_pattern</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elem_fname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_data</span>  <span class="o">=</span> <span class="n">CactusBladeElem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_fname</span><span class="p">)</span>
             <span class="k">print</span> <span class="s">&#39;Read blade element data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Blade element data file not loaded.&quot;</span><span class="p">)</span>
@@ -455,7 +448,7 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">run_directory</span><span class="p">,</span> <span class="n">time_fname_pattern</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
             <span class="k">print</span> <span class="s">&#39;Read time data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Time data file not loaded.&quot;</span><span class="p">)</span>
@@ -465,14 +458,37 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="c"># files in the run_directory and parse the first line of each. This may</span>
         <span class="c"># be slow, depending on the number of files</span>
 
-        <span class="c"># wake element data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
+        <span class="c"># search for wake element, field files, and probe files anywhere in</span>
+        <span class="c"># the run directory</span>
+        <span class="k">if</span> <span class="n">load_wakeelem_output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+                                                        <span class="n">wakeelem_fnames_pattern</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake element data files in </span><span class="se">\</span>
+<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+                    <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
 
-        <span class="c"># field data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">load_field_output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+                                                         <span class="n">field_fnames_pattern</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any field data files in </span><span class="se">\</span>
+<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+                    <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
 
-        <span class="c"># probe data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">load_probe_output</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
+                                                         <span class="n">probe_fnames_pattern</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any probe data files in </span><span class="se">\</span>
+<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
+                    <span class="p">(</span><span class="n">probe_fnames_pattern</span><span class="p">)</span>
 
         <span class="k">print</span> <span class="s">&#39;&#39;</span>
         <span class="k">print</span> <span class="s">&#39;Success: Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span>
@@ -481,15 +497,6 @@ div.nboutput  > :nth-child(2).stderr {
     <span class="c">#####################################</span>
     <span class="c">#         Private Functions         #</span>
     <span class="c">#####################################</span>
-    <span class="k">def</span> <span class="nf">__load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">):</span>
-        <span class="c"># read a CSV file using pandas and returns a pandas dataframe</span>
-        <span class="n">reader</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_filename</span><span class="p">,</span> <span class="n">iterator</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-        <span class="c"># strip whitespace from colnames</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span>
-
     <span class="k">def</span> <span class="nf">__find_single_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
         <span class="c"># Look for a glob pattern in a specified directory and return the</span>
         <span class="c"># first file, throwing a warning if multiple files are found.</span>
@@ -514,102 +521,6 @@ div.nboutput  > :nth-child(2).stderr {
     <span class="c">####################################</span>
     <span class="c">#         Public Functions         #</span>
     <span class="c">####################################</span>
-<div class="viewcode-block" id="CactusRun.blade_data_at_time_index"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.blade_data_at_time_index">[docs]</a>    <span class="k">def</span> <span class="nf">blade_data_at_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get blade data a specified time.</span>
-
-<span class="sd">        Extract a subset dataframe of the &quot;Element Data&quot; dataframe by time</span>
-<span class="sd">        index. Returns the time corresponding to the given time_index, and a</span>
-<span class="sd">        list of dataframes containing the data, with one dataframe per blade.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">            time_index : int</span>
-<span class="sd">                The time index.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">            time : float</span>
-<span class="sd">                The non-dimensionalized time.</span>
-<span class="sd">            dfs_blade : list</span>
-<span class="sd">                A list of dataframes, each holding blade data.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># set column names</span>
-        <span class="n">time_col_name</span>  <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
-        <span class="n">blade_col_name</span> <span class="o">=</span> <span class="s">&#39;Blade&#39;</span>
-        <span class="n">elem_col_name</span>  <span class="o">=</span> <span class="s">&#39;Element&#39;</span>
-
-        <span class="c"># get the data series</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elem_data</span>
-
-        <span class="c"># extract data subset</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
-
-        <span class="c"># get number of blades</span>
-        <span class="n">num_blades</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">globalvars</span><span class="p">[</span><span class="s">&#39;NBlade&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c"># num_elems  = [blade[&#39;NElem&#39;][0] for blade in self.geom.blades]</span>
-
-        <span class="c"># organize into a list of dataframes by blade</span>
-        <span class="n">dfs_blade</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">blade</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_blades</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="c"># extract dataframe for particular blade</span>
-            <span class="n">df_blade</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">blade_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">blade</span><span class="p">]</span>
-
-            <span class="c"># pop off the elemnts</span>
-            <span class="n">elements</span> <span class="o">=</span> <span class="n">df_blade</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">elem_col_name</span><span class="p">)</span>
-
-            <span class="c"># set the elements as the df index</span>
-            <span class="n">df_blade</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">elements</span>
-
-            <span class="c"># append the df to the list of dfs</span>
-            <span class="n">dfs_blade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_blade</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">dfs_blade</span></div>
-
-<div class="viewcode-block" id="CactusRun.blade_qty_avg"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.blade_qty_avg">[docs]</a>    <span class="k">def</span> <span class="nf">blade_qty_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qty_name</span><span class="p">,</span> <span class="n">timesteps_from_end</span><span class="p">,</span> <span class="n">blade_num</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compute atime-averaged a blade quantity distribution.</span>
-
-<span class="sd">        Compute a time-averaged blade quantity distribution over a number of</span>
-<span class="sd">        timesteps from the end. This may be used to, for example, compute the</span>
-<span class="sd">        revolution-averaged blade quantities, such as circulation distribution,</span>
-<span class="sd">        angle of attack, and local blade relative velocity.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">            qty_name : str</span>
-<span class="sd">                The column name for the desired blade quantity</span>
-<span class="sd">            timesteps_from_end : int</span>
-<span class="sd">                Number of timesteps from the end</span>
-<span class="sd">            blade_num : int</span>
-<span class="sd">                Index of the blade number</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">            qty_avg : numpy.array</span>
-<span class="sd">                The array of averaged blade data.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># set up time indices over which we would like average</span>
-        <span class="n">time_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">timesteps_from_end</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c"># initialize empty array to store circulation at final timestep</span>
-        <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">blades</span><span class="p">[</span><span class="n">blade_num</span><span class="p">][</span><span class="s">&#39;NElem&#39;</span><span class="p">],)</span>
-
-        <span class="c"># compute average</span>
-        <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="n">time_indices</span><span class="p">:</span>
-            <span class="c"># get time (float), and a tuple containing Pandas dataframes of</span>
-            <span class="c"># length num_blades.</span>
-            <span class="n">time</span><span class="p">,</span> <span class="n">elem_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blade_data_at_time_index</span><span class="p">(</span><span class="n">time_index</span><span class="p">)</span>
-
-            <span class="c"># get the circulation distribution at the final timestep</span>
-            <span class="n">qty</span> <span class="o">=</span> <span class="n">elem_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">qty_name</span><span class="p">]</span>
-            <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span> <span class="o">+</span> <span class="n">qty</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="n">qty_avg</span> <span class="o">=</span> <span class="n">qty_avg</span> <span class="o">/</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">time_indices</span><span class="p">)))</span>
-
-        <span class="c"># return the averaged quantity</span>
-        <span class="k">return</span> <span class="n">qty_avg</span></div>
-
 <div class="viewcode-block" id="CactusRun.rotor_data_at_time_index"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.rotor_data_at_time_index">[docs]</a>    <span class="k">def</span> <span class="nf">rotor_data_at_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Extract a single time instance from the time dataframe.</span>
 
@@ -637,41 +548,9 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="n">time_col_name</span>  <span class="o">=</span> <span class="s">&#39;Normalized Time (-)&#39;</span>
 
         <span class="c"># extract data subset</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">df</span></div>
-
-<div class="viewcode-block" id="CactusRun.df_subset_time_index"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.df_subset_time_index">[docs]</a>    <span class="k">def</span> <span class="nf">df_subset_time_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Extract a subset dataframe of a given dataframe by time index.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">            df : pandas.DataFrame</span>
-<span class="sd">                The dataframe to extract a subset of.</span>
-<span class="sd">            time_index : int</span>
-<span class="sd">                An integer of the time index.</span>
-<span class="sd">            time_col_name : str</span>
-<span class="sd">                The name of the column which contains time data.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">            df : pandas.DataFrame</span>
-<span class="sd">                The dataframe subset and the time corresponding to the given</span>
-<span class="sd">                time_index.</span>
-<span class="sd">            time : float</span>
-<span class="sd">                The time corresponding to the given time index.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># get unique times</span>
-        <span class="n">times</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">time_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-
-        <span class="c"># time at which we wish to extract data</span>
-        <span class="n">time</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">time_index</span><span class="p">]</span>
-
-        <span class="c"># extract the subset of data corresponding to the desired time_index</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">time_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">times</span><span class="p">[</span><span class="n">time_index</span><span class="p">]]</span>
-
-        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">time</span></div></div>
+        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">df</span></div></div>
 </pre></div>
 
            </div>

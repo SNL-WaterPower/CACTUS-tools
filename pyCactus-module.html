@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pyCactus-demo.html"><code class="docutils literal"><span class="pre">pyCactus</span></code> Demo</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Module Documentation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cactusrun">CactusRun</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cactusbladeelem">CactusBladeElem</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cactuswakeelems">CactusWakeElems</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cactusfield">CactusField</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cactusgeom">CactusGeom</a></li>
@@ -164,6 +165,11 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
+/* avoid gaps between output lines */
+div.nboutput div[class^=highlight] pre {
+    line-height: unset;
+}
+
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -185,12 +191,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: navy;
+    color: #303F9F;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: darkred;
+    color: #D84315;
 }
 
 /* all prompts */
@@ -236,27 +242,40 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansiblack { color: black; }
-.ansired { color: darkred; }
-.ansigreen { color: darkgreen; }
-.ansiyellow { color: #c4a000; }
-.ansiblue { color: darkblue; }
-.ansipurple { color: darkviolet; }
-.ansicyan { color: steelblue; }
-/* See https://github.com/jupyter/nbconvert/issues/174 */
-.ansigray { color: gray; }  /* nbconvert CSS */
-.ansigrey { color: gray; }  /* nbconvert HTML output */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
 
-.ansibgblack { background-color: black; }
-.ansibgred { background-color: red; }
-.ansibggreen { background-color: green; }
-.ansibgyellow { background-color: yellow; }
-.ansibgblue { background-color: blue; }
-.ansibgpurple { background-color: magenta; }
-.ansibgcyan { background-color: cyan; }
-.ansibggray { background-color: gray; }
-
-.ansibold { font-weight: bold; }
+.ansi-bold { font-weight: bold; }
 </style>
 <div class="section" id="module-documentation">
 <h1>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h1>
@@ -298,9 +317,9 @@ div.nboutput  > :nth-child(2).stderr {
 </dd></dl>
 
 <dl class="attribute">
-<dt id="CactusRun.elem_data">
-<code class="descname">elem_data</code><a class="headerlink" href="#CactusRun.elem_data" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>Pandas DataFrame</em> &#8211; Element data.</p>
+<dt id="CactusRun.bladeelem_data">
+<code class="descname">bladeelem_data</code><a class="headerlink" href="#CactusRun.bladeelem_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>CactusBladeElem class</em> &#8211; Blade element data.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -408,8 +427,64 @@ behavior cannot be guaranteed).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyCactus.CactusRun.blade_data_at_time_index">
-<code class="descname">blade_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_data_at_time_index" title="Permalink to this definition">¶</a></dt>
+<dt id="pyCactus.CactusRun.rotor_data_at_time_index">
+<code class="descname">rotor_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rotor_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rotor_data_at_time_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract a single time instance from the time dataframe.</p>
+<p>Returns the time corresponding to the given time_index, and a dataframe
+containing the appropriate subset of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time_index</strong> (<em>int</em>) &#8211; An integer of the time_index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>time</strong> (<em>float</em>) &#8211; The time corresponding to the given time index</li>
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe containing the time data at that particular
+instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="cactusbladeelem">
+<h2>CactusBladeElem<a class="headerlink" href="#cactusbladeelem" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyCactus.CactusBladeElem">
+<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusBladeElem</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusBladeElem.html#CactusBladeElem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusBladeElem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to manage CACTUS blade element data.</p>
+<dl class="attribute">
+<dt id="CactusBladeElem.data">
+<code class="descname">data</code><a class="headerlink" href="#CactusBladeElem.data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Pandas dataframe</em> &#8211; Raw blade element data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusBladeElem.filename">
+<code class="descname">filename</code><a class="headerlink" href="#CactusBladeElem.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Path to raw blade element data file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCactus.CactusBladeElem.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusBladeElem.html#CactusBladeElem.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusBladeElem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize class, read in data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusBladeElem.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusBladeElem.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCactus.CactusBladeElem.data_at_time_index">
+<code class="descname">data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusBladeElem.html#CactusBladeElem.data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusBladeElem.data_at_time_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get blade data a specified time.</p>
 <p>Extract a subset dataframe of the &#8220;Element Data&#8221; dataframe by time
 index. Returns the time corresponding to the given time_index, and a
@@ -431,21 +506,21 @@ list of dataframes containing the data, with one dataframe per blade.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyCactus.CactusRun.blade_qty_avg">
-<code class="descname">blade_qty_avg</code><span class="sig-paren">(</span><em>qty_name</em>, <em>timesteps_from_end</em>, <em>blade_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.blade_qty_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.blade_qty_avg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute atime-averaged a blade quantity distribution.</p>
+<dt id="pyCactus.CactusBladeElem.data_time_average">
+<code class="descname">data_time_average</code><span class="sig-paren">(</span><em>qty_name</em>, <em>timesteps</em>, <em>blade_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusBladeElem.html#CactusBladeElem.data_time_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusBladeElem.data_time_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a time-averaged a blade quantity distribution.</p>
 <p>Compute a time-averaged blade quantity distribution over a number of
-timesteps from the end. This may be used to, for example, compute the
-revolution-averaged blade quantities, such as circulation distribution,
-angle of attack, and local blade relative velocity.</p>
+timesteps. This may be used to, for example, compute the revolution-
+averaged blade quantities, such as circulation distribution, angle
+of attack, and local blade relative velocity.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>qty_name</strong> (<em>str</em>) &#8211; The column name for the desired blade quantity</li>
-<li><strong>timesteps_from_end</strong> (<em>int</em>) &#8211; Number of timesteps from the end</li>
-<li><strong>blade_num</strong> (<em>int</em>) &#8211; Index of the blade number</li>
+<li><strong>qty_name</strong> (<em>str</em>) &#8211; The column name for the desired blade quantity.</li>
+<li><strong>timesteps</strong> (<em>list</em>) &#8211; List of timesteps (integer).</li>
+<li><strong>blade_num</strong> (<em>int</em>) &#8211; Index of the blade number, indexed from 0).</li>
 </ul>
 </td>
 </tr>
@@ -453,56 +528,6 @@ angle of attack, and local blade relative velocity.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.df_subset_time_index">
-<code class="descname">df_subset_time_index</code><span class="sig-paren">(</span><em>df</em>, <em>time_index</em>, <em>time_col_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.df_subset_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.df_subset_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract a subset dataframe of a given dataframe by time index.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe to extract a subset of.</li>
-<li><strong>time_index</strong> (<em>int</em>) &#8211; An integer of the time index.</li>
-<li><strong>time_col_name</strong> (<em>str</em>) &#8211; The name of the column which contains time data.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe subset and the time corresponding to the given
-time_index.</li>
-<li><strong>time</strong> (<em>float</em>) &#8211; The time corresponding to the given time index.</li>
-</ul>
-</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyCactus.CactusRun.rotor_data_at_time_index">
-<code class="descname">rotor_data_at_time_index</code><span class="sig-paren">(</span><em>time_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rotor_data_at_time_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rotor_data_at_time_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract a single time instance from the time dataframe.</p>
-<p>Returns the time corresponding to the given time_index, and a dataframe
-containing the appropriate subset of data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time_index</strong> (<em>int</em>) &#8211; An integer of the time_index</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><strong>time</strong> (<em>float</em>) &#8211; The time corresponding to the given time index</li>
-<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The dataframe containing the time data at that particular
-instance.</li>
-</ul>
 </td>
 </tr>
 </tbody>
