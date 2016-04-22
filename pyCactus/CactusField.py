@@ -47,9 +47,11 @@ class CactusField():
         # (note that this isn't necessarily the FIRST timestep, just the first
         # file from glob)
         if read_grid_dims:
-            tic = pytime.time()
-            self.grid_dims = self.read_grid_dims(self.filenames[:-1])
-            print 'Read grid dimensions in %2.2f s' % (pytime.time() - tic)
+            for filename in self.filenames:
+                tic = pytime.time()
+                self.grid_dims = self.read_grid_dims(filename)
+                print 'Read grid dimensions in %2.2f s' % (pytime.time() - tic)
+                break
 
     def read_file_headers(self):
         """Read the file headers, store times to instance variable.
