@@ -55,3 +55,18 @@ def df_subset_time_index(df, time_index, time_col_name):
     df = df[df[time_col_name] == times[time_index]]
 
     return df, time
+
+def get_file_time(data_filename, time_col_name):
+    """Return the time of an instantaneous data set.
+
+    Reads the first two rows of a data file in order to get the time.
+    Expects that the normalized time is in the first data column.
+    """
+    with open(data_filename) as f:
+        header = f.readline()
+        row1   = f.readline()
+
+        time_col_num = header.split(',').index(time_col_name)
+        time = float(row1.split(',')[time_col_num])
+
+    return time
