@@ -15,7 +15,7 @@ from CactusInput import CactusInput
 
 import warnings
 
-from recursive_glob import recursive_glob
+from common_utils import load_data, df_subset_time_index, recursive_glob
 
 
 class CactusRun():
@@ -153,7 +153,7 @@ class CactusRun():
             run_directory, param_fname_pattern)
         if self.param_fname:
             tic = pytime.time()
-            self.param_data  = self.__load_data(self.param_fname)
+            self.param_data  = load_data(self.param_fname)
             print 'Read parameter data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Parameter data file not loaded.")
@@ -163,7 +163,7 @@ class CactusRun():
             run_directory, rev_fname_pattern)
         if self.rev_fname:
             tic = pytime.time()
-            self.rev_data  = self.__load_data(self.rev_fname)
+            self.rev_data  = load_data(self.rev_fname)
             print 'Read revolution-averaged data in %2.2f s' %\
                 (pytime.time() - tic)
 
@@ -175,7 +175,7 @@ class CactusRun():
             run_directory, elem_fname_pattern)
         if self.elem_fname:
             tic = pytime.time()
-            self.elem_data  = self.__load_data(self.elem_fname)
+            self.elem_data  = load_data(self.elem_fname)
             print 'Read blade element data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Blade element data file not loaded.")
@@ -185,7 +185,7 @@ class CactusRun():
             run_directory, time_fname_pattern)
         if self.time_fname:
             tic = pytime.time()
-            self.time_data  = self.__load_data(self.time_fname)
+            self.time_data  = load_data(self.time_fname)
             print 'Read time data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Time data file not loaded.")
@@ -234,15 +234,6 @@ the work directory matching %s.' %\
     #####################################
     #         Private Functions         #
     #####################################
-    def __load_data(self, data_filename):
-        # read a CSV file using pandas and returns a pandas dataframe
-        reader = pd.read_csv(data_filename, iterator=True, chunksize=1000)
-        df = pd.concat(reader, ignore_index=True)
-
-        # strip whitespace from colnames
-        df.rename(columns=lambda x: x.strip(), inplace=True)
-        return df
-
     def __find_single_file(self, directory, pattern):
         # Look for a glob pattern in a specified directory and return the
         # first file, throwing a warning if multiple files are found.
@@ -296,7 +287,7 @@ the work directory matching %s.' %\
         df = self.elem_data
 
         # extract data subset
-        df, time = self.df_subset_time_index(df, time_index, time_col_name)
+        df, time = df_subset_time_index(df, time_index, time_col_name)
 
         # get number of blades
         num_blades = self.geom.globalvars['NBlade'][0]
@@ -390,38 +381,6 @@ the work directory matching %s.' %\
         time_col_name  = 'Normalized Time (-)'
 
         # extract data subset
-        df, time = self.df_subset_time_index(df, time_index, time_col_name)
+        df, time = df_subset_time_index(df, time_index, time_col_name)
 
         return time, df
-
-    def df_subset_time_index(self, df, time_index, time_col_name):
-        """Extract a subset dataframe of a given dataframe by time index.
-
-        Parameters
-        ----------
-            df : pandas.DataFrame
-                The dataframe to extract a subset of.
-            time_index : int
-                An integer of the time index.
-            time_col_name : str
-                The name of the column which contains time data.
-
-        Returns
-        -------
-            df : pandas.DataFrame
-                The dataframe subset and the time corresponding to the given
-                time_index.
-            time : float
-                The time corresponding to the given time index.
-
-        """
-        # get unique times
-        times = df.loc[:, time_col_name].unique()
-
-        # time at which we wish to extract data
-        time = times[time_index]
-
-        # extract the subset of data corresponding to the desired time_index
-        df = df[df[time_col_name] == times[time_index]]
-
-        return df, time
