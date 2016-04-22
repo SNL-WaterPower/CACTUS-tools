@@ -12,6 +12,7 @@ from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
 from CactusProbes import CactusProbes
 from CactusInput import CactusInput
+from CactusBladeElem import CactusBladeElem
 
 import warnings
 
@@ -33,8 +34,8 @@ class CactusRun():
         Revolution-averaged data.
     time_data : Pandas DataFrame
         Time data.
-    elem_data : Pandas DataFrame
-        Element data.
+    bladeelem_data : CactusBladeElem class
+        Blade element data.
     wakeelems : CactusWakeElems class
         Wake element data class.
     field : CactusField class
@@ -121,7 +122,7 @@ class CactusRun():
                                                       case_name + '.geom')
 
         # assemble filename patterns
-        elem_fname_pattern      = case_name + '_ElementData.csv'
+        bladeelem_fname_pattern = case_name + '_ElementData.csv'
         param_fname_pattern     = case_name + '_Param.csv'
         rev_fname_pattern       = case_name + '_RevData.csv'
         time_fname_pattern      = case_name + '_TimeData.csv'
@@ -171,11 +172,11 @@ class CactusRun():
             warnings.warn("Revolution-averaged data file not loaded.")
 
         # load blade element data
-        self.elem_fname = self.__find_single_file(
-            run_directory, elem_fname_pattern)
-        if self.elem_fname:
+        self.bladeelem_fname = self.__find_single_file(
+            run_directory, bladeelem_fname_pattern)
+        if self.bladeelem_fname:
             tic = pytime.time()
-            self.elem_data  = load_data(self.elem_fname)
+            self.bladeelem_data  = CactusBladeElem(self.bladeelem_fname)
             print 'Read blade element data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Blade element data file not loaded.")
@@ -258,102 +259,6 @@ the work directory matching %s.' %\
     ####################################
     #         Public Functions         #
     ####################################
-    def blade_data_at_time_index(self, time_index):
-        """Get blade data a specified time.
-
-        Extract a subset dataframe of the "Element Data" dataframe by time
-        index. Returns the time corresponding to the given time_index, and a
-        list of dataframes containing the data, with one dataframe per blade.
-
-        Parameters
-        ----------
-            time_index : int
-                The time index.
-
-        Returns
-        -------
-            time : float
-                The non-dimensionalized time.
-            dfs_blade : list
-                A list of dataframes, each holding blade data.
-
-        """
-        # set column names
-        time_col_name  = 'Normalized Time (-)'
-        blade_col_name = 'Blade'
-        elem_col_name  = 'Element'
-
-        # get the data series
-        df = self.elem_data
-
-        # extract data subset
-        df, time = df_subset_time_index(df, time_index, time_col_name)
-
-        # get number of blades
-        num_blades = self.geom.globalvars['NBlade'][0]
-        # num_elems  = [blade['NElem'][0] for blade in self.geom.blades]
-
-        # organize into a list of dataframes by blade
-        dfs_blade = []
-        for blade in range(1, num_blades + 1):
-            # extract dataframe for particular blade
-            df_blade = df[df[blade_col_name] == blade]
-
-            # pop off the elemnts
-            elements = df_blade.pop(elem_col_name)
-
-            # set the elements as the df index
-            df_blade.index = elements
-
-            # append the df to the list of dfs
-            dfs_blade.append(df_blade)
-
-        return time, dfs_blade
-
-    def blade_qty_avg(self, qty_name, timesteps_from_end, blade_num):
-        """Compute atime-averaged a blade quantity distribution.
-
-        Compute a time-averaged blade quantity distribution over a number of
-        timesteps from the end. This may be used to, for example, compute the
-        revolution-averaged blade quantities, such as circulation distribution,
-        angle of attack, and local blade relative velocity.
-
-        Parameters
-        ----------
-            qty_name : str
-                The column name for the desired blade quantity
-            timesteps_from_end : int
-                Number of timesteps from the end
-            blade_num : int
-                Index of the blade number
-
-        Returns
-        -------
-            qty_avg : numpy.array
-                The array of averaged blade data.
-
-        """
-        # set up time indices over which we would like average
-        time_indices = range(-1, -timesteps_from_end, -1)
-
-        # initialize empty array to store circulation at final timestep
-        qty_avg = np.zeros(self.geom.blades[blade_num]['NElem'],)
-
-        # compute average
-        for time_index in time_indices:
-            # get time (float), and a tuple containing Pandas dataframes of
-            # length num_blades.
-            time, elem_data = self.blade_data_at_time_index(time_index)
-
-            # get the circulation distribution at the final timestep
-            qty = elem_data[0][qty_name]
-            qty_avg = qty_avg + qty.values
-
-        qty_avg = qty_avg / ((len(time_indices)))
-
-        # return the averaged quantity
-        return qty_avg
-
     def rotor_data_at_time_index(self, time_index):
         """Extract a single time instance from the time dataframe.
 
