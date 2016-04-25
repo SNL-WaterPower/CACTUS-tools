@@ -1,15 +1,5 @@
 #!/usr/bin/env python
-"""Copy a CACTUS case directory without output data.
-
-Copy all files except those matching:
-    '*.csv',
-    '*.pvd',
-    '*.vts',
-    '*.vtu',
-    '*.out',
-    '*.tp',
-    'output'
-"""
+"""Copy a CACTUS case directory without output data."""
 
 import os
 import sys
@@ -17,27 +7,46 @@ import shutil
 import fnmatch
 import argparse
 
-def ignore_list(path, files):
-    # specify file extensions to ignore
-    ignore_patterns = ['*.csv',
-                       '*.pvd',
-                       '*.vts',
-                       '*.vtu',
-                       '*.out',
-                       '*.tp',
-                       'output']
-    
+
+def find_files(directory, pattern='*'):
+    """Find files recursively in a directory matching a glob-style pattern.
+
+    e.g., find_files('.', 'output/element/*.csv')
+    """
+    if not os.path.exists(directory):
+        raise ValueError("Directory not found {}".format(directory))
+
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in filenames:
+            full_path = os.path.join(root, filename)
+            if fnmatch.filter([full_path], pattern):
+                matches.append(os.path.join(root, filename))
+    return matches
+
+
+def clone_case(case_path, output_path, ignore_patterns):
+    """Clone the case, ignoring glob-style patterns."""
+    # find all the ignored files
     ignored_files = []
-    
+    ignored_files_dict = {}
     for ignore_pattern in ignore_patterns:
-        ignored_files = ignored_files + fnmatch.filter(files,ignore_pattern)
+        found_files = find_files(case_path,
+                                 pattern=os.path.join(case_path,
+                                                      ignore_pattern))
+        ignored_files += found_files
+        ignored_files_dict[ignore_pattern] = len(found_files)
 
-    return ignored_files
+    def __ignore_this(path, files):
+        matches = []
+        for file in files:
+            if os.path.join(path, file) in ignored_files:
+                matches = matches + [file]
+        return matches
 
-
-def clone_case_inputfiles(case_path,output_path):
-    # copy the files (using the ignore list function above)
-    shutil.copytree(case_path, output_path, ignore=ignore_list)
+    # copy all files except those matching the pattern
+    shutil.copytree(case_path, output_path,
+                    ignore=__ignore_this)
 
     # remove empty directories (topdown)
     # http://stackoverflow.com/questions/18165343/python-empty-dirs-subdirs-after-a-shutil-copytree-function
@@ -48,6 +57,13 @@ def clone_case_inputfiles(case_path,output_path):
                 os.rmdir(pth)
             except OSError:
                 pass
+
+    print 'Copied%s to %s' % (case_path, output_path)
+
+    if len(ignored_files) > 0:
+        print 'Files ignored:'
+        for ignore_pattern, num_found_files in ignored_files_dict.iteritems():
+            print ignore_pattern + '\t' + str(num_found_files)
 
 
 def query_yes_no(question, default="yes"):
@@ -84,12 +100,16 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
+
 def main():
+    """Main."""
     # parse command line arguments
     parser = argparse.ArgumentParser(description="""
 Copy a CACTUS case directory without output data.
 
-Copy all files except those matching:
+By default, no output data is copied (file matching the following patterns are
+ignored).
+
     '*.csv',
     '*.pvd',
     '*.vts',
@@ -97,7 +117,8 @@ Copy all files except those matching:
     '*.out',
     '*.tp',
     'output'
-""",formatter_class=argparse.RawDescriptionHelpFormatter)
+
+Flags may be used to copy output data (see help).""", formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("case_path",
                         help="path to original case.",
@@ -106,16 +127,41 @@ Copy all files except those matching:
                         help="path to copied case directory.",
                         type=str)
     parser.add_argument("--clean",
-                        help="delete existing directory if it exists -- danger!",
+                        help="delete existing directory if it exists!",
                         action="store_true",
                         default=False)
-    
+    parser.add_argument("--copy-output",
+                        help="copy output data.",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("--no-field",
+                        help="ignore field data (only used if --copy-output).",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("--no-wakeelem",
+                        help="ignore wake element data (only used if --copy-output).",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("--no-wall",
+                        help="ignore field data (only used if --copy-output).",
+                        action="store_true",
+                        default=False)
+
     args = parser.parse_args()
 
     # read in command-line arguments
-    case_path   = args.case_path
-    output_path = args.output_path
+    case_path   = os.path.abspath(args.case_path)
+    output_path = os.path.abspath(args.output_path)
+    copy_output = args.copy_output
+    no_field  = args.no_field
+    no_wakelem = args.no_wakeelem
+    no_wall = args.no_wall
     clean = args.clean
+
+    # define patterns
+    field_data_pattern = ['output/field/*']
+    wakeelem_data_pattern = ['output/element/*']
+    wall_data_pattern = ['output/wall*/']
 
     # make directories
     if os.path.exists(output_path):
@@ -129,8 +175,29 @@ Copy all files except those matching:
         else:
             raise RuntimeError('The path %s already exists!' % (output_path))
 
+    # set the ignore patterns
+    if not copy_output:
+        ignore_patterns = ['*.csv',  # csv files
+                           '*.vtu',  # vtk unstructured
+                           '*.vts',  # vtk structured
+                           '*.pvd',  # vtk collection
+                           '*.tp',   # tecplot file
+                           '*.out',  # slurm output
+                           'output/*']  # anything in the 'output' dir
+
+    elif copy_output:
+        ignore_patterns = []
+        if no_field:
+            ignore_patterns += field_data_pattern
+
+        if no_wakelem:
+            ignore_patterns += wakeelem_data_pattern
+
+        if no_wall:
+            ignore_patterns += wall_data_pattern
+
     # call the copy function
-    clone_case_inputfiles(case_path,output_path)
+    clone_case(case_path, output_path, ignore_patterns)
 
 if __name__ == "__main__":
     main()
