@@ -1,6 +1,6 @@
 import numpy as np
 
-class CactusGeom():
+class CactusGeom(object):
     """Class for parsing CACTUS geometry data.
 
     Attributes

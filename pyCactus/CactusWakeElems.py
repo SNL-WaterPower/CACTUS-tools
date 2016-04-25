@@ -9,10 +9,8 @@ from warnings import *
 
 from common_utils import load_data, get_file_time
 
-#####################################
-######### Wake Element Data #########
-#####################################
-class CactusWakeElems():
+
+class CactusWakeElems(object):
     """Class for manipulating wake element data from CACTUS.
 
     Attributes

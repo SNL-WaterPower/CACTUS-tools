@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time as pytime
 
-class CactusProbes():
+class CactusProbes(object):
     """Probes class for CACTUS probe data.
 
     Attributes

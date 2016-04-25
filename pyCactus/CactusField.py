@@ -9,7 +9,7 @@ from warnings import *
 
 from common_utils import load_data, get_file_time
 
-class CactusField():
+class CactusField(object):
     """Class for reading WakeData (element) from CSV files.
 
     Grid node locations X,Y,Z are assumed to be the same for all timesteps.

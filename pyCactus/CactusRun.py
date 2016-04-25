@@ -19,7 +19,7 @@ import warnings
 from common_utils import load_data, df_subset_time_index, recursive_glob
 
 
-class CactusRun():
+class CactusRun(object):
     """Class for interrogating a CACTUS input deck.
 
     Attributes
