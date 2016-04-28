@@ -1,18 +1,35 @@
-def recursive_glob(rootdir='.', pattern='*'):
-    """ A function to search recursively for files matching a specified pattern.
-        Adapted from http://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python """
+"""Common utilities for pyCactus."""
 
+
+def recursive_glob(rootdir='.', pattern='*'):
+    """Search recursively for files matching a specified patterns.
+
+    Arguments
+    ---------
+    rootdir : str, optional
+        Path to directory to search (default is '.')
+    pattern : str, optional
+        Glob-style pattern (default is '*')
+
+    Returns
+    -------
+    matches : list
+        List of matching files.
+    """
+    # Adapted from http://stackoverflow.com/questions/2186525/
     import os
     import fnmatch
-    
+
     matches = []
     for root, dirnames, filenames in os.walk(rootdir):
-      for filename in fnmatch.filter(filenames, pattern):
-          matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, pattern):
+            matches.append(os.path.join(root, filename))
 
     return matches
 
+
 def load_data(data_filename):
+    """Read data from a CSV file and return as Pandas dataframe."""
     import pandas as pd
 
     # read a CSV file using pandas and returns a pandas dataframe
@@ -29,22 +46,21 @@ def df_subset_time_index(df, time_index, time_col_name):
 
     Parameters
     ----------
-        df : pandas.DataFrame
-            The dataframe to extract a subset of.
-        time_index : int
-            An integer of the time index.
-        time_col_name : str
-            The name of the column which contains time data.
+    df : pandas.DataFrame
+        The dataframe to extract a subset of.
+    time_index : int
+        An integer of the time index.
+    time_col_name : str
+        The name of the column which contains time data.
 
     Returns
     -------
-        df : pandas.DataFrame
-            The dataframe subset and the time corresponding to the given
-            time_index.
-        time : float
-            The time corresponding to the given time index.
+    df : pandas.DataFrame
+        The dataframe subset and the time corresponding to the given
+        time_index.
+    time : float
+        The time corresponding to the given time index.
     """
-
     # get unique times
     times = df.loc[:, time_col_name].unique()
 
@@ -56,11 +72,24 @@ def df_subset_time_index(df, time_index, time_col_name):
 
     return df, time
 
+
 def get_file_time(data_filename, time_col_name):
     """Return the time of an instantaneous data set.
 
-    Reads the first two rows of a data file in order to get the time.
+    Read the first two rows of a data file in order to get the time.
     Expects that the normalized time is in the first data column.
+
+    Arguments
+    ---------
+    data_filename : str
+        Path to data file.
+    time_col_name : str
+        Name of column which contains time data.
+
+    Returns
+    -------
+    time : float
+        Value of time in first data row.
     """
     with open(data_filename) as f:
         header = f.readline()
