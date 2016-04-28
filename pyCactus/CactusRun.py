@@ -3,6 +3,7 @@
 
 import os
 import time as pytime
+import math
 
 from CactusGeom import CactusGeom
 from CactusWakeElems import CactusWakeElems
@@ -39,6 +40,12 @@ class CactusRun(object):
         Field data class.
     probes : CactusProbes class.
         Probe class.
+    nti : int
+        Number of timesteps per iteration.
+    tsr : float
+        Tip speed ratio (non-dimensional).
+    dt : float
+        Normalized timestep length (non-dimensional).
     input_fname : str
         Input data filename.
     geom_fname : str
@@ -299,3 +306,43 @@ the work directory matching %s.' % \
         df, time = df_subset_time_index(df, time_index, time_col_name)
 
         return time, df
+
+    def rev_to_time(self, rev):
+        """Compute the normalized time from a revolution."""
+        timestep_number = rev * self.nti
+        return timestep_number * self.dt
+
+    def time_to_rev(self, time):
+        """Compute the fractional revolution from a normalized time."""
+        return time * self.nti / self.dt
+
+    def rev_to_timestep(self, rev):
+        """Compute the normalized time from a fractional revolution."""
+        tol = 1e-5
+        timestep = rev * self.nti
+        if (timestep % 1) > tol:
+            warnings.warn("The computed timestep is not within %e of an \
+integer, but it was rounded to an integer value." % tol)
+        return int(timestep)
+
+    @property
+    def nti(self):
+        """Simulation nti parameter (timesteps per iteration).
+
+        Extracted from the input namelist file."""
+        return self.input.namelist['configinputs']['nti']
+
+    @property
+    def tsr(self):
+        """Simulation tsr parameter (tip speed ratio)."""
+        return self.param_data['TSR (-)'].values[0]
+
+    @property
+    def dt(self):
+        """The simulation timestep (non-dimensional)."""
+        return 2 * math.pi / (self.tsr * self.nti)
+
+    @property
+    def period(self):
+        """The simulation time for one revolution period (non-dimensional)."""
+        return self.dt * self.nti
