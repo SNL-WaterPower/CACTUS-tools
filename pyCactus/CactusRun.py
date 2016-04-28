@@ -4,9 +4,6 @@
 import os
 import time as pytime
 
-import numpy as np
-import pandas as pd
-
 from CactusGeom import CactusGeom
 from CactusWakeElems import CactusWakeElems
 from CactusField import CactusField
@@ -70,7 +67,8 @@ class CactusRun(object):
                  load_probe_output=True,
                  wakeelem_fnames_pattern='*WakeElemData_*.csv',
                  field_fnames_pattern='*FieldData_*.csv',
-                 probe_fnames_pattern='probe_*.csv*'):
+                 probe_fnames_pattern='probe_*.csv*',
+                 quiet=False):
         """Initialize the class, reading some data to memory.
 
         This method relies on recursive searches within the specified run
@@ -102,6 +100,8 @@ class CactusRun(object):
             `*FieldData_*.csv`)
         probe_fnames_pattern : Optional[str]
             Glob pattern for probe filenames (default is `probe_*.csv`)
+        quiet : Optional[bool]
+            Set True to hide print statements (default is False).
         """
         # if an input file is specified, use that
         if input_fname:
@@ -136,7 +136,8 @@ class CactusRun(object):
         if self.input_fname:
             tic = pytime.time()
             self.input = CactusInput(self.input_fname)
-            print 'Read input namelist in %2.2f s' % (pytime.time() - tic)
+            if not quiet:
+                print 'Read input namelist in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Input file not loaded.")
 
@@ -145,7 +146,8 @@ class CactusRun(object):
             tic = pytime.time()
             # load the geometry data
             self.geom = CactusGeom(self.geom_fname)
-            print 'Read geometry file in %2.2f s' % (pytime.time() - tic)
+            if not quiet:
+                print 'Read geometry file in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Geometry file not loaded.")
 
@@ -155,7 +157,8 @@ class CactusRun(object):
         if self.param_fname:
             tic = pytime.time()
             self.param_data  = load_data(self.param_fname)
-            print 'Read parameter data in %2.2f s' % (pytime.time() - tic)
+            if not quiet:
+                print 'Read parameter data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Parameter data file not loaded.")
 
@@ -165,8 +168,9 @@ class CactusRun(object):
         if self.rev_fname:
             tic = pytime.time()
             self.rev_data  = load_data(self.rev_fname)
-            print 'Read revolution-averaged data in %2.2f s' %\
-                (pytime.time() - tic)
+            if not quiet:
+                print 'Read revolution-averaged data in %2.2f s' %\
+                    (pytime.time() - tic)
 
         else:
             warnings.warn("Revolution-averaged data file not loaded.")
@@ -177,7 +181,9 @@ class CactusRun(object):
         if self.bladeelem_fname:
             tic = pytime.time()
             self.bladeelem_data  = CactusBladeElem(self.bladeelem_fname)
-            print 'Read blade element data in %2.2f s' % (pytime.time() - tic)
+            if not quiet:
+                print 'Read blade element data in %2.2f s' % (pytime.time() -
+                                                              tic)
         else:
             warnings.warn("Blade element data file not loaded.")
 
@@ -187,7 +193,8 @@ class CactusRun(object):
         if self.time_fname:
             tic = pytime.time()
             self.time_data  = load_data(self.time_fname)
-            print 'Read time data in %2.2f s' % (pytime.time() - tic)
+            if not quiet:
+                print 'Read time data in %2.2f s' % (pytime.time() - tic)
         else:
             warnings.warn("Time data file not loaded.")
 
@@ -204,9 +211,10 @@ class CactusRun(object):
             if self.wake_filenames:
                 self.wakeelems = CactusWakeElems(self.wake_filenames)
             else:
-                print 'Warning: Could not find any wake element data files in \
-the work directory matching %s.' %\
-                    (wakeelem_fnames_pattern)
+                if not quiet:
+                    print 'Warning: Could not find any wake element data files \
+in the work directory matching %s.' % \
+                          (wakeelem_fnames_pattern)
 
         if load_field_output:
             self.field_filenames = sorted(recursive_glob(run_directory,
@@ -214,9 +222,10 @@ the work directory matching %s.' %\
             if self.field_filenames:
                 self.field = CactusField(self.field_filenames)
             else:
-                print 'Warning: Could not find any field data files in \
-the work directory matching %s.' %\
-                    (field_fnames_pattern)
+                if not quiet:
+                    print 'Warning: Could not find any field data files in \
+the work directory matching %s.' % \
+                          (field_fnames_pattern)
 
         if load_probe_output:
             self.probe_filenames = sorted(recursive_glob(run_directory,
@@ -224,13 +233,14 @@ the work directory matching %s.' %\
             if self.probe_filenames:
                 self.probes = CactusProbes(self.probe_filenames)
             else:
-                print 'Warning: Could not find any probe data files in \
-the work directory matching %s.' %\
-                    (probe_fnames_pattern)
+                if not quiet:
+                    print 'Warning: Could not find any probe data files in \
+the work directory matching %s.' % \
+                          (probe_fnames_pattern)
 
-        print ''
-        print 'Success: Loaded case `%s` from path `%s`\n' % (case_name,
-                                                              run_directory)
+        if not quiet:
+            print 'Loaded case `%s` from path `%s`\n' % (case_name,
+                                                         run_directory)
 
     #####################################
     #         Private Functions         #
