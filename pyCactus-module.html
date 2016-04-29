@@ -165,11 +165,6 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
-/* avoid gaps between output lines */
-div.nboutput div[class^=highlight] pre {
-    line-height: unset;
-}
-
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -191,12 +186,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: #303F9F;
+    color: navy;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: #D84315;
+    color: darkred;
 }
 
 /* all prompts */
@@ -242,40 +237,27 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
 
-.ansi-bold { font-weight: bold; }
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
 </style>
 <div class="section" id="module-documentation">
 <h1>Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h1>
@@ -284,7 +266,7 @@ div.nboutput  > :nth-child(2).stderr {
 <h2>CactusRun<a class="headerlink" href="#cactusrun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyCactus.CactusRun">
-<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyCactus.</code><code class="descname">CactusRun</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em>, <em>quiet=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for interrogating a CACTUS input deck.</p>
 <dl class="attribute">
 <dt id="CactusRun.input">
@@ -338,6 +320,24 @@ div.nboutput  > :nth-child(2).stderr {
 <dt id="CactusRun.probes">
 <code class="descname">probes</code><a class="headerlink" href="#CactusRun.probes" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>CactusProbes class.</em> &#8211; Probe class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.nti">
+<code class="descname">nti</code><a class="headerlink" href="#CactusRun.nti" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Number of timesteps per iteration.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.tsr">
+<code class="descname">tsr</code><a class="headerlink" href="#CactusRun.tsr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; Tip speed ratio (non-dimensional).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CactusRun.dt">
+<code class="descname">dt</code><a class="headerlink" href="#CactusRun.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; Normalized timestep length (non-dimensional).</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -396,7 +396,7 @@ div.nboutput  > :nth-child(2).stderr {
 
 <dl class="method">
 <dt id="pyCactus.CactusRun.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>run_directory</em>, <em>case_name</em>, <em>input_fname=''</em>, <em>geom_fname=''</em>, <em>load_field_output=True</em>, <em>load_wakeelem_output=True</em>, <em>load_probe_output=True</em>, <em>wakeelem_fnames_pattern='*WakeElemData_*.csv'</em>, <em>field_fnames_pattern='*FieldData_*.csv'</em>, <em>probe_fnames_pattern='probe_*.csv*'</em>, <em>quiet=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the class, reading some data to memory.</p>
 <p>This method relies on recursive searches within the specified run
 directory to find the appropriate CACTUS output files. Therefore, each
@@ -419,11 +419,49 @@ behavior cannot be guaranteed).</p>
 <li><strong>field_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for field data filenames (default is
 <cite>*FieldData_*.csv</cite>)</li>
 <li><strong>probe_fnames_pattern</strong> (<em>Optional[str]</em>) &#8211; Glob pattern for probe filenames (default is <cite>probe_*.csv</cite>)</li>
+<li><strong>quiet</strong> (<em>Optional[bool]</em>) &#8211; Set True to hide print statements (default is False).</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusRun.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusRun.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusRun.dt">
+<code class="descname">dt</code><a class="headerlink" href="#pyCactus.CactusRun.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The simulation timestep (non-dimensional).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusRun.nti">
+<code class="descname">nti</code><a class="headerlink" href="#pyCactus.CactusRun.nti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation nti parameter (timesteps per iteration).</p>
+<p>Extracted from the input namelist file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusRun.period">
+<code class="descname">period</code><a class="headerlink" href="#pyCactus.CactusRun.period" title="Permalink to this definition">¶</a></dt>
+<dd><p>The simulation time for one revolution period (non-dimensional).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCactus.CactusRun.rev_to_time">
+<code class="descname">rev_to_time</code><span class="sig-paren">(</span><em>rev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rev_to_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rev_to_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the normalized time from a revolution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCactus.CactusRun.rev_to_timestep">
+<code class="descname">rev_to_timestep</code><span class="sig-paren">(</span><em>rev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.rev_to_timestep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.rev_to_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the normalized time from a fractional revolution.</p>
 </dd></dl>
 
 <dl class="method">
@@ -447,6 +485,18 @@ instance.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyCactus.CactusRun.time_to_rev">
+<code class="descname">time_to_rev</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusRun.html#CactusRun.time_to_rev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusRun.time_to_rev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the fractional revolution from a normalized time.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusRun.tsr">
+<code class="descname">tsr</code><a class="headerlink" href="#pyCactus.CactusRun.tsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation tsr parameter (tip speed ratio).</p>
 </dd></dl>
 
 </dd></dl>
@@ -571,6 +621,12 @@ of attack, and local blade relative velocity.</p>
 <dt id="pyCactus.CactusWakeElems.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>filenames</em>, <em>read_headers=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusWakeElems.html#CactusWakeElems.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusWakeElems.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusWakeElems.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusWakeElems.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="method">
@@ -718,6 +774,12 @@ will be written to the VTK file regardless of id_flag.</li>
 <dt id="pyCactus.CactusField.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>filenames</em>, <em>read_headers=True</em>, <em>read_grid_dims=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusField.html#CactusField.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusField.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusField.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusField.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="method">
@@ -933,6 +995,12 @@ normalized times of each timestep.</p>
 <dd><p>Initializes the class, reads in geometry data to class attributes.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pyCactus.CactusGeom.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusGeom.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pyCactus.CactusGeom.distance_to_rotation_axis">
 <code class="descname">distance_to_rotation_axis</code><span class="sig-paren">(</span><em>p</em>, <em>n</em>, <em>a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusGeom.html#CactusGeom.distance_to_rotation_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusGeom.distance_to_rotation_axis" title="Permalink to this definition">¶</a></dt>
@@ -1005,6 +1073,12 @@ normalized times of each timestep.</p>
 <dt id="pyCactus.CactusProbes.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>filenames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCactus/CactusProbes.html#CactusProbes.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyCactus.CactusProbes.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes Probes class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyCactus.CactusProbes.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#pyCactus.CactusProbes.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="method">

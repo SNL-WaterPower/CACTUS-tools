@@ -147,11 +147,6 @@ div.nboutput div[class^=highlight] pre {
     box-shadow: none;
 }
 
-/* avoid gaps between output lines */
-div.nboutput div[class^=highlight] pre {
-    line-height: unset;
-}
-
 /* input/output containers */
 div.nbinput,
 div.nboutput {
@@ -173,12 +168,12 @@ div.nblast {
 
 /* input prompt */
 div.nbinput > :first-child pre {
-    color: #303F9F;
+    color: navy;
 }
 
 /* output prompt */
 div.nboutput > :first-child pre {
-    color: #D84315;
+    color: darkred;
 }
 
 /* all prompts */
@@ -224,40 +219,27 @@ div.nboutput  > :nth-child(2).stderr {
 }
 
 /* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
+.ansiblack { color: black; }
+.ansired { color: darkred; }
+.ansigreen { color: darkgreen; }
+.ansiyellow { color: #c4a000; }
+.ansiblue { color: darkblue; }
+.ansipurple { color: darkviolet; }
+.ansicyan { color: steelblue; }
+/* See https://github.com/jupyter/nbconvert/issues/174 */
+.ansigray { color: gray; }  /* nbconvert CSS */
+.ansigrey { color: gray; }  /* nbconvert HTML output */
 
-.ansi-bold { font-weight: bold; }
+.ansibgblack { background-color: black; }
+.ansibgred { background-color: red; }
+.ansibggreen { background-color: green; }
+.ansibgyellow { background-color: yellow; }
+.ansibgblue { background-color: blue; }
+.ansibgpurple { background-color: magenta; }
+.ansibgcyan { background-color: cyan; }
+.ansibggray { background-color: gray; }
+
+.ansibold { font-weight: bold; }
 </style>
 <h1>Source code for pyCactus.CactusRun</h1><div class="highlight"><pre>
 <span class="c"># CactusRun.py</span>
@@ -265,9 +247,7 @@ div.nboutput  > :nth-child(2).stderr {
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span> <span class="kn">as</span> <span class="nn">pytime</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">from</span> <span class="nn">CactusGeom</span> <span class="kn">import</span> <span class="n">CactusGeom</span>
 <span class="kn">from</span> <span class="nn">CactusWakeElems</span> <span class="kn">import</span> <span class="n">CactusWakeElems</span>
@@ -281,7 +261,7 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="kn">from</span> <span class="nn">common_utils</span> <span class="kn">import</span> <span class="n">load_data</span><span class="p">,</span> <span class="n">df_subset_time_index</span><span class="p">,</span> <span class="n">recursive_glob</span>
 
 
-<div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">():</span>
+<div class="viewcode-block" id="CactusRun"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun">[docs]</a><span class="k">class</span> <span class="nc">CactusRun</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for interrogating a CACTUS input deck.</span>
 
 <span class="sd">    Attributes</span>
@@ -304,6 +284,12 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">        Field data class.</span>
 <span class="sd">    probes : CactusProbes class.</span>
 <span class="sd">        Probe class.</span>
+<span class="sd">    nti : int</span>
+<span class="sd">        Number of timesteps per iteration.</span>
+<span class="sd">    tsr : float</span>
+<span class="sd">        Tip speed ratio (non-dimensional).</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        Normalized timestep length (non-dimensional).</span>
 <span class="sd">    input_fname : str</span>
 <span class="sd">        Input data filename.</span>
 <span class="sd">    geom_fname : str</span>
@@ -332,7 +318,8 @@ div.nboutput  > :nth-child(2).stderr {
                  <span class="n">load_probe_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                  <span class="n">wakeelem_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*WakeElemData_*.csv&#39;</span><span class="p">,</span>
                  <span class="n">field_fnames_pattern</span><span class="o">=</span><span class="s">&#39;*FieldData_*.csv&#39;</span><span class="p">,</span>
-                 <span class="n">probe_fnames_pattern</span><span class="o">=</span><span class="s">&#39;probe_*.csv*&#39;</span><span class="p">):</span>
+                 <span class="n">probe_fnames_pattern</span><span class="o">=</span><span class="s">&#39;probe_*.csv*&#39;</span><span class="p">,</span>
+                 <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the class, reading some data to memory.</span>
 
 <span class="sd">        This method relies on recursive searches within the specified run</span>
@@ -364,6 +351,8 @@ div.nboutput  > :nth-child(2).stderr {
 <span class="sd">            `*FieldData_*.csv`)</span>
 <span class="sd">        probe_fnames_pattern : Optional[str]</span>
 <span class="sd">            Glob pattern for probe filenames (default is `probe_*.csv`)</span>
+<span class="sd">        quiet : Optional[bool]</span>
+<span class="sd">            Set True to hide print statements (default is False).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># if an input file is specified, use that</span>
         <span class="k">if</span> <span class="n">input_fname</span><span class="p">:</span>
@@ -398,7 +387,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">CactusInput</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read input namelist in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read input namelist in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Input file not loaded.&quot;</span><span class="p">)</span>
 
@@ -407,7 +397,8 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="c"># load the geometry data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">geom</span> <span class="o">=</span> <span class="n">CactusGeom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read geometry file in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read geometry file in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Geometry file not loaded.&quot;</span><span class="p">)</span>
 
@@ -417,7 +408,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">param_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read parameter data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read parameter data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter data file not loaded.&quot;</span><span class="p">)</span>
 
@@ -427,8 +419,9 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rev_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read revolution-averaged data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
-                <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read revolution-averaged data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span>\
+                    <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Revolution-averaged data file not loaded.&quot;</span><span class="p">)</span>
@@ -439,7 +432,9 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_data</span>  <span class="o">=</span> <span class="n">CactusBladeElem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bladeelem_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read blade element data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read blade element data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span>
+                                                              <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Blade element data file not loaded.&quot;</span><span class="p">)</span>
 
@@ -449,7 +444,8 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">:</span>
             <span class="n">tic</span> <span class="o">=</span> <span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_data</span>  <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_fname</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&#39;Read time data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&#39;Read time data in </span><span class="si">%2.2f</span><span class="s"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pytime</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Time data file not loaded.&quot;</span><span class="p">)</span>
 
@@ -466,9 +462,10 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">wakeelems</span> <span class="o">=</span> <span class="n">CactusWakeElems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wake_filenames</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake element data files in </span><span class="se">\</span>
-<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;Warning: Could not find any wake element data files </span><span class="se">\</span>
+<span class="s">in the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> \
+                          <span class="p">(</span><span class="n">wakeelem_fnames_pattern</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">load_field_output</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
@@ -476,9 +473,10 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">CactusField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_filenames</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any field data files in </span><span class="se">\</span>
-<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;Warning: Could not find any field data files in </span><span class="se">\</span>
+<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> \
+                          <span class="p">(</span><span class="n">field_fnames_pattern</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">load_probe_output</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">recursive_glob</span><span class="p">(</span><span class="n">run_directory</span><span class="p">,</span>
@@ -486,13 +484,14 @@ div.nboutput  > :nth-child(2).stderr {
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">probes</span> <span class="o">=</span> <span class="n">CactusProbes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">probe_filenames</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&#39;Warning: Could not find any probe data files in </span><span class="se">\</span>
-<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span>\
-                    <span class="p">(</span><span class="n">probe_fnames_pattern</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;Warning: Could not find any probe data files in </span><span class="se">\</span>
+<span class="s">the work directory matching </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> \
+                          <span class="p">(</span><span class="n">probe_fnames_pattern</span><span class="p">)</span>
 
-        <span class="k">print</span> <span class="s">&#39;&#39;</span>
-        <span class="k">print</span> <span class="s">&#39;Success: Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span>
-                                                              <span class="n">run_directory</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Loaded case `</span><span class="si">%s</span><span class="s">` from path `</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">case_name</span><span class="p">,</span>
+                                                         <span class="n">run_directory</span><span class="p">)</span></div>
 
     <span class="c">#####################################</span>
     <span class="c">#         Private Functions         #</span>
@@ -550,7 +549,47 @@ div.nboutput  > :nth-child(2).stderr {
         <span class="c"># extract data subset</span>
         <span class="n">df</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">df_subset_time_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_index</span><span class="p">,</span> <span class="n">time_col_name</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">df</span></div></div>
+        <span class="k">return</span> <span class="n">time</span><span class="p">,</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="CactusRun.rev_to_time"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.rev_to_time">[docs]</a>    <span class="k">def</span> <span class="nf">rev_to_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the normalized time from a revolution.&quot;&quot;&quot;</span>
+        <span class="n">timestep_number</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span>
+        <span class="k">return</span> <span class="n">timestep_number</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span></div>
+
+<div class="viewcode-block" id="CactusRun.time_to_rev"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.time_to_rev">[docs]</a>    <span class="k">def</span> <span class="nf">time_to_rev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the fractional revolution from a normalized time.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span></div>
+
+<div class="viewcode-block" id="CactusRun.rev_to_timestep"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.rev_to_timestep">[docs]</a>    <span class="k">def</span> <span class="nf">rev_to_timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the normalized time from a fractional revolution.&quot;&quot;&quot;</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-5</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">timestep</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;The computed timestep is not within </span><span class="si">%e</span><span class="s"> of an </span><span class="se">\</span>
+<span class="s">integer, but it was rounded to an integer value.&quot;</span> <span class="o">%</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nti</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simulation nti parameter (timesteps per iteration).</span>
+
+<span class="sd">        Extracted from the input namelist file.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">namelist</span><span class="p">[</span><span class="s">&#39;configinputs&#39;</span><span class="p">][</span><span class="s">&#39;nti&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tsr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simulation tsr parameter (tip speed ratio).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_data</span><span class="p">[</span><span class="s">&#39;TSR (-)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The simulation timestep (non-dimensional).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tsr</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">period</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The simulation time for one revolution period (non-dimensional).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span></div>
 </pre></div>
 
            </div>
