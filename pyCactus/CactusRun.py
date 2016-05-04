@@ -314,7 +314,7 @@ the work directory matching %s.' % \
 
     def time_to_rev(self, time):
         """Compute the fractional revolution from a normalized time."""
-        return time * self.nti / self.dt
+        return time / (self.nti * self.dt)
 
     def rev_to_timestep(self, rev):
         """Compute the normalized time from a fractional revolution."""
