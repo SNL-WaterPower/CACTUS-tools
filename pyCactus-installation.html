@@ -255,13 +255,22 @@ div.nboutput  > :nth-child(2).stderr {
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="warning admonition">
 <p class="first admonition-title">Prerequisites</p>
-<p class="last">NumPy, f90nml, PYEVTK</p>
+<ul class="last simple">
+<li><a class="reference external" href="https://pypi.python.org/pypi/numpy">NumPy</a> (tested with version 1.9.2)</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/f90nml">f90nml</a> (tested with version 0.12)</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/PyEVTK">PyEVTK</a> (tested with version 1.0)</li>
+</ul>
 </div>
-<p>pyCactus may be installed by navigating to the <cite>pyCactus</cite> directory and executing.</p>
+<p>pyCactus may be installed by navigating to the <cite>pyCactus</cite> directory and executing:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python setup.py install
 </pre></div>
 </div>
 <p>If setuptools is correctly configured, this will also download and install module dependencies (<cite>PyEVTK</cite>, <cite>f90nml</cite>).</p>
+<p>The <a class="reference internal" href="scripts.html"><span class="doc">Scripts</span></a> will be automatically added to the system path.</p>
+<p>Alternately, to install pyCactus in development mode (to be able to edit and test source files without having to reinstall):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python setup.py develop
+</pre></div>
+</div>
 </div>
 
 
