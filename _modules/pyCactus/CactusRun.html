@@ -558,7 +558,7 @@ div.nboutput  > :nth-child(2).stderr {
 
 <div class="viewcode-block" id="CactusRun.time_to_rev"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.time_to_rev">[docs]</a>    <span class="k">def</span> <span class="nf">time_to_rev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the fractional revolution from a normalized time.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nti</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span></div>
+        <span class="k">return</span> <span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nti</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CactusRun.rev_to_timestep"><a class="viewcode-back" href="../../pyCactus-module.html#pyCactus.CactusRun.rev_to_timestep">[docs]</a>    <span class="k">def</span> <span class="nf">rev_to_timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rev</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the normalized time from a fractional revolution.&quot;&quot;&quot;</span>

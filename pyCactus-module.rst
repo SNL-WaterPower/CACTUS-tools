@@ -32,7 +32,7 @@ CactusGeom
 	:members:
 	:special-members:
 
-Probes
+CactusProbes
 ^^^^^^^^^^^^
 .. autoclass:: pyCactus.CactusProbes
 	:members:
