@@ -2,7 +2,7 @@ CACTUS-tools
 ============
 Tools for pre-processing CACTUS inputs and post-processing CACTUS results.
 
-Documentation: https://whophil.github.io/CACTUS-tools/index.html
+HTML documentation is available on the `doc` branch.
 
 ## pyCactus
 Contributors: Phillip Chiu, pchiu@sandia.gov
