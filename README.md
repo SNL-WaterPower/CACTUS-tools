@@ -1,11 +1,10 @@
 CACTUS-tools
 ============
 Tools for pre-processing CACTUS inputs and post-processing CACTUS results.
-
-HTML documentation is available on the `doc` branch.
+[CACTUC-tools documentation](http://snl-waterpower.github.io/CACTUS-tools/) is available on the `gh-pages` branch. 
 
 ## pyCactus
-Contributors: Phillip Chiu, pchiu@sandia.gov
+Contributors: Phillip Chiu
 
 A Python module containing post-processing classes and scripts.
 
